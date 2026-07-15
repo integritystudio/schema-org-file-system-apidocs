@@ -49,14 +49,14 @@ Supports namespacing, TTL, and JSON values.</p>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="src.storage.kv_store.get_kv_store"><code class="name flex">
-<span>def <span class="ident">get_kv_store</span></span>(<span>db_path: str = 'results/file_organization.db') ‑> <a title="src.storage.kv_store.KeyValueStorage" href="#src.storage.kv_store.KeyValueStorage">KeyValueStorage</a></span>
+<span>def <span class="ident">get_kv_store</span></span>(<span>db_path: pathlib.Path | str = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db')) ‑> <a title="src.storage.kv_store.KeyValueStorage" href="#src.storage.kv_store.KeyValueStorage">KeyValueStorage</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_kv_store(db_path: str = &#39;results/file_organization.db&#39;) -&gt; KeyValueStorage:
+<pre><code class="python">def get_kv_store(db_path: Union[str, Path] = DEFAULT_DB_PATH) -&gt; KeyValueStorage:
     &#34;&#34;&#34;Get a KeyValueStorage instance.&#34;&#34;&#34;
     return KeyValueStorage(db_path)</code></pre>
 </details>
@@ -69,7 +69,7 @@ Supports namespacing, TTL, and JSON values.</p>
 <dl>
 <dt id="src.storage.kv_store.KeyValueStorage"><code class="flex name class">
 <span>class <span class="ident">KeyValueStorage</span></span>
-<span>(</span><span>db_path: str = 'results/file_organization.db')</span>
+<span>(</span><span>db_path: pathlib.Path | str = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'))</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -98,7 +98,7 @@ Supports namespacing, TTL, and JSON values.</p>
     NAMESPACE_SESSION = &#39;session&#39;       # Session-specific data
     NAMESPACE_FEATURE = &#39;feature&#39;       # Feature flags
 
-    def __init__(self, db_path: str = &#39;results/file_organization.db&#39;):
+    def __init__(self, db_path: Union[str, Path] = DEFAULT_DB_PATH):
         &#34;&#34;&#34;
         Initialize key-value storage.
 

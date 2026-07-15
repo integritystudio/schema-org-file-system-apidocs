@@ -144,6 +144,44 @@ el.replaceWith(d);
             generator.set_property(&#34;contentUrl&#34;, file_url, PropertyType.URL)
             generator.set_property(&#34;encodingFormat&#34;, mime_type or &#34;image/png&#34;, PropertyType.TEXT)
             generator.set_property(&#34;description&#34;, description, PropertyType.TEXT)
+            try:
+                from PIL import Image as _PilImage  # noqa: PLC0415
+
+                with _PilImage.open(file_path) as _img:
+                    generator.set_property(&#34;width&#34;, _img.width, PropertyType.INTEGER)
+                    generator.set_property(&#34;height&#34;, _img.height, PropertyType.INTEGER)
+            except Exception:
+                pass
+        elif schema_type == &#34;VideoObject&#34;:
+            generator = VideoGenerator()
+            generator.set_property(&#34;name&#34;, file_path.name, PropertyType.TEXT)
+            generator.set_property(&#34;contentUrl&#34;, file_url, PropertyType.URL)
+            generator.set_property(&#34;encodingFormat&#34;, mime_type or &#34;video/mp4&#34;, PropertyType.TEXT)
+            generator.set_property(&#34;description&#34;, description, PropertyType.TEXT)
+            try:
+                generator.set_property(
+                    &#34;uploadDate&#34;,
+                    datetime.fromtimestamp(stats.st_ctime),
+                    PropertyType.DATETIME,
+                )
+            except Exception:
+                pass
+        elif schema_type in (&#34;AudioObject&#34;, &#34;MusicRecording&#34;):
+            generator = AudioGenerator(schema_type)
+            generator.set_property(&#34;name&#34;, file_path.name, PropertyType.TEXT)
+            generator.set_property(&#34;contentUrl&#34;, file_url, PropertyType.URL)
+            generator.set_property(&#34;encodingFormat&#34;, mime_type or &#34;audio/mpeg&#34;, PropertyType.TEXT)
+            generator.set_property(&#34;description&#34;, description, PropertyType.TEXT)
+        elif schema_type == &#34;SoftwareSourceCode&#34;:
+            generator = CodeGenerator()
+            generator.set_property(&#34;name&#34;, file_path.name, PropertyType.TEXT)
+            generator.set_property(&#34;url&#34;, file_url, PropertyType.URL)
+            generator.set_property(&#34;encodingFormat&#34;, mime_type or &#34;text/plain&#34;, PropertyType.TEXT)
+            generator.set_property(&#34;description&#34;, description, PropertyType.TEXT)
+        elif schema_type == &#34;Dataset&#34;:
+            generator = DatasetGenerator()
+            generator.set_property(&#34;name&#34;, file_path.name, PropertyType.TEXT)
+            generator.set_property(&#34;description&#34;, description, PropertyType.TEXT)
         elif schema_type in [&#34;DigitalDocument&#34;, &#34;Article&#34;, SCHOLARLY_ARTICLE_SCHEMA_TYPE, &#34;Report&#34;]:
             generator = DocumentGenerator(schema_type)
             generator.set_property(&#34;name&#34;, file_path.name, PropertyType.TEXT)
@@ -488,7 +526,7 @@ el.replaceWith(d);
 
                 # Persist to database with canonical IDs
                 if self.graph_store:
-                    organizer._persist_to_graph_store(
+                    self._persist_to_graph_store(
                         file_path=file_path,
                         dest_path=dest_path,
                         category=category,
@@ -667,6 +705,44 @@ classification. May also be attached later via <code>_organizer</code>.</dd>
         generator.set_property(&#34;name&#34;, file_path.name, PropertyType.TEXT)
         generator.set_property(&#34;contentUrl&#34;, file_url, PropertyType.URL)
         generator.set_property(&#34;encodingFormat&#34;, mime_type or &#34;image/png&#34;, PropertyType.TEXT)
+        generator.set_property(&#34;description&#34;, description, PropertyType.TEXT)
+        try:
+            from PIL import Image as _PilImage  # noqa: PLC0415
+
+            with _PilImage.open(file_path) as _img:
+                generator.set_property(&#34;width&#34;, _img.width, PropertyType.INTEGER)
+                generator.set_property(&#34;height&#34;, _img.height, PropertyType.INTEGER)
+        except Exception:
+            pass
+    elif schema_type == &#34;VideoObject&#34;:
+        generator = VideoGenerator()
+        generator.set_property(&#34;name&#34;, file_path.name, PropertyType.TEXT)
+        generator.set_property(&#34;contentUrl&#34;, file_url, PropertyType.URL)
+        generator.set_property(&#34;encodingFormat&#34;, mime_type or &#34;video/mp4&#34;, PropertyType.TEXT)
+        generator.set_property(&#34;description&#34;, description, PropertyType.TEXT)
+        try:
+            generator.set_property(
+                &#34;uploadDate&#34;,
+                datetime.fromtimestamp(stats.st_ctime),
+                PropertyType.DATETIME,
+            )
+        except Exception:
+            pass
+    elif schema_type in (&#34;AudioObject&#34;, &#34;MusicRecording&#34;):
+        generator = AudioGenerator(schema_type)
+        generator.set_property(&#34;name&#34;, file_path.name, PropertyType.TEXT)
+        generator.set_property(&#34;contentUrl&#34;, file_url, PropertyType.URL)
+        generator.set_property(&#34;encodingFormat&#34;, mime_type or &#34;audio/mpeg&#34;, PropertyType.TEXT)
+        generator.set_property(&#34;description&#34;, description, PropertyType.TEXT)
+    elif schema_type == &#34;SoftwareSourceCode&#34;:
+        generator = CodeGenerator()
+        generator.set_property(&#34;name&#34;, file_path.name, PropertyType.TEXT)
+        generator.set_property(&#34;url&#34;, file_url, PropertyType.URL)
+        generator.set_property(&#34;encodingFormat&#34;, mime_type or &#34;text/plain&#34;, PropertyType.TEXT)
+        generator.set_property(&#34;description&#34;, description, PropertyType.TEXT)
+    elif schema_type == &#34;Dataset&#34;:
+        generator = DatasetGenerator()
+        generator.set_property(&#34;name&#34;, file_path.name, PropertyType.TEXT)
         generator.set_property(&#34;description&#34;, description, PropertyType.TEXT)
     elif schema_type in [&#34;DigitalDocument&#34;, &#34;Article&#34;, SCHOLARLY_ARTICLE_SCHEMA_TYPE, &#34;Report&#34;]:
         generator = DocumentGenerator(schema_type)
@@ -879,7 +955,7 @@ classification. May also be attached later via <code>_organizer</code>.</dd>
 
             # Persist to database with canonical IDs
             if self.graph_store:
-                organizer._persist_to_graph_store(
+                self._persist_to_graph_store(
                     file_path=file_path,
                     dest_path=dest_path,
                     category=category,

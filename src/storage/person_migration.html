@@ -228,7 +228,7 @@ Person/{Name}/ dir; a resume/CV filename is a conservative fallback
 (e.g. RESUME1-ChynaStrange.pdf). Files with neither signal are omitted.</p></div>
 </dd>
 <dt id="src.storage.person_migration.index_person_files"><code class="name flex">
-<span>def <span class="ident">index_person_files</span></span>(<span>manifest_path: pathlib.Path = PosixPath('person-migrate-manifest.json'),<br>db_path: str = 'results/file_organization.db',<br>person_root: pathlib.Path = PosixPath('/Users/alyshialedlie/Documents/Person'),<br>apply: bool = False,<br>verbose: bool = True) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">index_person_files</span></span>(<span>manifest_path: pathlib.Path = PosixPath('person-migrate-manifest.json'),<br>db_path: pathlib.Path | str = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'),<br>person_root: pathlib.Path = PosixPath('/Users/alyshialedlie/Documents/Person'),<br>apply: bool = False,<br>verbose: bool = True) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -237,7 +237,7 @@ Person/{Name}/ dir; a resume/CV filename is a conservative fallback
 </summary>
 <pre><code class="python">def index_person_files(
     manifest_path: Path = DEFAULT_MANIFEST_PATH,
-    db_path: str = &#34;results/file_organization.db&#34;,
+    db_path: Union[str, Path] = DEFAULT_DB_PATH,
     person_root: Path = DEFAULT_PERSON_ROOT,
     apply: bool = False,
     verbose: bool = True,

@@ -81,11 +81,11 @@ schema_type)</code> triple whose category/subcategory key into
     if mime_type and mime_type.startswith(&#39;image/&#39;):
         if &#39;screenshot&#39; in file_name or file_name.startswith(&#39;screen&#39;):
             return (&#39;images&#39;, &#39;screenshots&#39;, &#39;ImageObject&#39;)
-        elif file_ext in [&#39;.jpg&#39;, &#39;.jpeg&#39;, &#39;.heic&#39;]:
+        elif file_ext in _PHOTO_EXTENSIONS:
             return (&#39;images&#39;, &#39;photos&#39;, &#39;Photograph&#39;)
         else:
             return (&#39;images&#39;, &#39;graphics&#39;, &#39;ImageObject&#39;)
-    elif file_ext in [&#39;.jpg&#39;, &#39;.jpeg&#39;, &#39;.heic&#39;]:
+    elif file_ext in _PHOTO_EXTENSIONS:
         return (&#39;images&#39;, &#39;photos&#39;, &#39;Photograph&#39;)
     elif file_ext in [&#39;.png&#39;, &#39;.gif&#39;, &#39;.bmp&#39;, &#39;.webp&#39;, &#39;.svg&#39;]:
         return (&#39;images&#39;, &#39;graphics&#39;, &#39;ImageObject&#39;)
@@ -138,11 +138,11 @@ schema_type)</code> triple whose category/subcategory key into
         return (&#39;media&#39;, &#39;videos&#39;, &#39;VideoObject&#39;)
 
     elif mime_type and mime_type.startswith(&#39;audio/&#39;):
-        if &#39;music&#39; in file_name or file_ext in [&#39;.mp3&#39;, &#39;.m4a&#39;, &#39;.flac&#39;]:
+        if &#39;music&#39; in file_name or file_ext in _MUSIC_EXTENSIONS:
             return (&#39;media&#39;, &#39;music&#39;, &#39;MusicRecording&#39;)
         return (&#39;media&#39;, &#39;audio&#39;, &#39;AudioObject&#39;)
 
-    elif file_ext in [&#39;.mp3&#39;, &#39;.m4a&#39;, &#39;.flac&#39;]:
+    elif file_ext in _MUSIC_EXTENSIONS:
         return (&#39;media&#39;, &#39;music&#39;, &#39;MusicRecording&#39;)
 
     elif file_ext in [&#39;.wav&#39;, &#39;.ogg&#39;, &#39;.aac&#39;]:

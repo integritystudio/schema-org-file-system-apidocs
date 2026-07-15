@@ -468,7 +468,11 @@ el.replaceWith(d);
         exif_data: Dict[str, Any] = {}
         try:
             image = Image.open(image_path)
-            exif = image._getexif()  # type: ignore[attr-defined]
+            # _getexif is the legacy private accessor; it only exists on formats
+            # that carry EXIF (JPEG/TIFF/WebP/HEIC). Formats like GIF/PNG lack it,
+            # so probe for it rather than letting the call raise AttributeError.
+            getexif = getattr(image, &#34;_getexif&#34;, None)
+            exif = getexif() if getexif is not None else None
             if exif:
                 for tag_id, value in exif.items():
                     tag = TAGS.get(tag_id, tag_id)
@@ -476,8 +480,22 @@ el.replaceWith(d);
         except Exception as e:
             print(f&#34;  EXIF extraction error: {e}&#34;)
 
-        if not exif_data:
-            exif_data = self._extract_exif_via_piexif(image_path)
+        # piexif fallback, consolidated so piexif.load() runs at most once per
+        # call:
+        #  - PIL read empty (a format PIL can&#39;t decode) → take piexif&#39;s EXIF.
+        #  - GPSInfo present but a bare IFD offset (int) rather than a dict → PIL
+        #    left the GPS IFD undecoded; recover just that from piexif.
+        # A missing GPSInfo key means the file carries no GPS, so piexif is
+        # skipped entirely for non-GPS images.
+        gps_is_bare_offset = &#34;GPSInfo&#34; in exif_data and not isinstance(
+            exif_data[&#34;GPSInfo&#34;], dict
+        )
+        if not exif_data or gps_is_bare_offset:
+            piexif_data = self._extract_exif_via_piexif(image_path)
+            if not exif_data:
+                exif_data = piexif_data
+            elif isinstance(piexif_data.get(&#34;GPSInfo&#34;), dict):
+                exif_data[&#34;GPSInfo&#34;] = piexif_data[&#34;GPSInfo&#34;]
 
         return exif_data
 
@@ -485,7 +503,9 @@ el.replaceWith(d);
         &#34;&#34;&#34;Fallback EXIF read via piexif, normalized to the same shape as the
         PIL path: tag names as keys, ASCII bytes decoded to str, and the GPS
         IFD nested under &#34;GPSInfo&#34; keyed by numeric GPS tag ids.&#34;&#34;&#34;
-        if not PIEXIF_AVAILABLE:
+        # TAGS/GPSTAGS are only imported when PIL is available; guard so a caller
+        # that bypasses the outer metadata_available check can&#39;t hit a NameError.
+        if not PIEXIF_AVAILABLE or not METADATA_AVAILABLE:
             return {}
 
         try:
@@ -512,6 +532,72 @@ el.replaceWith(d);
             exif_data[&#34;GPSInfo&#34;] = {tag_id: decode(value) for tag_id, value in gps.items()}
 
         return exif_data
+
+    def extract_text_metadata(self, image_path: Path) -&gt; Dict[str, str]:
+        &#34;&#34;&#34;Extract non-EXIF textual metadata carried by GIF and PNG files.
+
+        GIF exposes a free-text ``comment`` (plus animation fields) in
+        ``image.info``; PNG exposes tEXt/iTXt/zTXt chunks (``Software``,
+        ``Description``, ``Creation Time``, ...) via ``image.info`` and
+        ``PngImageFile.text``. Only keys in ``_TEXT_METADATA_KEYS`` are returned,
+        each normalized to a non-empty stripped ``str``.
+        &#34;&#34;&#34;
+        if not self.metadata_available:
+            return {}
+
+        text_metadata: Dict[str, str] = {}
+        try:
+            with Image.open(image_path) as image:
+                # PngImageFile.text holds decoded text chunks; image.info is the
+                # superset (GIF&#39;s comment lives only there). Read both.
+                for source in (getattr(image, &#34;text&#34;, None), image.info):
+                    if not source:
+                        continue
+                    for key, value in source.items():
+                        if key not in _TEXT_METADATA_KEYS:
+                            continue
+                        normalized = self._normalize_text_value(value)
+                        if normalized:
+                            text_metadata.setdefault(str(key), normalized)
+        except Exception as e:
+            print(f&#34;  Text metadata extraction error: {e}&#34;)
+
+        return text_metadata
+
+    @staticmethod
+    def _normalize_text_value(value: Any) -&gt; Optional[str]:
+        &#34;&#34;&#34;Coerce a PNG/GIF metadata value to a non-empty stripped str, or None.&#34;&#34;&#34;
+        if isinstance(value, bytes):
+            try:
+                value = value.decode(&#34;utf-8&#34;)
+            except UnicodeDecodeError:
+                return None
+        if not isinstance(value, str):
+            return None
+        value = value.strip()
+        return value or None
+
+    def _parse_creation_time(self, text_metadata: Dict[str, str]) -&gt; Optional[datetime]:
+        &#34;&#34;&#34;Parse a PNG &#34;Creation Time&#34; text chunk into a datetime, best-effort.
+
+        The PNG spec suggests RFC 1123, but tools commonly write ISO 8601; try
+        the formats we actually see and return None for anything unrecognized.
+        &#34;&#34;&#34;
+        raw = text_metadata.get(&#34;Creation Time&#34;)
+        if not raw:
+            return None
+        for fmt in (
+            &#34;%Y-%m-%dT%H:%M:%S&#34;,
+            &#34;%Y-%m-%d %H:%M:%S&#34;,
+            &#34;%Y:%m:%d %H:%M:%S&#34;,
+            &#34;%Y-%m-%d&#34;,
+            &#34;%a, %d %b %Y %H:%M:%S %Z&#34;,  # RFC 1123
+        ):
+            try:
+                return datetime.strptime(raw, fmt)
+            except ValueError:
+                continue
+        return None
 
     def extract_datetime(
         self, image_path: Path, exif_data: Optional[Dict[str, Any]] = None
@@ -556,14 +642,9 @@ el.replaceWith(d);
             return None
         if exif_data is None:
             exif_data = self.extract_exif_data(image_path)
-        coords = self._extract_gps_from_exif(exif_data)
-        if coords is None and not isinstance(exif_data.get(&#34;GPSInfo&#34;), dict):
-            # PIL sometimes surfaces GPSInfo as a bare IFD offset (int) even
-            # when the file carries GPS data; retry that part via piexif.
-            fallback = self._extract_exif_via_piexif(image_path)
-            if isinstance(fallback.get(&#34;GPSInfo&#34;), dict):
-                coords = self._extract_gps_from_exif({&#34;GPSInfo&#34;: fallback[&#34;GPSInfo&#34;]})
-        return coords
+        # extract_exif_data already normalizes a bare-offset GPSInfo into a dict
+        # via piexif, so no separate GPS retry is needed here.
+        return self._extract_gps_from_exif(exif_data)
 
     def _extract_gps_from_exif(self, exif_data: Dict[str, Any]) -&gt; Optional[Tuple[float, float]]:
         try:
@@ -689,11 +770,18 @@ el.replaceWith(d);
             &#34;year&#34;: None,
             &#34;month&#34;: None,
             &#34;date_str&#34;: None,
+            &#34;text_metadata&#34;: {},
         }
 
         exif_data = self.extract_exif_data(image_path)
+        text_metadata = self.extract_text_metadata(image_path)
+        if text_metadata:
+            summary[&#34;text_metadata&#34;] = text_metadata
 
         dt = self._extract_datetime_from_exif(exif_data)
+        if dt is None:
+            # GIF/PNG carry no EXIF datetime; fall back to a PNG &#34;Creation Time&#34;.
+            dt = self._parse_creation_time(text_metadata)
         if dt:
             summary[&#34;datetime&#34;] = dt
             summary[&#34;year&#34;] = dt.year
@@ -775,7 +863,11 @@ el.replaceWith(d);
     exif_data: Dict[str, Any] = {}
     try:
         image = Image.open(image_path)
-        exif = image._getexif()  # type: ignore[attr-defined]
+        # _getexif is the legacy private accessor; it only exists on formats
+        # that carry EXIF (JPEG/TIFF/WebP/HEIC). Formats like GIF/PNG lack it,
+        # so probe for it rather than letting the call raise AttributeError.
+        getexif = getattr(image, &#34;_getexif&#34;, None)
+        exif = getexif() if getexif is not None else None
         if exif:
             for tag_id, value in exif.items():
                 tag = TAGS.get(tag_id, tag_id)
@@ -783,8 +875,22 @@ el.replaceWith(d);
     except Exception as e:
         print(f&#34;  EXIF extraction error: {e}&#34;)
 
-    if not exif_data:
-        exif_data = self._extract_exif_via_piexif(image_path)
+    # piexif fallback, consolidated so piexif.load() runs at most once per
+    # call:
+    #  - PIL read empty (a format PIL can&#39;t decode) → take piexif&#39;s EXIF.
+    #  - GPSInfo present but a bare IFD offset (int) rather than a dict → PIL
+    #    left the GPS IFD undecoded; recover just that from piexif.
+    # A missing GPSInfo key means the file carries no GPS, so piexif is
+    # skipped entirely for non-GPS images.
+    gps_is_bare_offset = &#34;GPSInfo&#34; in exif_data and not isinstance(
+        exif_data[&#34;GPSInfo&#34;], dict
+    )
+    if not exif_data or gps_is_bare_offset:
+        piexif_data = self._extract_exif_via_piexif(image_path)
+        if not exif_data:
+            exif_data = piexif_data
+        elif isinstance(piexif_data.get(&#34;GPSInfo&#34;), dict):
+            exif_data[&#34;GPSInfo&#34;] = piexif_data[&#34;GPSInfo&#34;]
 
     return exif_data</code></pre>
 </details>
@@ -817,14 +923,9 @@ el.replaceWith(d);
         return None
     if exif_data is None:
         exif_data = self.extract_exif_data(image_path)
-    coords = self._extract_gps_from_exif(exif_data)
-    if coords is None and not isinstance(exif_data.get(&#34;GPSInfo&#34;), dict):
-        # PIL sometimes surfaces GPSInfo as a bare IFD offset (int) even
-        # when the file carries GPS data; retry that part via piexif.
-        fallback = self._extract_exif_via_piexif(image_path)
-        if isinstance(fallback.get(&#34;GPSInfo&#34;), dict):
-            coords = self._extract_gps_from_exif({&#34;GPSInfo&#34;: fallback[&#34;GPSInfo&#34;]})
-    return coords</code></pre>
+    # extract_exif_data already normalizes a bare-offset GPSInfo into a dict
+    # via piexif, so no separate GPS retry is needed here.
+    return self._extract_gps_from_exif(exif_data)</code></pre>
 </details>
 <div class="desc"><p>Extract GPS coordinates from image EXIF data.</p>
 <h2 id="args">Args</h2>
@@ -836,6 +937,52 @@ el.replaceWith(d);
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Tuple of (latitude, longitude) or None</p></div>
+</dd>
+<dt id="src.analyzers.ImageMetadataParser.extract_text_metadata"><code class="name flex">
+<span>def <span class="ident">extract_text_metadata</span></span>(<span>self, image_path: pathlib.Path) ‑> Dict[str, str]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def extract_text_metadata(self, image_path: Path) -&gt; Dict[str, str]:
+    &#34;&#34;&#34;Extract non-EXIF textual metadata carried by GIF and PNG files.
+
+    GIF exposes a free-text ``comment`` (plus animation fields) in
+    ``image.info``; PNG exposes tEXt/iTXt/zTXt chunks (``Software``,
+    ``Description``, ``Creation Time``, ...) via ``image.info`` and
+    ``PngImageFile.text``. Only keys in ``_TEXT_METADATA_KEYS`` are returned,
+    each normalized to a non-empty stripped ``str``.
+    &#34;&#34;&#34;
+    if not self.metadata_available:
+        return {}
+
+    text_metadata: Dict[str, str] = {}
+    try:
+        with Image.open(image_path) as image:
+            # PngImageFile.text holds decoded text chunks; image.info is the
+            # superset (GIF&#39;s comment lives only there). Read both.
+            for source in (getattr(image, &#34;text&#34;, None), image.info):
+                if not source:
+                    continue
+                for key, value in source.items():
+                    if key not in _TEXT_METADATA_KEYS:
+                        continue
+                    normalized = self._normalize_text_value(value)
+                    if normalized:
+                        text_metadata.setdefault(str(key), normalized)
+    except Exception as e:
+        print(f&#34;  Text metadata extraction error: {e}&#34;)
+
+    return text_metadata</code></pre>
+</details>
+<div class="desc"><p>Extract non-EXIF textual metadata carried by GIF and PNG files.</p>
+<p>GIF exposes a free-text <code>comment</code> (plus animation fields) in
+<code>image.info</code>; PNG exposes tEXt/iTXt/zTXt chunks (<code>Software</code>,
+<code>Description</code>, <code>Creation Time</code>, &hellip;) via <code>image.info</code> and
+<code>PngImageFile.text</code>. Only keys in <code>_TEXT_METADATA_KEYS</code> are returned,
+each normalized to a non-empty stripped <code>str</code>.</p></div>
 </dd>
 <dt id="src.analyzers.ImageMetadataParser.get_location_name"><code class="name flex">
 <span>def <span class="ident">get_location_name</span></span>(<span>self, coordinates: Tuple[float, float]) ‑> str | None</span>
@@ -926,11 +1073,18 @@ el.replaceWith(d);
         &#34;year&#34;: None,
         &#34;month&#34;: None,
         &#34;date_str&#34;: None,
+        &#34;text_metadata&#34;: {},
     }
 
     exif_data = self.extract_exif_data(image_path)
+    text_metadata = self.extract_text_metadata(image_path)
+    if text_metadata:
+        summary[&#34;text_metadata&#34;] = text_metadata
 
     dt = self._extract_datetime_from_exif(exif_data)
+    if dt is None:
+        # GIF/PNG carry no EXIF datetime; fall back to a PNG &#34;Creation Time&#34;.
+        dt = self._parse_creation_time(text_metadata)
     if dt:
         summary[&#34;datetime&#34;] = dt
         summary[&#34;year&#34;] = dt.year
@@ -990,6 +1144,7 @@ el.replaceWith(d);
 <li><code><a title="src.analyzers.ImageMetadataParser.extract_datetime" href="#src.analyzers.ImageMetadataParser.extract_datetime">extract_datetime</a></code></li>
 <li><code><a title="src.analyzers.ImageMetadataParser.extract_exif_data" href="#src.analyzers.ImageMetadataParser.extract_exif_data">extract_exif_data</a></code></li>
 <li><code><a title="src.analyzers.ImageMetadataParser.extract_gps_coordinates" href="#src.analyzers.ImageMetadataParser.extract_gps_coordinates">extract_gps_coordinates</a></code></li>
+<li><code><a title="src.analyzers.ImageMetadataParser.extract_text_metadata" href="#src.analyzers.ImageMetadataParser.extract_text_metadata">extract_text_metadata</a></code></li>
 <li><code><a title="src.analyzers.ImageMetadataParser.get_location_name" href="#src.analyzers.ImageMetadataParser.get_location_name">get_location_name</a></code></li>
 <li><code><a title="src.analyzers.ImageMetadataParser.get_metadata_summary" href="#src.analyzers.ImageMetadataParser.get_metadata_summary">get_metadata_summary</a></code></li>
 </ul>

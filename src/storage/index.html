@@ -166,7 +166,7 @@ for example, any mapped columns or relationships.</p></div>
     merged_into_id = Column(Integer, ForeignKey(&#39;categories.id&#39;))
 
     name = Column(String(100), nullable=False, unique=True, index=True)
-    parent_id = Column(Integer, ForeignKey(&#39;categories.id&#39;))
+    parent_id = Column(Integer, ForeignKey(&#39;categories.id&#39;), index=True)
     description = Column(Text)
     icon = Column(String(SHORT_STRING_LENGTH))  # Emoji or icon name
     color = Column(String(SHORT_FIELD_LENGTH))  # Hex color
@@ -819,9 +819,8 @@ deduplication across systems.</p>
     files = relationship(&#39;File&#39;, secondary=file_companies, back_populates=&#39;companies&#39;)
     merged_into = relationship(&#39;Company&#39;, remote_side=[id])
 
-    __table_args__ = (
-        Index(&#39;ix_companies_normalized&#39;, &#39;normalized_name&#39;),
-    )
+    # ix_companies_normalized_name created by unique=True, index=True on normalized_name column
+
 
     @staticmethod
     def normalize_name(name: str) -&gt; str:
@@ -1749,7 +1748,7 @@ for example, any mapped columns or relationships.</p></div>
 
     # Processing metadata
     processing_time_sec = Column(Float)
-    session_id = Column(String(SHA256_HEX_LENGTH), ForeignKey(&#39;organization_sessions.id&#39;))
+    session_id = Column(String(SHA256_HEX_LENGTH), ForeignKey(&#39;organization_sessions.id&#39;), index=True)
 
     # Timestamps
     db_created_at = Column(DateTime, default=utcnow)
@@ -3219,7 +3218,7 @@ def is_organized(self) -&gt; bool:
     __table_args__ = (
         UniqueConstraint(&#39;source_file_id&#39;, &#39;target_file_id&#39;, &#39;relationship_type&#39;,
                         name=&#39;uq_file_relationship&#39;),
-        Index(&#39;ix_file_rel_type&#39;, &#39;relationship_type&#39;),
+        # ix_file_relationships_* indexes created by index=True on source_file_id, target_file_id, relationship_type
     )</code></pre>
 </details>
 <div class="desc"><p>Edge table for file-to-file relationships.</p>
@@ -3467,7 +3466,7 @@ for example, any mapped columns or relationships.</p></div>
 </dd>
 <dt id="src.storage.GraphStore"><code class="flex name class">
 <span>class <span class="ident">GraphStore</span></span>
-<span>(</span><span>db_path: str = 'results/file_organization.db')</span>
+<span>(</span><span>db_path: pathlib.Path | str = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'))</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -3485,7 +3484,7 @@ for example, any mapped columns or relationships.</p></div>
     - Statistics and aggregations
     &#34;&#34;&#34;
 
-    def __init__(self, db_path: str = &#39;results/file_organization.db&#39;):
+    def __init__(self, db_path: Union[str, Path] = DEFAULT_DB_PATH):
         &#34;&#34;&#34;
         Initialize the graph store.
 
@@ -6688,7 +6687,7 @@ matched via Person.normalize_name)</dd>
 </dd>
 <dt id="src.storage.JSONMigrator"><code class="flex name class">
 <span>class <span class="ident">JSONMigrator</span></span>
-<span>(</span><span>db_path: str = 'results/file_organization.db', results_dir: str = 'results')</span>
+<span>(</span><span>db_path: pathlib.Path | str = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'),<br>results_dir: str = 'results')</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -6707,7 +6706,7 @@ matched via Person.normalize_name)</dd>
 
     def __init__(
         self,
-        db_path: str = &#39;results/file_organization.db&#39;,
+        db_path: Union[str, Path] = DEFAULT_DB_PATH,
         results_dir: str = &#39;results&#39;
     ):
         &#34;&#34;&#34;
@@ -7374,7 +7373,7 @@ matched via Person.normalize_name)</dd>
 </dd>
 <dt id="src.storage.KeyValueStorage"><code class="flex name class">
 <span>class <span class="ident">KeyValueStorage</span></span>
-<span>(</span><span>db_path: str = 'results/file_organization.db')</span>
+<span>(</span><span>db_path: pathlib.Path | str = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'))</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -7403,7 +7402,7 @@ matched via Person.normalize_name)</dd>
     NAMESPACE_SESSION = &#39;session&#39;       # Session-specific data
     NAMESPACE_FEATURE = &#39;feature&#39;       # Feature flags
 
-    def __init__(self, db_path: str = &#39;results/file_organization.db&#39;):
+    def __init__(self, db_path: Union[str, Path] = DEFAULT_DB_PATH):
         &#34;&#34;&#34;
         Initialize key-value storage.
 

@@ -94,7 +94,7 @@ result = classifier.classify(image)</p>
             print(f&#34;  Context: {context}&#34;)
         return None
 
-    with sentry_sdk.push_scope() as scope:
+    with sentry_sdk.new_scope() as scope:
         # Set severity level
         scope.level = level
 
@@ -150,7 +150,7 @@ result = classifier.classify(image)</p>
         print(f&#34;[WARNING] {message}&#34;)
         return None
 
-    with sentry_sdk.push_scope() as scope:
+    with sentry_sdk.new_scope() as scope:
         scope.level = ErrorLevel.WARNING
         if tags:
             for key, value in tags.items():

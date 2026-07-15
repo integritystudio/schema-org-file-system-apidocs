@@ -464,7 +464,7 @@ Flexible schema-less storage for arbitrary metadata</p>
     merged_into_id = Column(Integer, ForeignKey(&#39;categories.id&#39;))
 
     name = Column(String(100), nullable=False, unique=True, index=True)
-    parent_id = Column(Integer, ForeignKey(&#39;categories.id&#39;))
+    parent_id = Column(Integer, ForeignKey(&#39;categories.id&#39;), index=True)
     description = Column(Text)
     icon = Column(String(SHORT_STRING_LENGTH))  # Emoji or icon name
     color = Column(String(SHORT_FIELD_LENGTH))  # Hex color
@@ -1117,9 +1117,8 @@ deduplication across systems.</p>
     files = relationship(&#39;File&#39;, secondary=file_companies, back_populates=&#39;companies&#39;)
     merged_into = relationship(&#39;Company&#39;, remote_side=[id])
 
-    __table_args__ = (
-        Index(&#39;ix_companies_normalized&#39;, &#39;normalized_name&#39;),
-    )
+    # ix_companies_normalized_name created by unique=True, index=True on normalized_name column
+
 
     @staticmethod
     def normalize_name(name: str) -&gt; str:
@@ -2047,7 +2046,7 @@ for example, any mapped columns or relationships.</p></div>
 
     # Processing metadata
     processing_time_sec = Column(Float)
-    session_id = Column(String(SHA256_HEX_LENGTH), ForeignKey(&#39;organization_sessions.id&#39;))
+    session_id = Column(String(SHA256_HEX_LENGTH), ForeignKey(&#39;organization_sessions.id&#39;), index=True)
 
     # Timestamps
     db_created_at = Column(DateTime, default=utcnow)
@@ -3517,7 +3516,7 @@ def is_organized(self) -&gt; bool:
     __table_args__ = (
         UniqueConstraint(&#39;source_file_id&#39;, &#39;target_file_id&#39;, &#39;relationship_type&#39;,
                         name=&#39;uq_file_relationship&#39;),
-        Index(&#39;ix_file_rel_type&#39;, &#39;relationship_type&#39;),
+        # ix_file_relationships_* indexes created by index=True on source_file_id, target_file_id, relationship_type
     )</code></pre>
 </details>
 <div class="desc"><p>Edge table for file-to-file relationships.</p>
@@ -4714,7 +4713,7 @@ def generate_canonical_id(name: str) -&gt; str:
     id = Column(String(UUID_STRING_LENGTH), primary_key=True, default=lambda: str(uuid.uuid4()))
 
     # Target entity (canonical/surviving)
-    target_entity_type = Column(SQLEnum(MergeEventType), nullable=False, index=True)
+    target_entity_type = Column(SQLEnum(MergeEventType), nullable=False)  # indexed via ix_merge_entity_type
     target_entity_id = Column(Integer, nullable=False)  # Internal DB ID
     target_canonical_id = Column(String(UUID_STRING_LENGTH))  # UUID for JSON-LD @id
 
@@ -4728,7 +4727,7 @@ def generate_canonical_id(name: str) -&gt; str:
     merge_reason = Column(Text)  # Why these were merged
     confidence = Column(Float, default=1.0)  # 0.0-1.0
     performed_by = Column(String(100))  # user_id or &#39;system&#39;
-    performed_at = Column(DateTime, default=utcnow, index=True)
+    performed_at = Column(DateTime, default=utcnow)  # indexed via ix_merge_performed_at
 
     # JSON-LD representation (for export/API)
     jsonld = Column(JSON)

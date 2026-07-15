@@ -51,7 +51,7 @@ relationships using a graph-like structure built on SQLAlchemy.</p>
 <dl>
 <dt id="src.storage.graph_store.GraphStore"><code class="flex name class">
 <span>class <span class="ident">GraphStore</span></span>
-<span>(</span><span>db_path: str = 'results/file_organization.db')</span>
+<span>(</span><span>db_path: pathlib.Path | str = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'))</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -69,7 +69,7 @@ relationships using a graph-like structure built on SQLAlchemy.</p>
     - Statistics and aggregations
     &#34;&#34;&#34;
 
-    def __init__(self, db_path: str = &#39;results/file_organization.db&#39;):
+    def __init__(self, db_path: Union[str, Path] = DEFAULT_DB_PATH):
         &#34;&#34;&#34;
         Initialize the graph store.
 
