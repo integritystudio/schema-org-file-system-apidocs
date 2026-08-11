@@ -135,7 +135,7 @@ single source for this command, shared with the unified CLI).</p></div>
 <dl>
 <dt id="src.ml.data_preprocessor.DataPreprocessor"><code class="flex name class">
 <span>class <span class="ident">DataPreprocessor</span></span>
-<span>(</span><span>report_path: str = None)</span>
+<span>(</span><span>report_path: str | None = None)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -145,7 +145,7 @@ single source for this command, shared with the unified CLI).</p></div>
 <pre><code class="python">class DataPreprocessor:
     &#34;&#34;&#34;Main preprocessing pipeline for file organization data.&#34;&#34;&#34;
 
-    def __init__(self, report_path: str = None):
+    def __init__(self, report_path: Optional[str] = None):
         &#34;&#34;&#34;Initialize preprocessor.
 
         Args:
@@ -153,22 +153,23 @@ single source for this command, shared with the unified CLI).</p></div>
         &#34;&#34;&#34;
         self.report_path = report_path
         self.feature_extractor = FileFeatureExtractor()
-        self.data = None
-        self.features = None
-        self.statistics = {}
+        self.data: Optional[Dict[str, Any]] = None
+        self.features: Optional[List[Dict[str, Any]]] = None
+        self.statistics: dict[str, Any] = {}
 
-    def load_data(self, report_path: str = None) -&gt; Dict:
+    def load_data(self, report_path: Optional[str] = None) -&gt; Dict:
         &#34;&#34;&#34;Load organization report data.&#34;&#34;&#34;
         path = report_path or self.report_path
         if not path:
             raise ValueError(&#34;No report path provided&#34;)
 
         with open(path, &#39;r&#39;) as f:
-            self.data = json.load(f)
+            data: Dict[str, Any] = json.load(f)
 
-        self.statistics[&#39;total_records&#39;] = len(self.data.get(&#39;results&#39;, []))
+        self.data = data
+        self.statistics[&#39;total_records&#39;] = len(data.get(&#39;results&#39;, []))
         self.statistics[&#39;load_time&#39;] = datetime.now().isoformat()
-        return self.data
+        return data
 
     def extract_all_features(self) -&gt; List[Dict]:
         &#34;&#34;&#34;Extract features from all records.&#34;&#34;&#34;
@@ -209,7 +210,7 @@ single source for this command, shared with the unified CLI).</p></div>
 
         # Filename analysis
         avg_filename_length = sum(f[&#39;filename_length&#39;] for f in self.features) / len(self.features)
-        token_counts = Counter()
+        token_counts: Counter[str] = Counter()
         for f in self.features:
             token_counts.update(f[&#39;filename_tokens&#39;])
 
@@ -285,6 +286,13 @@ single source for this command, shared with the unified CLI).</p></div>
         if not docs:
             return {}
 
+        # With fewer docs than min_freq, no token can meet the threshold —
+        # return empty rather than letting CountVectorizer raise ValueError
+        # (sklearn converts max_df=1.0 to an integer floor, which undercuts
+        # an integer min_df when len(docs) &lt; min_freq).
+        if len(docs) &lt; min_freq:
+            return {}
+
         vectorizer = CountVectorizer(min_df=min_freq, token_pattern=r&#34;(?u)\b\w+\b&#34;)
         vectorizer.fit(docs)
         return {token: idx for idx, token in enumerate(vectorizer.get_feature_names_out())}
@@ -292,6 +300,9 @@ single source for this command, shared with the unified CLI).</p></div>
     def get_label_encoder(self) -&gt; Tuple[Dict[str, int], Dict[int, str]]:
         &#34;&#34;&#34;Create label encoder for category classification.&#34;&#34;&#34;
         from sklearn.preprocessing import LabelEncoder
+
+        if not self.features:
+            return {}, {}
 
         categories = sorted({f.get(&#34;category&#34;, &#34;uncategorized&#34;) for f in self.features})
         if not categories:
@@ -303,12 +314,12 @@ single source for this command, shared with the unified CLI).</p></div>
         id_to_label = {v: k for k, v in label_to_id.items()}
         return label_to_id, id_to_label
 
-    def validate_data_quality(self) -&gt; Dict[str, Any]:
+    def validate_data_quality(self) -&gt; QualityReport:
         &#34;&#34;&#34;Validate data quality and identify issues.&#34;&#34;&#34;
         if not self.features:
             raise ValueError(&#34;No features extracted. Call extract_all_features() first.&#34;)
 
-        issues = {
+        issues: _QualityIssues = {
             &#39;missing_category&#39;: [],
             &#39;empty_filename&#39;: [],
             &#39;duplicate_filenames&#39;: [],
@@ -336,7 +347,7 @@ single source for this command, shared with the unified CLI).</p></div>
         ]
 
         # Summarize
-        quality_report = {
+        quality_report: QualityReport = {
             &#39;total_records&#39;: len(self.features),
             &#39;uncategorized_count&#39;: len(issues[&#39;missing_category&#39;]),
             &#39;empty_filename_count&#39;: len(issues[&#39;empty_filename&#39;]),
@@ -355,14 +366,14 @@ single source for this command, shared with the unified CLI).</p></div>
         self.statistics[&#39;data_quality&#39;] = quality_report
         return quality_report
 
-    def _compute_quality_score(self, issues: Dict) -&gt; float:
+    def _compute_quality_score(self, issues: _QualityIssues) -&gt; float:
         &#34;&#34;&#34;Compute overall data quality score (0-100).&#34;&#34;&#34;
-        total = len(self.features)
+        total = len(self.features or [])
         if total == 0:
             return 0.0
 
         # Penalize based on issues
-        penalties = 0
+        penalties = 0.0
         penalties += len(issues[&#39;missing_category&#39;]) * 0.5
         penalties += len(issues[&#39;empty_filename&#39;]) * 1.0
         penalties += len(issues[&#39;duplicate_filenames&#39;]) * 0.1
@@ -521,8 +532,9 @@ single source for this command, shared with the unified CLI).</p></div>
 </details>
 <div class="desc"><p>Main preprocessing pipeline for file organization data.</p>
 <p>Initialize preprocessor.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>report_path</code></strong></dt>
 <dd>Path to organization report JSON</dd>
 </dl></div>
@@ -560,7 +572,7 @@ single source for this command, shared with the unified CLI).</p></div>
 
     # Filename analysis
     avg_filename_length = sum(f[&#39;filename_length&#39;] for f in self.features) / len(self.features)
-    token_counts = Counter()
+    token_counts: Counter[str] = Counter()
     for f in self.features:
         token_counts.update(f[&#39;filename_tokens&#39;])
 
@@ -707,15 +719,17 @@ single source for this command, shared with the unified CLI).</p></div>
     return output_files</code></pre>
 </details>
 <div class="desc"><p>Export preprocessed data for ML training.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>output_dir</code></strong></dt>
 <dd>Directory to save files</dd>
 <dt><strong><code>include_test_split</code></strong></dt>
 <dd>Whether to create train/test split</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Dictionary of output file paths</p></div>
+<p>Returns
+-----=
+Dictionary of output file paths</p></div>
 </dd>
 <dt id="src.ml.data_preprocessor.DataPreprocessor.extract_all_features"><code class="name flex">
 <span>def <span class="ident">extract_all_features</span></span>(<span>self) ‑> List[Dict]</span>
@@ -850,6 +864,9 @@ single source for this command, shared with the unified CLI).</p></div>
     &#34;&#34;&#34;Create label encoder for category classification.&#34;&#34;&#34;
     from sklearn.preprocessing import LabelEncoder
 
+    if not self.features:
+        return {}, {}
+
     categories = sorted({f.get(&#34;category&#34;, &#34;uncategorized&#34;) for f in self.features})
     if not categories:
         return {}, {}
@@ -882,6 +899,13 @@ single source for this command, shared with the unified CLI).</p></div>
     if not docs:
         return {}
 
+    # With fewer docs than min_freq, no token can meet the threshold —
+    # return empty rather than letting CountVectorizer raise ValueError
+    # (sklearn converts max_df=1.0 to an integer floor, which undercuts
+    # an integer min_df when len(docs) &lt; min_freq).
+    if len(docs) &lt; min_freq:
+        return {}
+
     vectorizer = CountVectorizer(min_df=min_freq, token_pattern=r&#34;(?u)\b\w+\b&#34;)
     vectorizer.fit(docs)
     return {token: idx for idx, token in enumerate(vectorizer.get_feature_names_out())}</code></pre>
@@ -889,42 +913,43 @@ single source for this command, shared with the unified CLI).</p></div>
 <div class="desc"><p>Build vocabulary from filename tokens with minimum frequency threshold.</p></div>
 </dd>
 <dt id="src.ml.data_preprocessor.DataPreprocessor.load_data"><code class="name flex">
-<span>def <span class="ident">load_data</span></span>(<span>self, report_path: str = None) ‑> Dict</span>
+<span>def <span class="ident">load_data</span></span>(<span>self, report_path: str | None = None) ‑> Dict</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def load_data(self, report_path: str = None) -&gt; Dict:
+<pre><code class="python">def load_data(self, report_path: Optional[str] = None) -&gt; Dict:
     &#34;&#34;&#34;Load organization report data.&#34;&#34;&#34;
     path = report_path or self.report_path
     if not path:
         raise ValueError(&#34;No report path provided&#34;)
 
     with open(path, &#39;r&#39;) as f:
-        self.data = json.load(f)
+        data: Dict[str, Any] = json.load(f)
 
-    self.statistics[&#39;total_records&#39;] = len(self.data.get(&#39;results&#39;, []))
+    self.data = data
+    self.statistics[&#39;total_records&#39;] = len(data.get(&#39;results&#39;, []))
     self.statistics[&#39;load_time&#39;] = datetime.now().isoformat()
-    return self.data</code></pre>
+    return data</code></pre>
 </details>
 <div class="desc"><p>Load organization report data.</p></div>
 </dd>
 <dt id="src.ml.data_preprocessor.DataPreprocessor.validate_data_quality"><code class="name flex">
-<span>def <span class="ident">validate_data_quality</span></span>(<span>self) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">validate_data_quality</span></span>(<span>self) ‑> <a title="src.ml.data_preprocessor.QualityReport" href="#src.ml.data_preprocessor.QualityReport">QualityReport</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def validate_data_quality(self) -&gt; Dict[str, Any]:
+<pre><code class="python">def validate_data_quality(self) -&gt; QualityReport:
     &#34;&#34;&#34;Validate data quality and identify issues.&#34;&#34;&#34;
     if not self.features:
         raise ValueError(&#34;No features extracted. Call extract_all_features() first.&#34;)
 
-    issues = {
+    issues: _QualityIssues = {
         &#39;missing_category&#39;: [],
         &#39;empty_filename&#39;: [],
         &#39;duplicate_filenames&#39;: [],
@@ -952,7 +977,7 @@ single source for this command, shared with the unified CLI).</p></div>
     ]
 
     # Summarize
-    quality_report = {
+    quality_report: QualityReport = {
         &#39;total_records&#39;: len(self.features),
         &#39;uncategorized_count&#39;: len(issues[&#39;missing_category&#39;]),
         &#39;empty_filename_count&#39;: len(issues[&#39;empty_filename&#39;]),
@@ -972,6 +997,62 @@ single source for this command, shared with the unified CLI).</p></div>
     return quality_report</code></pre>
 </details>
 <div class="desc"><p>Validate data quality and identify issues.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.ml.data_preprocessor.QualityReport"><code class="flex name class">
+<span>class <span class="ident">QualityReport</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class QualityReport(TypedDict):
+    &#34;&#34;&#34;``validate_data_quality()`` shape.&#34;&#34;&#34;
+    total_records: int
+    uncategorized_count: int
+    empty_filename_count: int
+    duplicate_count: int
+    unknown_extension_count: int
+    quality_score: float
+    issues_sample: Dict[str, List[str]]</code></pre>
+</details>
+<div class="desc"><p><code>validate_data_quality()</code> shape.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.ml.data_preprocessor.QualityReport.duplicate_count"><code class="name">var <span class="ident">duplicate_count</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.ml.data_preprocessor.QualityReport.empty_filename_count"><code class="name">var <span class="ident">empty_filename_count</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.ml.data_preprocessor.QualityReport.issues_sample"><code class="name">var <span class="ident">issues_sample</span> : Dict[str, List[str]]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.ml.data_preprocessor.QualityReport.quality_score"><code class="name">var <span class="ident">quality_score</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.ml.data_preprocessor.QualityReport.total_records"><code class="name">var <span class="ident">total_records</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.ml.data_preprocessor.QualityReport.uncategorized_count"><code class="name">var <span class="ident">uncategorized_count</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.ml.data_preprocessor.QualityReport.unknown_extension_count"><code class="name">var <span class="ident">unknown_extension_count</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 </dd>
@@ -1008,6 +1089,18 @@ single source for this command, shared with the unified CLI).</p></div>
 <li><code><a title="src.ml.data_preprocessor.DataPreprocessor.get_vocabulary" href="#src.ml.data_preprocessor.DataPreprocessor.get_vocabulary">get_vocabulary</a></code></li>
 <li><code><a title="src.ml.data_preprocessor.DataPreprocessor.load_data" href="#src.ml.data_preprocessor.DataPreprocessor.load_data">load_data</a></code></li>
 <li><code><a title="src.ml.data_preprocessor.DataPreprocessor.validate_data_quality" href="#src.ml.data_preprocessor.DataPreprocessor.validate_data_quality">validate_data_quality</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.ml.data_preprocessor.QualityReport" href="#src.ml.data_preprocessor.QualityReport">QualityReport</a></code></h4>
+<ul class="">
+<li><code><a title="src.ml.data_preprocessor.QualityReport.duplicate_count" href="#src.ml.data_preprocessor.QualityReport.duplicate_count">duplicate_count</a></code></li>
+<li><code><a title="src.ml.data_preprocessor.QualityReport.empty_filename_count" href="#src.ml.data_preprocessor.QualityReport.empty_filename_count">empty_filename_count</a></code></li>
+<li><code><a title="src.ml.data_preprocessor.QualityReport.issues_sample" href="#src.ml.data_preprocessor.QualityReport.issues_sample">issues_sample</a></code></li>
+<li><code><a title="src.ml.data_preprocessor.QualityReport.quality_score" href="#src.ml.data_preprocessor.QualityReport.quality_score">quality_score</a></code></li>
+<li><code><a title="src.ml.data_preprocessor.QualityReport.total_records" href="#src.ml.data_preprocessor.QualityReport.total_records">total_records</a></code></li>
+<li><code><a title="src.ml.data_preprocessor.QualityReport.uncategorized_count" href="#src.ml.data_preprocessor.QualityReport.uncategorized_count">uncategorized_count</a></code></li>
+<li><code><a title="src.ml.data_preprocessor.QualityReport.unknown_extension_count" href="#src.ml.data_preprocessor.QualityReport.unknown_extension_count">unknown_extension_count</a></code></li>
 </ul>
 </li>
 </ul>

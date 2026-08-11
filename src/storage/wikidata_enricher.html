@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>src.storage.wikidata_enricher API documentation</title>
+<meta name="description" content="Wikidata entity-type validator for non-person entity typing …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>src.storage.wikidata_enricher</code></h1>
+</header>
+<section id="section-intro">
+<p>Wikidata entity-type validator for non-person entity typing.</p>
+<p>Uses the W3C Reconciliation API v0.2 at wikidata.reconci.link to validate
+entity class membership by name for Organizations, Locations, and Events.</p>
+<p>Design principles:
+- Optional nightly enrichment only; never called from the hot classification
+path.
+The core pipeline must remain offline-capable.
+- Offline-safe: every network call is wrapped with a 5-second timeout and
+returns None on any error (connection failure, timeout, malformed JSON).
+- Results cached indefinitely in the local SQLite KeyValueStore (CC0 data
+needs no TTL).
+Negative results cached for 7 days to avoid re-querying.
+- Sequential use only; rate limits are ~5 parallel queries/IP per the Wikidata
+ToS.
+Designed for nightly batch batches, not concurrent calls.</p>
+<p>Usage::</p>
+<pre><code>from src.storage.wikidata_enricher import WikidataEnricher
+enricher = WikidataEnricher("results/file_organization.db")
+match = enricher.reconcile_organization("Travis County Appraisal District")
+if match:
+    print(match.wikidata_url)  # &lt;https://www.wikidata.org/wiki/Q...&gt;
+</code></pre>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="src.storage.wikidata_enricher.WikidataEnricher"><code class="flex name class">
+<span>class <span class="ident">WikidataEnricher</span></span>
+<span>(</span><span>db_path: Union[str, Path] = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'))</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class WikidataEnricher:
+    &#34;&#34;&#34;Validates detected entity names against Wikidata class membership.
+
+    Designed for optional nightly batch enrichment (see
+    ``scripts/enrich_wikidata.py``).  The core classification pipeline never
+    imports this module — adding zero latency to the hot path.
+
+    All public methods return ``WikidataMatch | None``:
+    - ``WikidataMatch`` — a high-confidence (score ≥ 80) class match.
+    - ``None`` — no match found, score too low, or any network/API error.
+    &#34;&#34;&#34;
+
+    def __init__(self, db_path: Union[str, Path] = DEFAULT_DB_PATH) -&gt; None:
+        self._kv = KeyValueStorage(db_path)
+
+    # ------------------------------------------------------------------
+    # Public reconciliation methods
+    # ------------------------------------------------------------------
+
+    def reconcile_organization(self, name: str) -&gt; Optional[WikidataMatch]:
+        &#34;&#34;&#34;Validate *name* as a Wikidata organization (Q43229+subclasses).
+
+        High-confidence matches confirm the name refers to a real, notable
+        organization — suitable for creating ``Organization/{Name}/`` folders.
+        &#34;&#34;&#34;
+        return self._reconcile(name, QID_ORGANIZATION)
+
+    def reconcile_event(self, name: str) -&gt; Optional[WikidataMatch]:
+        &#34;&#34;&#34;Check whether *name* is a known Wikidata event (Q1656682).
+
+        A positive match is a strong *negative* signal for person/org
+        detection: a name that reconciles as an event is not a person (e.g.
+        &#34;Morning Train&#34; → confirmed event, not a person, org, or brand).
+        &#34;&#34;&#34;
+        return self._reconcile(name, QID_EVENT)
+
+    def reconcile_location(self, name: str) -&gt; Optional[WikidataMatch]:
+        &#34;&#34;&#34;Validate *name* as a Wikidata geographic location (Q2221906).
+
+        Use before creating Location graph nodes from detected place names.
+        &#34;&#34;&#34;
+        return self._reconcile(name, QID_LOCATION)
+
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+
+    def _cache_key(self, name: str, class_qid: str) -&gt; str:
+        normalized = name.lower().strip()
+        return f&#34;{class_qid}:{normalized}&#34;
+
+    def _reconcile(self, name: str, class_qid: str) -&gt; Optional[WikidataMatch]:
+        &#34;&#34;&#34;Check cache first; fall back to the Wikidata API on a cache miss.&#34;&#34;&#34;
+        cache_key = self._cache_key(name, class_qid)
+
+        cached = self._kv.get(cache_key, namespace=_KV_NAMESPACE)
+        if cached is not None:
+            if cached == _CACHE_MISS_SENTINEL:
+                return None
+            try:
+                return WikidataMatch(**cached)
+            except (TypeError, KeyError):
+                # Stale or corrupt cache entry; re-query.
+                logger.debug(&#34;Corrupt Wikidata cache entry for %r; re-querying&#34;, name)
+
+        match = self._query_api(name, class_qid)
+
+        if match is not None:
+            # CC0 data — cache indefinitely.
+            self._kv.set(
+                cache_key,
+                {
+                    &#34;qid&#34;: match.qid,
+                    &#34;label&#34;: match.label,
+                    &#34;score&#34;: match.score,
+                    &#34;entity_class&#34;: match.entity_class,
+                },
+                namespace=_KV_NAMESPACE,
+            )
+        else:
+            # Negative result — re-check in 7 days.
+            self._kv.set(
+                cache_key,
+                _CACHE_MISS_SENTINEL,
+                namespace=_KV_NAMESPACE,
+                ttl_seconds=_NEGATIVE_TTL_SEC,
+            )
+
+        return match
+
+    def _query_api(self, name: str, class_qid: str) -&gt; Optional[WikidataMatch]:
+        &#34;&#34;&#34;POST a single reconciliation query to the Wikidata API.
+
+        Returns a WikidataMatch when the top candidate clears RECONC_MIN_SCORE,
+        or None for no match, low confidence, or any network/parse error.
+        &#34;&#34;&#34;
+        payload = {
+            &#34;q0&#34;: {
+                &#34;query&#34;: name,
+                &#34;type&#34;: class_qid,
+                &#34;limit&#34;: RECONC_LIMIT,
+            }
+        }
+        form_data = urllib.parse.urlencode({&#34;queries&#34;: json.dumps(payload)}).encode()
+        req = urllib.request.Request(
+            RECONC_API_URL,
+            data=form_data,
+            headers={
+                &#34;User-Agent&#34;: RECONC_USER_AGENT,
+                &#34;Content-Type&#34;: &#34;application/x-www-form-urlencoded&#34;,
+            },
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=RECONC_TIMEOUT_SEC) as resp:
+                body = json.loads(resp.read().decode())
+
+            # Parse inside the guard: body may be a JSON array (AttributeError on
+            # .get), score may be a non-numeric string (ValueError from float()),
+            # and candidate fields may be missing (KeyError/TypeError).
+            candidates = body.get(&#34;q0&#34;, {}).get(&#34;result&#34;, [])
+            if not candidates:
+                return None
+
+            top = candidates[0]
+            score = float(top.get(&#34;score&#34;, 0))
+            if score &lt; RECONC_MIN_SCORE:
+                logger.debug(
+                    &#34;Wikidata: %r → %s (score %.1f &lt; threshold %.1f)&#34;,
+                    name,
+                    top.get(&#34;id&#34;),
+                    score,
+                    RECONC_MIN_SCORE,
+                )
+                return None
+
+            qid = top.get(&#34;id&#34;, &#34;&#34;)
+            if not qid or not qid.startswith(&#34;Q&#34;):
+                return None
+
+            return WikidataMatch(
+                qid=qid,
+                label=top.get(&#34;name&#34;, name),
+                score=score,
+                entity_class=class_qid,
+            )
+        except (
+            urllib.error.URLError,
+            TimeoutError,
+            json.JSONDecodeError,
+            OSError,
+            AttributeError,
+            ValueError,
+            TypeError,
+            KeyError,
+        ) as exc:
+            logger.debug(&#34;Wikidata API unavailable for %r: %s&#34;, name, exc)
+            return None</code></pre>
+</details>
+<div class="desc"><p>Validates detected entity names against Wikidata class membership.</p>
+<p>Designed for optional nightly batch enrichment (see
+<code>scripts/enrich_wikidata.py</code>).
+The core classification pipeline never
+imports this module — adding zero latency to the hot path.</p>
+<p>All public methods return <code>WikidataMatch | None</code>:
+- <code><a title="src.storage.wikidata_enricher.WikidataMatch" href="#src.storage.wikidata_enricher.WikidataMatch">WikidataMatch</a></code> — a high-confidence (score ≥ 80) class match.
+- <code>None</code> — no match found, score too low, or any network/API error.</p></div>
+<h3>Methods</h3>
+<dl>
+<dt id="src.storage.wikidata_enricher.WikidataEnricher.reconcile_event"><code class="name flex">
+<span>def <span class="ident">reconcile_event</span></span>(<span>self, name: str) ‑> <a title="src.storage.wikidata_enricher.WikidataMatch" href="#src.storage.wikidata_enricher.WikidataMatch">WikidataMatch</a> | None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reconcile_event(self, name: str) -&gt; Optional[WikidataMatch]:
+    &#34;&#34;&#34;Check whether *name* is a known Wikidata event (Q1656682).
+
+    A positive match is a strong *negative* signal for person/org
+    detection: a name that reconciles as an event is not a person (e.g.
+    &#34;Morning Train&#34; → confirmed event, not a person, org, or brand).
+    &#34;&#34;&#34;
+    return self._reconcile(name, QID_EVENT)</code></pre>
+</details>
+<div class="desc"><p>Check whether <em>name</em> is a known Wikidata event (Q1656682).</p>
+<p>A positive match is a strong <em>negative</em> signal for person/org
+detection: a name that reconciles as an event is not a person (e.g.
+"Morning Train" → confirmed event, not a person, org, or brand).</p></div>
+</dd>
+<dt id="src.storage.wikidata_enricher.WikidataEnricher.reconcile_location"><code class="name flex">
+<span>def <span class="ident">reconcile_location</span></span>(<span>self, name: str) ‑> <a title="src.storage.wikidata_enricher.WikidataMatch" href="#src.storage.wikidata_enricher.WikidataMatch">WikidataMatch</a> | None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reconcile_location(self, name: str) -&gt; Optional[WikidataMatch]:
+    &#34;&#34;&#34;Validate *name* as a Wikidata geographic location (Q2221906).
+
+    Use before creating Location graph nodes from detected place names.
+    &#34;&#34;&#34;
+    return self._reconcile(name, QID_LOCATION)</code></pre>
+</details>
+<div class="desc"><p>Validate <em>name</em> as a Wikidata geographic location (Q2221906).</p>
+<p>Use before creating Location graph nodes from detected place names.</p></div>
+</dd>
+<dt id="src.storage.wikidata_enricher.WikidataEnricher.reconcile_organization"><code class="name flex">
+<span>def <span class="ident">reconcile_organization</span></span>(<span>self, name: str) ‑> <a title="src.storage.wikidata_enricher.WikidataMatch" href="#src.storage.wikidata_enricher.WikidataMatch">WikidataMatch</a> | None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reconcile_organization(self, name: str) -&gt; Optional[WikidataMatch]:
+    &#34;&#34;&#34;Validate *name* as a Wikidata organization (Q43229+subclasses).
+
+    High-confidence matches confirm the name refers to a real, notable
+    organization — suitable for creating ``Organization/{Name}/`` folders.
+    &#34;&#34;&#34;
+    return self._reconcile(name, QID_ORGANIZATION)</code></pre>
+</details>
+<div class="desc"><p>Validate <em>name</em> as a Wikidata organization (Q43229+subclasses).</p>
+<p>High-confidence matches confirm the name refers to a real, notable
+organization — suitable for creating <code>Organization/{Name}/</code> folders.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.storage.wikidata_enricher.WikidataMatch"><code class="flex name class">
+<span>class <span class="ident">WikidataMatch</span></span>
+<span>(</span><span>qid: str, label: str, score: float, entity_class: str)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass(frozen=True)
+class WikidataMatch:
+    &#34;&#34;&#34;A confirmed Wikidata entity match returned by the reconciliation API.&#34;&#34;&#34;
+
+    qid: str           # Wikidata item ID, e.g. &#34;Q95&#34;
+    label: str         # English label returned by the API, e.g. &#34;Google&#34;
+    score: float       # Reconciliation confidence score (0–100)
+    entity_class: str  # Class QID used in the query, e.g. &#34;Q43229&#34;
+
+    @property
+    def wikidata_url(self) -&gt; str:
+        &#34;&#34;&#34;Canonical Wikidata URL for this entity.&#34;&#34;&#34;
+        return f&#34;https://www.wikidata.org/wiki/{self.qid}&#34;</code></pre>
+</details>
+<div class="desc"><p>A confirmed Wikidata entity match returned by the reconciliation API.</p></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="src.storage.wikidata_enricher.WikidataMatch.entity_class"><code class="name">var <span class="ident">entity_class</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.wikidata_enricher.WikidataMatch.label"><code class="name">var <span class="ident">label</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.wikidata_enricher.WikidataMatch.qid"><code class="name">var <span class="ident">qid</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.wikidata_enricher.WikidataMatch.score"><code class="name">var <span class="ident">score</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.wikidata_enricher.WikidataMatch.wikidata_url"><code class="name">prop <span class="ident">wikidata_url</span> : str</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def wikidata_url(self) -&gt; str:
+    &#34;&#34;&#34;Canonical Wikidata URL for this entity.&#34;&#34;&#34;
+    return f&#34;https://www.wikidata.org/wiki/{self.qid}&#34;</code></pre>
+</details>
+<div class="desc"><p>Canonical Wikidata URL for this entity.</p></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="src.storage" href="index.html">src.storage</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="src.storage.wikidata_enricher.WikidataEnricher" href="#src.storage.wikidata_enricher.WikidataEnricher">WikidataEnricher</a></code></h4>
+<ul class="">
+<li><code><a title="src.storage.wikidata_enricher.WikidataEnricher.reconcile_event" href="#src.storage.wikidata_enricher.WikidataEnricher.reconcile_event">reconcile_event</a></code></li>
+<li><code><a title="src.storage.wikidata_enricher.WikidataEnricher.reconcile_location" href="#src.storage.wikidata_enricher.WikidataEnricher.reconcile_location">reconcile_location</a></code></li>
+<li><code><a title="src.storage.wikidata_enricher.WikidataEnricher.reconcile_organization" href="#src.storage.wikidata_enricher.WikidataEnricher.reconcile_organization">reconcile_organization</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.storage.wikidata_enricher.WikidataMatch" href="#src.storage.wikidata_enricher.WikidataMatch">WikidataMatch</a></code></h4>
+<ul class="">
+<li><code><a title="src.storage.wikidata_enricher.WikidataMatch.entity_class" href="#src.storage.wikidata_enricher.WikidataMatch.entity_class">entity_class</a></code></li>
+<li><code><a title="src.storage.wikidata_enricher.WikidataMatch.label" href="#src.storage.wikidata_enricher.WikidataMatch.label">label</a></code></li>
+<li><code><a title="src.storage.wikidata_enricher.WikidataMatch.qid" href="#src.storage.wikidata_enricher.WikidataMatch.qid">qid</a></code></li>
+<li><code><a title="src.storage.wikidata_enricher.WikidataMatch.score" href="#src.storage.wikidata_enricher.WikidataMatch.score">score</a></code></li>
+<li><code><a title="src.storage.wikidata_enricher.WikidataMatch.wikidata_url" href="#src.storage.wikidata_enricher.WikidataMatch.wikidata_url">wikidata_url</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

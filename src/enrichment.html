@@ -75,6 +75,58 @@ files may be modified in-place.</p></div>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="src.enrichment.FileStatsMetadata"><code class="flex name class">
+<span>class <span class="ident">FileStatsMetadata</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>dict() -&gt; new empty dictionary
+dict(mapping) -&gt; new dictionary initialized from a mapping object's
+(key, value) pairs
+dict(iterable) -&gt; new dictionary initialized as if via:
+d = {}
+for k, v in iterable:
+d[k] = v
+dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs
+in the keyword argument list.
+For example:
+dict(one=1, two=2)</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.enrichment.FileStatsMetadata.@id"><code class="name">var <span class="ident">@id</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.enrichment.FileStatsMetadata.contentSize"><code class="name">var <span class="ident">contentSize</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.enrichment.FileStatsMetadata.dateCreated"><code class="name">var <span class="ident">dateCreated</span> : datetime.datetime</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.enrichment.FileStatsMetadata.dateModified"><code class="name">var <span class="ident">dateModified</span> : datetime.datetime</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.enrichment.FileStatsMetadata.encodingFormat"><code class="name">var <span class="ident">encodingFormat</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.enrichment.FileStatsMetadata.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.enrichment.FileStatsMetadata.url"><code class="name">var <span class="ident">url</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
 <dt id="src.enrichment.MetadataEnricher"><code class="flex name class">
 <span>class <span class="ident">MetadataEnricher</span></span>
 </code></dt>
@@ -166,9 +218,9 @@ files may be modified in-place.</p></div>
             Encoding format string
         &#34;&#34;&#34;
         mime_type = self.detect_mime_type(file_path)
-        return self.mime_to_format.get(mime_type, mime_type)
+        return cast(str, self.mime_to_format.get(mime_type, mime_type))
 
-    def enrich_from_file_stats(self, file_path: str) -&gt; Dict[str, Any]:
+    def enrich_from_file_stats(self, file_path: str) -&gt; FileStatsMetadata:
         &#34;&#34;&#34;
         Extract metadata from file system stats.
 
@@ -706,8 +758,9 @@ files may be modified in-place.</p></div>
                     merged[key] = value
         return merged
 
-    def create_enriched_schema(self, generator_class, base_metadata: Dict[str, Any],
-                              *enrichment_sources: Dict[str, Any]) -&gt; Any:
+    def create_enriched_schema(self, generator_class: Callable[..., SchemaOrgBase],
+                              base_metadata: Dict[str, Any],
+                              *enrichment_sources: Dict[str, Any]) -&gt; SchemaOrgBase:
         &#34;&#34;&#34;
         Create enriched schema from multiple metadata sources.
 
@@ -742,15 +795,16 @@ appropriate Schema.org properties.</p>
 <h3>Methods</h3>
 <dl>
 <dt id="src.enrichment.MetadataEnricher.create_enriched_schema"><code class="name flex">
-<span>def <span class="ident">create_enriched_schema</span></span>(<span>self,<br>generator_class,<br>base_metadata: Dict[str, Any],<br>*enrichment_sources: Dict[str, Any]) ‑> Any</span>
+<span>def <span class="ident">create_enriched_schema</span></span>(<span>self,<br>generator_class: Callable[..., <a title="src.base.SchemaOrgBase" href="base.html#src.base.SchemaOrgBase">SchemaOrgBase</a>],<br>base_metadata: Dict[str, Any],<br>*enrichment_sources: Dict[str, Any]) ‑> <a title="src.base.SchemaOrgBase" href="base.html#src.base.SchemaOrgBase">SchemaOrgBase</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def create_enriched_schema(self, generator_class, base_metadata: Dict[str, Any],
-                          *enrichment_sources: Dict[str, Any]) -&gt; Any:
+<pre><code class="python">def create_enriched_schema(self, generator_class: Callable[..., SchemaOrgBase],
+                          base_metadata: Dict[str, Any],
+                          *enrichment_sources: Dict[str, Any]) -&gt; SchemaOrgBase:
     &#34;&#34;&#34;
     Create enriched schema from multiple metadata sources.
 
@@ -779,8 +833,9 @@ appropriate Schema.org properties.</p>
     return generator</code></pre>
 </details>
 <div class="desc"><p>Create enriched schema from multiple metadata sources.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>generator_class</code></strong></dt>
 <dd>Schema generator class to use</dd>
 <dt><strong><code>base_metadata</code></strong></dt>
@@ -788,8 +843,9 @@ appropriate Schema.org properties.</p>
 <dt><strong><code>*enrichment_sources</code></strong></dt>
 <dd>Additional enrichment source dictionaries</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Configured schema generator instance</p></div>
+<p>Returns
+-----=
+Configured schema generator instance</p></div>
 </dd>
 <dt id="src.enrichment.MetadataEnricher.detect_mime_type"><code class="name flex">
 <span>def <span class="ident">detect_mime_type</span></span>(<span>self, file_path: str) ‑> str</span>
@@ -813,13 +869,15 @@ appropriate Schema.org properties.</p>
     return mime_type or &#39;application/octet-stream&#39;</code></pre>
 </details>
 <div class="desc"><p>Detect MIME type from file path.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_path</code></strong></dt>
 <dd>Path to file</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>MIME type string</p></div>
+<p>Returns
+-----=
+MIME type string</p></div>
 </dd>
 <dt id="src.enrichment.MetadataEnricher.enrich_from_audio_metadata"><code class="name flex">
 <span>def <span class="ident">enrich_from_audio_metadata</span></span>(<span>self, audio_meta: Dict[str, Any]) ‑> Dict[str, Any]</span>
@@ -890,13 +948,15 @@ appropriate Schema.org properties.</p>
     return metadata</code></pre>
 </details>
 <div class="desc"><p>Extract metadata from audio file metadata.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>audio_meta</code></strong></dt>
 <dd>Audio metadata dictionary</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Enriched metadata</p></div>
+<p>Returns
+-----=
+Enriched metadata</p></div>
 </dd>
 <dt id="src.enrichment.MetadataEnricher.enrich_from_code_analysis"><code class="name flex">
 <span>def <span class="ident">enrich_from_code_analysis</span></span>(<span>self, code_analysis: Dict[str, Any]) ‑> Dict[str, Any]</span>
@@ -965,13 +1025,15 @@ appropriate Schema.org properties.</p>
     return metadata</code></pre>
 </details>
 <div class="desc"><p>Extract metadata from code analysis results.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>code_analysis</code></strong></dt>
 <dd>Code analysis results</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Enriched metadata</p></div>
+<p>Returns
+-----=
+Enriched metadata</p></div>
 </dd>
 <dt id="src.enrichment.MetadataEnricher.enrich_from_dataset_info"><code class="name flex">
 <span>def <span class="ident">enrich_from_dataset_info</span></span>(<span>self, dataset_info: Dict[str, Any]) ‑> Dict[str, Any]</span>
@@ -1041,13 +1103,15 @@ appropriate Schema.org properties.</p>
     return metadata</code></pre>
 </details>
 <div class="desc"><p>Extract metadata from dataset information.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>dataset_info</code></strong></dt>
 <dd>Dataset information dictionary</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Enriched metadata</p></div>
+<p>Returns
+-----=
+Enriched metadata</p></div>
 </dd>
 <dt id="src.enrichment.MetadataEnricher.enrich_from_document_properties"><code class="name flex">
 <span>def <span class="ident">enrich_from_document_properties</span></span>(<span>self, doc_props: Dict[str, Any]) ‑> Dict[str, Any]</span>
@@ -1099,13 +1163,15 @@ appropriate Schema.org properties.</p>
     return metadata</code></pre>
 </details>
 <div class="desc"><p>Extract metadata from document properties.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>doc_props</code></strong></dt>
 <dd>Document properties dictionary</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Enriched metadata</p></div>
+<p>Returns
+-----=
+Enriched metadata</p></div>
 </dd>
 <dt id="src.enrichment.MetadataEnricher.enrich_from_exif"><code class="name flex">
 <span>def <span class="ident">enrich_from_exif</span></span>(<span>self, exif_data: Dict[str, Any]) ‑> Dict[str, Any]</span>
@@ -1189,23 +1255,25 @@ appropriate Schema.org properties.</p>
     return metadata</code></pre>
 </details>
 <div class="desc"><p>Extract metadata from EXIF data.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>exif_data</code></strong></dt>
 <dd>EXIF data dictionary</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Enriched metadata</p></div>
+<p>Returns
+-----=
+Enriched metadata</p></div>
 </dd>
 <dt id="src.enrichment.MetadataEnricher.enrich_from_file_stats"><code class="name flex">
-<span>def <span class="ident">enrich_from_file_stats</span></span>(<span>self, file_path: str) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">enrich_from_file_stats</span></span>(<span>self, file_path: str) ‑> <a title="src.enrichment.FileStatsMetadata" href="#src.enrichment.FileStatsMetadata">FileStatsMetadata</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def enrich_from_file_stats(self, file_path: str) -&gt; Dict[str, Any]:
+<pre><code class="python">def enrich_from_file_stats(self, file_path: str) -&gt; FileStatsMetadata:
     &#34;&#34;&#34;
     Extract metadata from file system stats.
 
@@ -1243,15 +1311,18 @@ appropriate Schema.org properties.</p>
     }</code></pre>
 </details>
 <div class="desc"><p>Extract metadata from file system stats.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_path</code></strong></dt>
 <dd>Path to file</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Metadata dictionary with proper @id for JSON-LD</p>
-<h2 id="note">Note</h2>
-<p>The @id is generated as a content-addressed URN using SHA-256 hash
+<p>Returns
+-----=
+Metadata dictionary with proper @id for JSON-LD</p>
+<p>Note
+-----=
+The @id is generated as a content-addressed URN using SHA-256 hash
 of the absolute file path. This ensures:
 - Same file always gets the same @id (deterministic)
 - Valid IRI for JSON-LD compliance
@@ -1337,13 +1408,15 @@ of the absolute file path. This ensures:
     return metadata</code></pre>
 </details>
 <div class="desc"><p>Extract metadata from NLP analysis results.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>nlp_results</code></strong></dt>
 <dd>NLP analysis results</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Enriched metadata</p></div>
+<p>Returns
+-----=
+Enriched metadata</p></div>
 </dd>
 <dt id="src.enrichment.MetadataEnricher.enrich_from_video_metadata"><code class="name flex">
 <span>def <span class="ident">enrich_from_video_metadata</span></span>(<span>self, video_meta: Dict[str, Any]) ‑> Dict[str, Any]</span>
@@ -1401,13 +1474,15 @@ of the absolute file path. This ensures:
     return metadata</code></pre>
 </details>
 <div class="desc"><p>Extract metadata from video file metadata.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>video_meta</code></strong></dt>
 <dd>Video metadata dictionary</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Enriched metadata</p></div>
+<p>Returns
+-----=
+Enriched metadata</p></div>
 </dd>
 <dt id="src.enrichment.MetadataEnricher.get_encoding_format"><code class="name flex">
 <span>def <span class="ident">get_encoding_format</span></span>(<span>self, file_path: str) ‑> str</span>
@@ -1428,16 +1503,18 @@ of the absolute file path. This ensures:
         Encoding format string
     &#34;&#34;&#34;
     mime_type = self.detect_mime_type(file_path)
-    return self.mime_to_format.get(mime_type, mime_type)</code></pre>
+    return cast(str, self.mime_to_format.get(mime_type, mime_type))</code></pre>
 </details>
 <div class="desc"><p>Get encoding format for Schema.org.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_path</code></strong></dt>
 <dd>Path to file</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Encoding format string</p></div>
+<p>Returns
+-----=
+Encoding format string</p></div>
 </dd>
 <dt id="src.enrichment.MetadataEnricher.merge_metadata"><code class="name flex">
 <span>def <span class="ident">merge_metadata</span></span>(<span>self, *metadata_dicts: Dict[str, Any]) ‑> Dict[str, Any]</span>
@@ -1468,13 +1545,15 @@ of the absolute file path. This ensures:
 </details>
 <div class="desc"><p>Merge multiple metadata dictionaries.</p>
 <p>Later dictionaries override earlier ones.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>*metadata_dicts</code></strong></dt>
 <dd>Variable number of metadata dictionaries</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Merged metadata dictionary</p></div>
+<p>Returns
+-----=
+Merged metadata dictionary</p></div>
 </dd>
 </dl>
 </dd>
@@ -1498,6 +1577,18 @@ of the absolute file path. This ensures:
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="src.enrichment.FileStatsMetadata" href="#src.enrichment.FileStatsMetadata">FileStatsMetadata</a></code></h4>
+<ul class="two-column">
+<li><code><a title="src.enrichment.FileStatsMetadata.@id" href="#src.enrichment.FileStatsMetadata.@id">@id</a></code></li>
+<li><code><a title="src.enrichment.FileStatsMetadata.contentSize" href="#src.enrichment.FileStatsMetadata.contentSize">contentSize</a></code></li>
+<li><code><a title="src.enrichment.FileStatsMetadata.dateCreated" href="#src.enrichment.FileStatsMetadata.dateCreated">dateCreated</a></code></li>
+<li><code><a title="src.enrichment.FileStatsMetadata.dateModified" href="#src.enrichment.FileStatsMetadata.dateModified">dateModified</a></code></li>
+<li><code><a title="src.enrichment.FileStatsMetadata.encodingFormat" href="#src.enrichment.FileStatsMetadata.encodingFormat">encodingFormat</a></code></li>
+<li><code><a title="src.enrichment.FileStatsMetadata.name" href="#src.enrichment.FileStatsMetadata.name">name</a></code></li>
+<li><code><a title="src.enrichment.FileStatsMetadata.url" href="#src.enrichment.FileStatsMetadata.url">url</a></code></li>
+</ul>
+</li>
 <li>
 <h4><code><a title="src.enrichment.MetadataEnricher" href="#src.enrichment.MetadataEnricher">MetadataEnricher</a></code></h4>
 <ul class="">

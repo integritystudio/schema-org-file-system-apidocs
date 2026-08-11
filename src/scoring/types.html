@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>src.scoring.types API documentation</title>
+<meta name="description" content="Core interfaces for the unified scoring engine …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>src.scoring.types</code></h1>
+</header>
+<section id="section-intro">
+<p>Core interfaces for the unified scoring engine.</p>
+<p>See docs/architecture/UNIFIED_SCORING_PLAN.md §3.2. Every signal is a pure
+function over a :class:<code>~src.scoring.context.FileContext</code>; the
+:class:<code>~src.scoring.scorer.Scorer</code> aggregates their
+:class:<code><a title="src.scoring.types.CategoryScore" href="#src.scoring.types.CategoryScore">CategoryScore</a></code> emissions into one :class:<code><a title="src.scoring.types.ClassificationDecision" href="#src.scoring.types.ClassificationDecision">ClassificationDecision</a></code>.</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="src.scoring.types.CategoryScore"><code class="flex name class">
+<span>class <span class="ident">CategoryScore</span></span>
+<span>(</span><span>category: str,<br>subcategory: str,<br>confidence: float,<br>signal_name: str,<br>evidence: Dict[str, Any] = &lt;factory&gt;)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass(frozen=True)
+class CategoryScore:
+    &#34;&#34;&#34;One signal&#39;s vote for a (category, subcategory) with local confidence.&#34;&#34;&#34;
+
+    category: str
+    subcategory: str
+    confidence: float  # signal-local, [0, 1]
+    signal_name: str
+    evidence: Dict[str, Any] = field(default_factory=dict)</code></pre>
+</details>
+<div class="desc"><p>One signal's vote for a (category, subcategory) with local confidence.</p></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="src.scoring.types.CategoryScore.category"><code class="name">var <span class="ident">category</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.CategoryScore.confidence"><code class="name">var <span class="ident">confidence</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.CategoryScore.evidence"><code class="name">var <span class="ident">evidence</span> : Dict[str, Any]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.CategoryScore.signal_name"><code class="name">var <span class="ident">signal_name</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.CategoryScore.subcategory"><code class="name">var <span class="ident">subcategory</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.scoring.types.ClassificationDecision"><code class="flex name class">
+<span>class <span class="ident">ClassificationDecision</span></span>
+<span>(</span><span>category: str,<br>subcategory: str,<br>schema_type: str,<br>confidence: float,<br>margin: float,<br>winning_signals: List[str],<br>all_scores: List[<a title="src.scoring.types.CategoryScore" href="#src.scoring.types.CategoryScore">CategoryScore</a>],<br>company_name: Optional[str],<br>people_names: List[str],<br>decision_state: str = 'committed')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass(frozen=True)
+class ClassificationDecision:
+    &#34;&#34;&#34;Aggregated scoring outcome for one file (§5.3).
+
+    ``confidence`` is the argmax candidate&#39;s aggregate clamped to [0, 1];
+    thresholds operate on the raw (unclamped) aggregate. ``margin`` is the raw
+    lead over the best runner-up in a *different* category (the raw aggregate
+    itself when no other-category candidate exists) — same-category
+    subcategory rivals do not count, so an unambiguous category commits its
+    best subcategory. ``winning_signals`` always describes the argmax
+    candidate, even when ``decision_state`` routed the file to the fallback
+    bucket.
+    &#34;&#34;&#34;
+
+    category: str
+    subcategory: str
+    schema_type: str
+    confidence: float
+    margin: float
+    winning_signals: List[str]
+    all_scores: List[CategoryScore]
+    company_name: Optional[str]
+    people_names: List[str]
+    decision_state: str = &#34;committed&#34;</code></pre>
+</details>
+<div class="desc"><p>Aggregated scoring outcome for one file (§5.3).</p>
+<p><code>confidence</code> is the argmax candidate's aggregate clamped to [0, 1];
+thresholds operate on the raw (unclamped) aggregate. <code>margin</code> is the raw
+lead over the best runner-up in a <em>different</em> category (the raw aggregate
+itself when no other-category candidate exists) — same-category
+subcategory rivals do not count, so an unambiguous category commits its
+best subcategory. <code>winning_signals</code> always describes the argmax
+candidate, even when <code>decision_state</code> routed the file to the fallback
+bucket.</p></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="src.scoring.types.ClassificationDecision.all_scores"><code class="name">var <span class="ident">all_scores</span> : List[<a title="src.scoring.types.CategoryScore" href="#src.scoring.types.CategoryScore">CategoryScore</a>]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.ClassificationDecision.category"><code class="name">var <span class="ident">category</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.ClassificationDecision.company_name"><code class="name">var <span class="ident">company_name</span> : str | None</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.ClassificationDecision.confidence"><code class="name">var <span class="ident">confidence</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.ClassificationDecision.decision_state"><code class="name">var <span class="ident">decision_state</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.ClassificationDecision.margin"><code class="name">var <span class="ident">margin</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.ClassificationDecision.people_names"><code class="name">var <span class="ident">people_names</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.ClassificationDecision.schema_type"><code class="name">var <span class="ident">schema_type</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.ClassificationDecision.subcategory"><code class="name">var <span class="ident">subcategory</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.ClassificationDecision.winning_signals"><code class="name">var <span class="ident">winning_signals</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.scoring.types.DecisionSnapshot"><code class="flex name class">
+<span>class <span class="ident">DecisionSnapshot</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DecisionSnapshot(TypedDict):
+    &#34;&#34;&#34;JSON-safe :class:`ClassificationDecision` snapshot (§7.1 record core).&#34;&#34;&#34;
+
+    scorer: str
+    decision: SnapshotDecision
+    winning_signals: List[str]
+    all_scores: List[SnapshotScore]</code></pre>
+</details>
+<div class="desc"><p>JSON-safe :class:<code><a title="src.scoring.types.ClassificationDecision" href="#src.scoring.types.ClassificationDecision">ClassificationDecision</a></code> snapshot (§7.1 record core).</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.scoring.types.DecisionSnapshot.all_scores"><code class="name">var <span class="ident">all_scores</span> : List[<a title="src.scoring.types.SnapshotScore" href="#src.scoring.types.SnapshotScore">SnapshotScore</a>]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.DecisionSnapshot.decision"><code class="name">var <span class="ident">decision</span> : <a title="src.scoring.types.SnapshotDecision" href="#src.scoring.types.SnapshotDecision">SnapshotDecision</a></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.DecisionSnapshot.scorer"><code class="name">var <span class="ident">scorer</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.DecisionSnapshot.winning_signals"><code class="name">var <span class="ident">winning_signals</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.scoring.types.Signal"><code class="flex name class">
+<span>class <span class="ident">Signal</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@runtime_checkable
+class Signal(Protocol):
+    &#34;&#34;&#34;A registered classification signal (§3.2).
+
+    Implementations must be pure over the context: no I/O outside clients
+    injected at construction, no reliance on organizer instance state.
+    &#34;&#34;&#34;
+
+    name: str
+    weight: float
+    cost_tier: str
+
+    def applies_to(self, ctx: &#34;FileContext&#34;) -&gt; bool: ...
+
+    def run(self, ctx: &#34;FileContext&#34;) -&gt; List[&#34;CategoryScore&#34;]: ...</code></pre>
+</details>
+<div class="desc"><p>A registered classification signal (§3.2).</p>
+<p>Implementations must be pure over the context: no I/O outside clients
+injected at construction, no reliance on organizer instance state.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>typing.Protocol</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.scoring.types.Signal.cost_tier"><code class="name">var <span class="ident">cost_tier</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.Signal.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.Signal.weight"><code class="name">var <span class="ident">weight</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="src.scoring.types.Signal.applies_to"><code class="name flex">
+<span>def <span class="ident">applies_to</span></span>(<span>self, ctx: "'FileContext'") ‑> bool</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def applies_to(self, ctx: &#34;FileContext&#34;) -&gt; bool: ...</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="src.scoring.types.Signal.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self, ctx: "'FileContext'") ‑> List['<a title="src.scoring.types.CategoryScore" href="#src.scoring.types.CategoryScore">CategoryScore</a>']</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self, ctx: &#34;FileContext&#34;) -&gt; List[&#34;CategoryScore&#34;]: ...</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.scoring.types.SnapshotDecision"><code class="flex name class">
+<span>class <span class="ident">SnapshotDecision</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SnapshotDecision(TypedDict):
+    &#34;&#34;&#34;Decision core inside a :class:`DecisionSnapshot`.&#34;&#34;&#34;
+
+    category: str
+    subcategory: str
+    schema_type: str
+    confidence: float
+    margin: float
+    decision_state: str</code></pre>
+</details>
+<div class="desc"><p>Decision core inside a :class:<code><a title="src.scoring.types.DecisionSnapshot" href="#src.scoring.types.DecisionSnapshot">DecisionSnapshot</a></code>.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.scoring.types.SnapshotDecision.category"><code class="name">var <span class="ident">category</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.SnapshotDecision.confidence"><code class="name">var <span class="ident">confidence</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.SnapshotDecision.decision_state"><code class="name">var <span class="ident">decision_state</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.SnapshotDecision.margin"><code class="name">var <span class="ident">margin</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.SnapshotDecision.schema_type"><code class="name">var <span class="ident">schema_type</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.SnapshotDecision.subcategory"><code class="name">var <span class="ident">subcategory</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.scoring.types.SnapshotScore"><code class="flex name class">
+<span>class <span class="ident">SnapshotScore</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SnapshotScore(TypedDict):
+    &#34;&#34;&#34;One CategoryScore row inside a :class:`DecisionSnapshot`.&#34;&#34;&#34;
+
+    signal: str
+    cat: str
+    sub: Optional[str]
+    conf: float
+    # Provably JSON: the snapshot&#39;s sole producer round-trips through
+    # json.dumps(default=str)/loads, degrading rich evidence values.
+    evidence: Dict[str, JsonValue]</code></pre>
+</details>
+<div class="desc"><p>One CategoryScore row inside a :class:<code><a title="src.scoring.types.DecisionSnapshot" href="#src.scoring.types.DecisionSnapshot">DecisionSnapshot</a></code>.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.scoring.types.SnapshotScore.cat"><code class="name">var <span class="ident">cat</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.SnapshotScore.conf"><code class="name">var <span class="ident">conf</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.SnapshotScore.evidence"><code class="name">var <span class="ident">evidence</span> : Dict[str, JsonValue]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.SnapshotScore.signal"><code class="name">var <span class="ident">signal</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.types.SnapshotScore.sub"><code class="name">var <span class="ident">sub</span> : str | None</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="src.scoring" href="index.html">src.scoring</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="src.scoring.types.CategoryScore" href="#src.scoring.types.CategoryScore">CategoryScore</a></code></h4>
+<ul class="">
+<li><code><a title="src.scoring.types.CategoryScore.category" href="#src.scoring.types.CategoryScore.category">category</a></code></li>
+<li><code><a title="src.scoring.types.CategoryScore.confidence" href="#src.scoring.types.CategoryScore.confidence">confidence</a></code></li>
+<li><code><a title="src.scoring.types.CategoryScore.evidence" href="#src.scoring.types.CategoryScore.evidence">evidence</a></code></li>
+<li><code><a title="src.scoring.types.CategoryScore.signal_name" href="#src.scoring.types.CategoryScore.signal_name">signal_name</a></code></li>
+<li><code><a title="src.scoring.types.CategoryScore.subcategory" href="#src.scoring.types.CategoryScore.subcategory">subcategory</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.scoring.types.ClassificationDecision" href="#src.scoring.types.ClassificationDecision">ClassificationDecision</a></code></h4>
+<ul class="two-column">
+<li><code><a title="src.scoring.types.ClassificationDecision.all_scores" href="#src.scoring.types.ClassificationDecision.all_scores">all_scores</a></code></li>
+<li><code><a title="src.scoring.types.ClassificationDecision.category" href="#src.scoring.types.ClassificationDecision.category">category</a></code></li>
+<li><code><a title="src.scoring.types.ClassificationDecision.company_name" href="#src.scoring.types.ClassificationDecision.company_name">company_name</a></code></li>
+<li><code><a title="src.scoring.types.ClassificationDecision.confidence" href="#src.scoring.types.ClassificationDecision.confidence">confidence</a></code></li>
+<li><code><a title="src.scoring.types.ClassificationDecision.decision_state" href="#src.scoring.types.ClassificationDecision.decision_state">decision_state</a></code></li>
+<li><code><a title="src.scoring.types.ClassificationDecision.margin" href="#src.scoring.types.ClassificationDecision.margin">margin</a></code></li>
+<li><code><a title="src.scoring.types.ClassificationDecision.people_names" href="#src.scoring.types.ClassificationDecision.people_names">people_names</a></code></li>
+<li><code><a title="src.scoring.types.ClassificationDecision.schema_type" href="#src.scoring.types.ClassificationDecision.schema_type">schema_type</a></code></li>
+<li><code><a title="src.scoring.types.ClassificationDecision.subcategory" href="#src.scoring.types.ClassificationDecision.subcategory">subcategory</a></code></li>
+<li><code><a title="src.scoring.types.ClassificationDecision.winning_signals" href="#src.scoring.types.ClassificationDecision.winning_signals">winning_signals</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.scoring.types.DecisionSnapshot" href="#src.scoring.types.DecisionSnapshot">DecisionSnapshot</a></code></h4>
+<ul class="">
+<li><code><a title="src.scoring.types.DecisionSnapshot.all_scores" href="#src.scoring.types.DecisionSnapshot.all_scores">all_scores</a></code></li>
+<li><code><a title="src.scoring.types.DecisionSnapshot.decision" href="#src.scoring.types.DecisionSnapshot.decision">decision</a></code></li>
+<li><code><a title="src.scoring.types.DecisionSnapshot.scorer" href="#src.scoring.types.DecisionSnapshot.scorer">scorer</a></code></li>
+<li><code><a title="src.scoring.types.DecisionSnapshot.winning_signals" href="#src.scoring.types.DecisionSnapshot.winning_signals">winning_signals</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.scoring.types.Signal" href="#src.scoring.types.Signal">Signal</a></code></h4>
+<ul class="">
+<li><code><a title="src.scoring.types.Signal.applies_to" href="#src.scoring.types.Signal.applies_to">applies_to</a></code></li>
+<li><code><a title="src.scoring.types.Signal.cost_tier" href="#src.scoring.types.Signal.cost_tier">cost_tier</a></code></li>
+<li><code><a title="src.scoring.types.Signal.name" href="#src.scoring.types.Signal.name">name</a></code></li>
+<li><code><a title="src.scoring.types.Signal.run" href="#src.scoring.types.Signal.run">run</a></code></li>
+<li><code><a title="src.scoring.types.Signal.weight" href="#src.scoring.types.Signal.weight">weight</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.scoring.types.SnapshotDecision" href="#src.scoring.types.SnapshotDecision">SnapshotDecision</a></code></h4>
+<ul class="two-column">
+<li><code><a title="src.scoring.types.SnapshotDecision.category" href="#src.scoring.types.SnapshotDecision.category">category</a></code></li>
+<li><code><a title="src.scoring.types.SnapshotDecision.confidence" href="#src.scoring.types.SnapshotDecision.confidence">confidence</a></code></li>
+<li><code><a title="src.scoring.types.SnapshotDecision.decision_state" href="#src.scoring.types.SnapshotDecision.decision_state">decision_state</a></code></li>
+<li><code><a title="src.scoring.types.SnapshotDecision.margin" href="#src.scoring.types.SnapshotDecision.margin">margin</a></code></li>
+<li><code><a title="src.scoring.types.SnapshotDecision.schema_type" href="#src.scoring.types.SnapshotDecision.schema_type">schema_type</a></code></li>
+<li><code><a title="src.scoring.types.SnapshotDecision.subcategory" href="#src.scoring.types.SnapshotDecision.subcategory">subcategory</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.scoring.types.SnapshotScore" href="#src.scoring.types.SnapshotScore">SnapshotScore</a></code></h4>
+<ul class="">
+<li><code><a title="src.scoring.types.SnapshotScore.cat" href="#src.scoring.types.SnapshotScore.cat">cat</a></code></li>
+<li><code><a title="src.scoring.types.SnapshotScore.conf" href="#src.scoring.types.SnapshotScore.conf">conf</a></code></li>
+<li><code><a title="src.scoring.types.SnapshotScore.evidence" href="#src.scoring.types.SnapshotScore.evidence">evidence</a></code></li>
+<li><code><a title="src.scoring.types.SnapshotScore.signal" href="#src.scoring.types.SnapshotScore.signal">signal</a></code></li>
+<li><code><a title="src.scoring.types.SnapshotScore.sub" href="#src.scoring.types.SnapshotScore.sub">sub</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

@@ -51,7 +51,7 @@ context management, property validation, and nested schema support.</p>
 <dl>
 <dt id="src.base.PropertyType"><code class="flex name class">
 <span>class <span class="ident">PropertyType</span></span>
-<span>(</span><span>*args, **kwds)</span>
+<span>(</span><span>*values)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -79,39 +79,39 @@ context management, property validation, and nested schema support.</p>
 <dl>
 <dt id="src.base.PropertyType.ARRAY"><code class="name">var <span class="ident">ARRAY</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.base.PropertyType.BOOLEAN"><code class="name">var <span class="ident">BOOLEAN</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.base.PropertyType.DATE"><code class="name">var <span class="ident">DATE</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.base.PropertyType.DATETIME"><code class="name">var <span class="ident">DATETIME</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.base.PropertyType.INTEGER"><code class="name">var <span class="ident">INTEGER</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.base.PropertyType.NUMBER"><code class="name">var <span class="ident">NUMBER</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.base.PropertyType.OBJECT"><code class="name">var <span class="ident">OBJECT</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.base.PropertyType.TEXT"><code class="name">var <span class="ident">TEXT</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.base.PropertyType.URL"><code class="name">var <span class="ident">URL</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 </dd>
@@ -133,7 +133,7 @@ context management, property validation, and nested schema support.</p>
     }
 
     @classmethod
-    def get_context(cls, additional_contexts: Optional[Dict[str, str]] = None) -&gt; Dict[str, Any]:
+    def get_context(cls, additional_contexts: Optional[Dict[str, str]] = None) -&gt; Dict[str, str]:
         &#34;&#34;&#34;
         Get Schema.org context with optional additional contexts.
 
@@ -153,27 +153,29 @@ context management, property validation, and nested schema support.</p>
 <dl>
 <dt id="src.base.SchemaContext.DEFAULT_CONTEXT"><code class="name">var <span class="ident">DEFAULT_CONTEXT</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.base.SchemaContext.SCHEMA_ORG"><code class="name">var <span class="ident">SCHEMA_ORG</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 <h3>Static methods</h3>
 <dl>
 <dt id="src.base.SchemaContext.get_context"><code class="name flex">
-<span>def <span class="ident">get_context</span></span>(<span>additional_contexts: Dict[str, str] | None = None) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">get_context</span></span>(<span>additional_contexts: Dict[str, str] | None = None) ‑> Dict[str, str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get Schema.org context with optional additional contexts.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>additional_contexts</code></strong></dt>
 <dd>Additional context mappings to include</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Complete context dictionary</p></div>
+<p>Returns
+-----=
+Complete context dictionary</p></div>
 </dd>
 </dl>
 </dd>
@@ -342,7 +344,7 @@ context management, property validation, and nested schema support.</p>
         Returns:
             The @id IRI string
         &#34;&#34;&#34;
-        return self.data.get(&#34;@id&#34;, &#34;&#34;)
+        return cast(str, self.data.get(&#34;@id&#34;, &#34;&#34;))
 
     def set_dates(self, created: Optional[datetime] = None,
                   modified: Optional[datetime] = None,
@@ -428,7 +430,7 @@ context management, property validation, and nested schema support.</p>
         if total == 0:
             return 1.0
 
-        present = 0
+        present = 0.0
         for prop in required:
             if prop in self.data:
                 present += 1
@@ -455,15 +457,17 @@ compliance. The @id can be:
 - Deterministic UUID v5 from a natural key
 - Custom IRI (HTTPS URL or URN)</p>
 <p>Initialize the Schema.org generator.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema_type</code></strong></dt>
 <dd>The Schema.org type (e.g., 'DigitalDocument', 'ImageObject')</dd>
 <dt><strong><code>entity_id</code></strong></dt>
 <dd>Optional entity ID. If not provided, generates UUID v4.
 Can be a UUID string, URN, or HTTPS URL.</dd>
 </dl>
-<h2 id="examples">Examples</h2>
+<p>Examples
+-----=</p>
 <h1 id="auto-generated-id">Auto-generated ID</h1>
 <p>doc = DocumentGenerator()</p>
 <h1 id="custom-uuid">Custom UUID</h1>
@@ -512,7 +516,7 @@ Can be a UUID string, URN, or HTTPS URL.</dd>
     if total == 0:
         return 1.0
 
-    present = 0
+    present = 0.0
     for prop in required:
         if prop in self.data:
             present += 1
@@ -523,8 +527,9 @@ Can be a UUID string, URN, or HTTPS URL.</dd>
     return min(present / len(required) if required else 1.0, 1.0)</code></pre>
 </details>
 <div class="desc"><p>Calculate completion score based on required and recommended properties.</p>
-<h2 id="returns">Returns</h2>
-<p>Completion score (0.0 to 1.0)</p></div>
+<p>Returns
+-----=
+Completion score (0.0 to 1.0)</p></div>
 </dd>
 <dt id="src.base.SchemaOrgBase.get_id"><code class="name flex">
 <span>def <span class="ident">get_id</span></span>(<span>self) ‑> str</span>
@@ -541,11 +546,12 @@ Can be a UUID string, URN, or HTTPS URL.</dd>
     Returns:
         The @id IRI string
     &#34;&#34;&#34;
-    return self.data.get(&#34;@id&#34;, &#34;&#34;)</code></pre>
+    return cast(str, self.data.get(&#34;@id&#34;, &#34;&#34;))</code></pre>
 </details>
 <div class="desc"><p>Get the @id for this schema.</p>
-<h2 id="returns">Returns</h2>
-<p>The @id IRI string</p></div>
+<p>Returns
+-----=
+The @id IRI string</p></div>
 </dd>
 <dt id="src.base.SchemaOrgBase.get_recommended_properties"><code class="name flex">
 <span>def <span class="ident">get_recommended_properties</span></span>(<span>self) ‑> List[str]</span>
@@ -566,8 +572,9 @@ def get_recommended_properties(self) -&gt; List[str]:
     pass</code></pre>
 </details>
 <div class="desc"><p>Get list of recommended properties for this schema type.</p>
-<h2 id="returns">Returns</h2>
-<p>List of recommended property names</p></div>
+<p>Returns
+-----=
+List of recommended property names</p></div>
 </dd>
 <dt id="src.base.SchemaOrgBase.get_required_properties"><code class="name flex">
 <span>def <span class="ident">get_required_properties</span></span>(<span>self) ‑> List[str]</span>
@@ -588,8 +595,9 @@ def get_required_properties(self) -&gt; List[str]:
     pass</code></pre>
 </details>
 <div class="desc"><p>Get list of required properties for this schema type.</p>
-<h2 id="returns">Returns</h2>
-<p>List of required property names</p></div>
+<p>Returns
+-----=
+List of required property names</p></div>
 </dd>
 <dt id="src.base.SchemaOrgBase.set_dates"><code class="name flex">
 <span>def <span class="ident">set_dates</span></span>(<span>self,<br>created: datetime.datetime | None = None,<br>modified: datetime.datetime | None = None,<br>published: datetime.datetime | None = None) ‑> <a title="src.base.SchemaOrgBase" href="#src.base.SchemaOrgBase">SchemaOrgBase</a></span>
@@ -622,8 +630,9 @@ def get_required_properties(self) -&gt; List[str]:
     return self</code></pre>
 </details>
 <div class="desc"><p>Set date properties.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>created</code></strong></dt>
 <dd>Date created</dd>
 <dt><strong><code>modified</code></strong></dt>
@@ -631,8 +640,9 @@ def get_required_properties(self) -&gt; List[str]:
 <dt><strong><code>published</code></strong></dt>
 <dd>Date published</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Self for method chaining</p></div>
+<p>Returns
+-----=
+Self for method chaining</p></div>
 </dd>
 <dt id="src.base.SchemaOrgBase.set_property"><code class="name flex">
 <span>def <span class="ident">set_property</span></span>(<span>self,<br>name: str,<br>value: Any,<br>property_type: <a title="src.base.PropertyType" href="#src.base.PropertyType">PropertyType</a> | None = None) ‑> <a title="src.base.SchemaOrgBase" href="#src.base.SchemaOrgBase">SchemaOrgBase</a></span>
@@ -666,8 +676,9 @@ def get_required_properties(self) -&gt; List[str]:
     return self</code></pre>
 </details>
 <div class="desc"><p>Set a property value with optional type validation.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>name</code></strong></dt>
 <dd>Property name</dd>
 <dt><strong><code>value</code></strong></dt>
@@ -675,8 +686,9 @@ def get_required_properties(self) -&gt; List[str]:
 <dt><strong><code>property_type</code></strong></dt>
 <dd>Expected property type for validation</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Self for method chaining</p></div>
+<p>Returns
+-----=
+Self for method chaining</p></div>
 </dd>
 <dt id="src.base.SchemaOrgBase.to_dict"><code class="name flex">
 <span>def <span class="ident">to_dict</span></span>(<span>self) ‑> Dict[str, Any]</span>
@@ -696,8 +708,9 @@ def get_required_properties(self) -&gt; List[str]:
     return self.data.copy()</code></pre>
 </details>
 <div class="desc"><p>Convert to dictionary representation.</p>
-<h2 id="returns">Returns</h2>
-<p>Dictionary representation of the schema</p></div>
+<p>Returns
+-----=
+Dictionary representation of the schema</p></div>
 </dd>
 <dt id="src.base.SchemaOrgBase.to_json_ld"><code class="name flex">
 <span>def <span class="ident">to_json_ld</span></span>(<span>self, indent: int = 2) ‑> str</span>
@@ -720,13 +733,15 @@ def get_required_properties(self) -&gt; List[str]:
     return json.dumps(self.data, indent=indent, ensure_ascii=False)</code></pre>
 </details>
 <div class="desc"><p>Convert to JSON-LD string.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>indent</code></strong></dt>
 <dd>JSON indentation level</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>JSON-LD string</p></div>
+<p>Returns
+-----=
+JSON-LD string</p></div>
 </dd>
 <dt id="src.base.SchemaOrgBase.to_json_ld_script"><code class="name flex">
 <span>def <span class="ident">to_json_ld_script</span></span>(<span>self, indent: int = 2) ‑> str</span>
@@ -750,13 +765,15 @@ def get_required_properties(self) -&gt; List[str]:
     return f&#39;&lt;script type=&#34;application/ld+json&#34;&gt;\n{json_ld}\n&lt;/script&gt;&#39;</code></pre>
 </details>
 <div class="desc"><p>Convert to JSON-LD script tag for HTML embedding.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>indent</code></strong></dt>
 <dd>JSON indentation level</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>HTML script tag with JSON-LD</p></div>
+<p>Returns
+-----=
+HTML script tag with JSON-LD</p></div>
 </dd>
 <dt id="src.base.SchemaOrgBase.validate_required_properties"><code class="name flex">
 <span>def <span class="ident">validate_required_properties</span></span>(<span>self) ‑> List[str]</span>
@@ -781,8 +798,9 @@ def get_required_properties(self) -&gt; List[str]:
     return missing</code></pre>
 </details>
 <div class="desc"><p>Validate that all required properties are present.</p>
-<h2 id="returns">Returns</h2>
-<p>List of missing required properties</p></div>
+<p>Returns
+-----=
+List of missing required properties</p></div>
 </dd>
 </dl>
 </dd>

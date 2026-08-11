@@ -109,8 +109,9 @@ el.replaceWith(d);
     return status.available if status else False</code></pre>
 </details>
 <div class="desc"><p>Check if a feature is available, print warning if not.</p>
-<h2 id="usage">Usage</h2>
-<p>if require_feature('clip_vision'):
+<p>Usage
+-----=
+if require_feature('clip_vision'):
 # Use CLIP model
 else:
 # Fallback behavior</p></div>
@@ -132,6 +133,7 @@ else:
 <pre><code class="python">@dataclass
 class FeatureStatus:
     &#34;&#34;&#34;Status of a single feature.&#34;&#34;&#34;
+
     name: str
     available: bool
     version: Optional[str] = None
@@ -143,23 +145,65 @@ class FeatureStatus:
 <dl>
 <dt id="src.health_check.FeatureStatus.available"><code class="name">var <span class="ident">available</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.health_check.FeatureStatus.error"><code class="name">var <span class="ident">error</span> : str | None</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.health_check.FeatureStatus.impact"><code class="name">var <span class="ident">impact</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.health_check.FeatureStatus.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.health_check.FeatureStatus.version"><code class="name">var <span class="ident">version</span> : str | None</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.health_check.FeatureStatusDict"><code class="flex name class">
+<span>class <span class="ident">FeatureStatusDict</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FeatureStatusDict(TypedDict):
+    &#34;&#34;&#34;One feature&#39;s status as exported by SystemHealthChecker.to_dict.&#34;&#34;&#34;
+
+    available: bool
+    version: Optional[str]
+    error: Optional[str]
+    impact: str</code></pre>
+</details>
+<div class="desc"><p>One feature's status as exported by SystemHealthChecker.to_dict.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.health_check.FeatureStatusDict.available"><code class="name">var <span class="ident">available</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.health_check.FeatureStatusDict.error"><code class="name">var <span class="ident">error</span> : str | None</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.health_check.FeatureStatusDict.impact"><code class="name">var <span class="ident">impact</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.health_check.FeatureStatusDict.version"><code class="name">var <span class="ident">version</span> : str | None</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 </dd>
@@ -185,21 +229,24 @@ class FeatureStatus:
             # Use CLIP model
     &#34;&#34;&#34;
 
-    def __init__(self):
+    def __init__(self) -&gt; None:
         self.features: dict[str, FeatureStatus] = {}
         self._checked = False
 
-    def run_all_checks(self) -&gt; &#39;SystemHealthChecker&#39;:
+    def run_all_checks(self) -&gt; &#34;SystemHealthChecker&#34;:
         &#34;&#34;&#34;Run all dependency checks.&#34;&#34;&#34;
         self._check_python_version()
         self._check_pillow()
         self._check_heic_support()
         self._check_ocr()
         self._check_clip_vision()
+        self._check_scene_probe()
+        self._check_similarity()
         self._check_database()
         self._check_geocoding()
         self._check_error_tracking()
         self._check_document_processing()
+        self._check_name_validator()
         self._checked = True
         return self
 
@@ -208,67 +255,69 @@ class FeatureStatus:
         version = f&#34;{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}&#34;
         min_version = (3, 8)
         available = sys.version_info &gt;= min_version
-        self.features[&#39;python&#39;] = FeatureStatus(
+        self.features[&#34;python&#34;] = FeatureStatus(
             name=&#34;Python&#34;,
             available=available,
             version=version,
             error=None if available else f&#34;Requires Python {min_version[0]}.{min_version[1]}+&#34;,
-            impact=&#34;Core functionality&#34;
+            impact=&#34;Core functionality&#34;,
         )
 
     def _check_pillow(self) -&gt; None:
         &#34;&#34;&#34;Check PIL/Pillow for image processing.&#34;&#34;&#34;
         try:
-            from PIL import Image
             import PIL
-            self.features[&#39;pillow&#39;] = FeatureStatus(
+
+            self.features[&#34;pillow&#34;] = FeatureStatus(
                 name=&#34;Pillow (Image Processing)&#34;,
                 available=True,
                 version=PIL.__version__,
-                impact=&#34;JPEG/PNG image loading, EXIF extraction&#34;
+                impact=&#34;JPEG/PNG image loading, EXIF extraction&#34;,
             )
         except ImportError as e:
-            self.features[&#39;pillow&#39;] = FeatureStatus(
+            self.features[&#34;pillow&#34;] = FeatureStatus(
                 name=&#34;Pillow (Image Processing)&#34;,
                 available=False,
                 error=str(e),
-                impact=&#34;Cannot process images - pip install Pillow&#34;
+                impact=&#34;Cannot process images - pip install Pillow&#34;,
             )
 
     def _check_heic_support(self) -&gt; None:
         &#34;&#34;&#34;Check HEIC/HEIF image support.&#34;&#34;&#34;
         try:
             import pillow_heif
-            self.features[&#39;heic&#39;] = FeatureStatus(
+
+            self.features[&#34;heic&#34;] = FeatureStatus(
                 name=&#34;HEIC Support&#34;,
                 available=True,
                 version=pillow_heif.__version__,
-                impact=&#34;iPhone HEIC photos supported&#34;
+                impact=&#34;iPhone HEIC photos supported&#34;,
             )
         except ImportError:
-            self.features[&#39;heic&#39;] = FeatureStatus(
+            self.features[&#34;heic&#34;] = FeatureStatus(
                 name=&#34;HEIC Support&#34;,
                 available=False,
                 error=&#34;pillow-heif not installed&#34;,
-                impact=&#34;HEIC files skipped - pip install pillow-heif&#34;
+                impact=&#34;HEIC files skipped - pip install pillow-heif&#34;,
             )
 
     def _check_ocr(self) -&gt; None:
         &#34;&#34;&#34;Check docTR OCR availability.&#34;&#34;&#34;
         try:
             import doctr
-            self.features[&#39;ocr&#39;] = FeatureStatus(
+
+            self.features[&#34;ocr&#34;] = FeatureStatus(
                 name=&#34;OCR (docTR)&#34;,
                 available=True,
                 version=doctr.__version__,
-                impact=&#34;Text extraction from images/screenshots&#34;
+                impact=&#34;Text extraction from images/screenshots&#34;,
             )
         except ImportError:
-            self.features[&#39;ocr&#39;] = FeatureStatus(
+            self.features[&#34;ocr&#34;] = FeatureStatus(
                 name=&#34;OCR (docTR)&#34;,
                 available=False,
                 error=&#34;python-doctr not installed&#34;,
-                impact=&#34;No OCR - pip install python-doctr[torch]&#34;
+                impact=&#34;No OCR - pip install python-doctr[torch]&#34;,
             )
 
     def _check_clip_vision(self) -&gt; None:
@@ -276,11 +325,12 @@ class FeatureStatus:
         try:
             import torch
             import open_clip
-            self.features[&#39;clip_vision&#39;] = FeatureStatus(
+
+            self.features[&#34;clip_vision&#34;] = FeatureStatus(
                 name=&#34;AI Vision (CLIP)&#34;,
                 available=True,
                 version=f&#34;torch {torch.__version__}, open_clip {open_clip.__version__}&#34;,
-                impact=&#34;AI-powered image content classification&#34;
+                impact=&#34;AI-powered image content classification&#34;,
             )
         except ImportError:
             missing = []
@@ -293,66 +343,103 @@ class FeatureStatus:
             except ImportError:
                 missing.append(&#34;open-clip-torch&#34;)
 
-            self.features[&#39;clip_vision&#39;] = FeatureStatus(
+            self.features[&#34;clip_vision&#34;] = FeatureStatus(
                 name=&#34;AI Vision (CLIP)&#34;,
                 available=False,
                 error=f&#34;Missing: {&#39;, &#39;.join(missing)}&#34;,
-                impact=&#34;No AI classification - pip install torch open-clip-torch&#34;
+                impact=&#34;No AI classification - pip install torch open-clip-torch&#34;,
             )
+
+    def _check_similarity(self) -&gt; None:
+        &#34;&#34;&#34;Check faiss for the near-duplicate index.
+
+        Reports only on faiss: the SSCD descriptor half needs torch/torchvision,
+        already covered by the CLIP check, and its checkpoint downloads on first
+        use rather than at install time — so its absence is not a config error.
+
+        Deliberately probes without importing faiss: this checker also imports
+        torch, and the two abort the process when both initialise OpenMP
+        (see src/similarity/worker.py).
+        &#34;&#34;&#34;
+        import importlib.metadata
+        import importlib.util
+
+        if importlib.util.find_spec(&#34;faiss&#34;) is None:
+            self.features[&#34;similarity&#34;] = FeatureStatus(
+                name=&#34;Near-duplicate index (faiss)&#34;,
+                available=False,
+                error=&#34;Missing: faiss-cpu&#34;,
+                impact=&#34;No near-duplicate report - pip install -e &#39;.[similarity]&#39;&#34;,
+            )
+            return
+
+        try:
+            version = importlib.metadata.version(&#34;faiss-cpu&#34;)
+        except importlib.metadata.PackageNotFoundError:
+            version = &#34;unknown&#34;
+        self.features[&#34;similarity&#34;] = FeatureStatus(
+            name=&#34;Near-duplicate index (faiss)&#34;,
+            available=True,
+            version=version,
+            impact=&#34;organize-files find-duplicates&#34;,
+        )
 
     def _check_database(self) -&gt; None:
         &#34;&#34;&#34;Check SQLAlchemy for database storage.&#34;&#34;&#34;
         try:
             import sqlalchemy
-            self.features[&#39;database&#39;] = FeatureStatus(
+
+            self.features[&#34;database&#34;] = FeatureStatus(
                 name=&#34;Database (SQLAlchemy)&#34;,
                 available=True,
                 version=sqlalchemy.__version__,
-                impact=&#34;Graph-based file storage, relationships&#34;
+                impact=&#34;Graph-based file storage, relationships&#34;,
             )
         except ImportError:
-            self.features[&#39;database&#39;] = FeatureStatus(
+            self.features[&#34;database&#34;] = FeatureStatus(
                 name=&#34;Database (SQLAlchemy)&#34;,
                 available=False,
                 error=&#34;sqlalchemy not installed&#34;,
-                impact=&#34;No DB storage - pip install sqlalchemy&#34;
+                impact=&#34;No DB storage - pip install sqlalchemy&#34;,
             )
 
     def _check_geocoding(self) -&gt; None:
         &#34;&#34;&#34;Check geopy for GPS coordinate lookup.&#34;&#34;&#34;
         try:
             import geopy
-            self.features[&#39;geocoding&#39;] = FeatureStatus(
+
+            self.features[&#34;geocoding&#34;] = FeatureStatus(
                 name=&#34;Geocoding (geopy)&#34;,
                 available=True,
                 # getattr: test suites stub geopy in sys.modules without __version__
-                version=getattr(geopy, &#39;__version__&#39;, &#39;unknown&#39;),
-                impact=&#34;GPS coordinates to location names&#34;
+                version=getattr(geopy, &#34;__version__&#34;, &#34;unknown&#34;),
+                impact=&#34;GPS coordinates to location names&#34;,
             )
         except ImportError:
-            self.features[&#39;geocoding&#39;] = FeatureStatus(
+            self.features[&#34;geocoding&#34;] = FeatureStatus(
                 name=&#34;Geocoding (geopy)&#34;,
                 available=False,
                 error=&#34;geopy not installed&#34;,
-                impact=&#34;No location lookup - pip install geopy&#34;
+                impact=&#34;No location lookup - pip install geopy&#34;,
             )
 
     def _check_error_tracking(self) -&gt; None:
         &#34;&#34;&#34;Check Sentry SDK for error tracking.&#34;&#34;&#34;
         try:
             import sentry_sdk
-            self.features[&#39;sentry&#39;] = FeatureStatus(
+
+            self.features[&#34;sentry&#34;] = FeatureStatus(
                 name=&#34;Error Tracking (Sentry)&#34;,
                 available=True,
                 version=sentry_sdk.VERSION,
-                impact=&#34;Error monitoring and performance tracking&#34;
+                impact=&#34;Error monitoring and performance tracking&#34;,
             )
         except ImportError:
-            self.features[&#39;sentry&#39;] = FeatureStatus(
+            self.features[&#34;sentry&#34;] = FeatureStatus(
                 name=&#34;Error Tracking (Sentry)&#34;,
                 available=False,
                 error=&#34;sentry-sdk not installed&#34;,
-                impact=&#34;No error tracking - pip install sentry-sdk&#34;
+                impact=&#34;No error tracking - pip install sentry-sdk&#34;,
             )
 
     def _check_document_processing(self) -&gt; None:
@@ -362,39 +449,137 @@ class FeatureStatus:
 
         # Check python-docx
         try:
-            import docx
+            import docx  # noqa: F401 — import IS the availability probe
+
             available_libs.append(&#34;docx&#34;)
         except ImportError:
             missing_libs.append(&#34;python-docx&#34;)
 
         # Check pypdf
         try:
-            import pypdf
+            import pypdf  # noqa: F401 — import IS the availability probe
+
             available_libs.append(&#34;pypdf&#34;)
         except ImportError:
             missing_libs.append(&#34;pypdf&#34;)
 
         # Check openpyxl
         try:
-            import openpyxl
+            import openpyxl  # noqa: F401 — import IS the availability probe
+
             available_libs.append(&#34;openpyxl&#34;)
         except ImportError:
             missing_libs.append(&#34;openpyxl&#34;)
 
         if available_libs:
-            self.features[&#39;documents&#39;] = FeatureStatus(
+            self.features[&#34;documents&#34;] = FeatureStatus(
                 name=&#34;Document Processing&#34;,
                 available=True,
                 version=&#34;, &#34;.join(available_libs),
-                impact=f&#34;PDF/Word/Excel parsing ({len(available_libs)}/3 libs)&#34;
+                impact=f&#34;PDF/Word/Excel parsing ({len(available_libs)}/3 libs)&#34;,
             )
         else:
-            self.features[&#39;documents&#39;] = FeatureStatus(
+            self.features[&#34;documents&#34;] = FeatureStatus(
                 name=&#34;Document Processing&#34;,
                 available=False,
                 error=f&#34;Missing: {&#39;, &#39;.join(missing_libs)}&#34;,
-                impact=&#34;No document parsing available&#34;
+                impact=&#34;No document parsing available&#34;,
             )
+
+    def _check_scene_probe(self) -&gt; None:
+        &#34;&#34;&#34;Check the trained scene-probe artifact (``SceneSignal``).&#34;&#34;&#34;
+        # Without the probe, no signal votes interiors/exteriors/places/opaque
+        # graphics at all (the binary interior probe and photo_composition&#39;s
+        # interior vote were retired with the SceneSignal swap) — those images
+        # fall to weaker generic signals or the low-margin fallback.
+        impact_when_missing = (
+            &#34;SceneSignal no-ops — interior/exterior/place/graphic scenes get &#34;
+            &#34;no scene vote and fall to weaker generic signals or the &#34;
+            &#34;low-margin fallback&#34;
+        )
+        try:
+            from scoring.signals import scene
+        except ImportError:
+            try:
+                from src.scoring.signals import scene  # type: ignore[no-redef]
+            except ImportError:
+                self.features[&#34;scene_probe&#34;] = FeatureStatus(
+                    name=&#34;Scene Probe&#34;,
+                    available=False,
+                    error=&#34;scoring.signals.scene not importable&#34;,
+                    impact=impact_when_missing,
+                )
+                return
+
+        if not scene.PROBE_PATH.exists():
+            self.features[&#34;scene_probe&#34;] = FeatureStatus(
+                name=&#34;Scene Probe&#34;,
+                available=False,
+                error=(
+                    f&#34;artifact missing: {scene.PROBE_PATH} — train with &#34;
+                    &#34;&#39;python scripts/prototype_scene_probe.py train&#39;&#34;
+                ),
+                impact=impact_when_missing,
+            )
+            return
+
+        if scene.load_probe(scene.PROBE_PATH) is None:
+            self.features[&#34;scene_probe&#34;] = FeatureStatus(
+                name=&#34;Scene Probe&#34;,
+                available=False,
+                error=(
+                    f&#34;artifact unreadable: {scene.PROBE_PATH} &#34;
+                    &#34;(joblib/scikit-learn missing, or corrupt file — retrain)&#34;
+                ),
+                impact=impact_when_missing,
+            )
+            return
+
+        self.features[&#34;scene_probe&#34;] = FeatureStatus(
+            name=&#34;Scene Probe&#34;,
+            available=True,
+            version=str(scene.PROBE_PATH),
+            impact=&#34;Trained CLIP-embedding scene classification active (SceneSignal)&#34;,
+        )
+
+    def _check_name_validator(self) -&gt; None:
+        &#34;&#34;&#34;Check person-name validation layers (``names`` extra).&#34;&#34;&#34;
+        try:
+            from classifiers.person_name_validator import available_layers
+        except ImportError:
+            try:
+                from src.classifiers.person_name_validator import available_layers  # type: ignore[no-redef]
+            except ImportError:
+                self.features[&#34;name_validator&#34;] = FeatureStatus(
+                    name=&#34;Person-Name Validator&#34;,
+                    available=False,
+                    error=&#34;person_name_validator module not found&#34;,
+                    impact=&#34;No person-name validation — all detected names route to review&#34;,
+                )
+                return
+
+        layers = available_layers()
+        active = [name for name, ok in layers.items() if ok]
+        missing = [name for name, ok in layers.items() if not ok]
+        # denylist is always available; the optional layers add precision
+        optional_ok = layers.get(&#34;shape&#34;, False) and layers.get(&#34;probablepeople&#34;, False)
+        self.features[&#34;name_validator&#34;] = FeatureStatus(
+            name=&#34;Person-Name Validator&#34;,
+            available=True,
+            version=f&#34;layers: {&#39;, &#39;.join(active)}&#34;,
+            error=(
+                f&#34;optional layers unavailable: {&#39;, &#39;.join(missing)} &#34;
+                &#34;(pip install nameparser probablepeople)&#34;
+                if missing and not optional_ok
+                else None
+            ),
+            impact=(
+                &#34;Name validation active — precision increases with optional layers&#34;
+                if optional_ok
+                else &#34;Name validation degraded — optional layers missing; &#34;
+                &#34;install nameparser probablepeople for higher precision&#34;
+            ),
+        )
 
     def is_available(self, feature: str) -&gt; bool:
         &#34;&#34;&#34;Check if a specific feature is available.&#34;&#34;&#34;
@@ -438,11 +623,13 @@ class FeatureStatus:
             print(&#34;\033[92mAll features operational!\033[0m&#34;)
         else:
             missing = total_count - available_count
-            print(f&#34;\033[93m{missing} feature(s) unavailable - see above for install commands\033[0m&#34;)
+            print(
+                f&#34;\033[93m{missing} feature(s) unavailable - see above for install commands\033[0m&#34;
+            )
 
         print(&#34;=&#34; * SEPARATOR_WIDTH_MEDIUM + &#34;\n&#34;)
 
-    def to_dict(self) -&gt; dict:
+    def to_dict(self) -&gt; Dict[str, FeatureStatusDict]:
         &#34;&#34;&#34;Export status as dictionary.&#34;&#34;&#34;
         if not self._checked:
             self.run_all_checks()
@@ -451,14 +638,15 @@ class FeatureStatus:
                 &#34;available&#34;: f.available,
                 &#34;version&#34;: f.version,
                 &#34;error&#34;: f.error,
-                &#34;impact&#34;: f.impact
+                &#34;impact&#34;: f.impact,
             }
             for name, f in self.features.items()
         }</code></pre>
 </details>
 <div class="desc"><p>Validates system dependencies and reports feature availability.</p>
-<h2 id="usage">Usage</h2>
-<p>checker = SystemHealthChecker()
+<p>Usage
+-----=
+checker = SystemHealthChecker()
 checker.run_all_checks()
 checker.print_status()</p>
 <h1 id="or-check-specific-feature">Or check specific feature</h1>
@@ -536,7 +724,9 @@ checker.print_status()</p>
         print(&#34;\033[92mAll features operational!\033[0m&#34;)
     else:
         missing = total_count - available_count
-        print(f&#34;\033[93m{missing} feature(s) unavailable - see above for install commands\033[0m&#34;)
+        print(
+            f&#34;\033[93m{missing} feature(s) unavailable - see above for install commands\033[0m&#34;
+        )
 
     print(&#34;=&#34; * SEPARATOR_WIDTH_MEDIUM + &#34;\n&#34;)</code></pre>
 </details>
@@ -550,31 +740,34 @@ checker.print_status()</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def run_all_checks(self) -&gt; &#39;SystemHealthChecker&#39;:
+<pre><code class="python">def run_all_checks(self) -&gt; &#34;SystemHealthChecker&#34;:
     &#34;&#34;&#34;Run all dependency checks.&#34;&#34;&#34;
     self._check_python_version()
     self._check_pillow()
     self._check_heic_support()
     self._check_ocr()
     self._check_clip_vision()
+    self._check_scene_probe()
+    self._check_similarity()
     self._check_database()
     self._check_geocoding()
     self._check_error_tracking()
     self._check_document_processing()
+    self._check_name_validator()
     self._checked = True
     return self</code></pre>
 </details>
 <div class="desc"><p>Run all dependency checks.</p></div>
 </dd>
 <dt id="src.health_check.SystemHealthChecker.to_dict"><code class="name flex">
-<span>def <span class="ident">to_dict</span></span>(<span>self) ‑> dict</span>
+<span>def <span class="ident">to_dict</span></span>(<span>self) ‑> Dict[str, <a title="src.health_check.FeatureStatusDict" href="#src.health_check.FeatureStatusDict">FeatureStatusDict</a>]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_dict(self) -&gt; dict:
+<pre><code class="python">def to_dict(self) -&gt; Dict[str, FeatureStatusDict]:
     &#34;&#34;&#34;Export status as dictionary.&#34;&#34;&#34;
     if not self._checked:
         self.run_all_checks()
@@ -583,7 +776,7 @@ checker.print_status()</p>
             &#34;available&#34;: f.available,
             &#34;version&#34;: f.version,
             &#34;error&#34;: f.error,
-            &#34;impact&#34;: f.impact
+            &#34;impact&#34;: f.impact,
         }
         for name, f in self.features.items()
     }</code></pre>
@@ -622,6 +815,15 @@ checker.print_status()</p>
 <li><code><a title="src.health_check.FeatureStatus.impact" href="#src.health_check.FeatureStatus.impact">impact</a></code></li>
 <li><code><a title="src.health_check.FeatureStatus.name" href="#src.health_check.FeatureStatus.name">name</a></code></li>
 <li><code><a title="src.health_check.FeatureStatus.version" href="#src.health_check.FeatureStatus.version">version</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.health_check.FeatureStatusDict" href="#src.health_check.FeatureStatusDict">FeatureStatusDict</a></code></h4>
+<ul class="">
+<li><code><a title="src.health_check.FeatureStatusDict.available" href="#src.health_check.FeatureStatusDict.available">available</a></code></li>
+<li><code><a title="src.health_check.FeatureStatusDict.error" href="#src.health_check.FeatureStatusDict.error">error</a></code></li>
+<li><code><a title="src.health_check.FeatureStatusDict.impact" href="#src.health_check.FeatureStatusDict.impact">impact</a></code></li>
+<li><code><a title="src.health_check.FeatureStatusDict.version" href="#src.health_check.FeatureStatusDict.version">version</a></code></li>
 </ul>
 </li>
 <li>

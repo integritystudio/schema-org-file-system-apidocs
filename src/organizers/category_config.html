@@ -52,6 +52,58 @@ per instance).</p>
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="src.organizers.category_config.build_path_to_category_map"><code class="name flex">
+<span>def <span class="ident">build_path_to_category_map</span></span>(<span>taxonomy: Dict[str, Any] = {'legal': {'contracts': 'Legal/Contracts', 'real_estate': 'Legal/RealEstate', 'litigation': 'Legal/Litigation', 'corporate': 'Legal/Corporate', 'other': 'Legal/Other'}, 'financial': {'tax': 'Financial/Tax', 'invoices': 'Financial/Invoices', 'statements': 'Financial/Statements', 'insurance': 'Financial/Insurance', 'other': 'Financial/Other'}, 'business': {'planning': 'Business/Planning', 'marketing': 'Business/Marketing', 'proposals': 'Business/Proposals', 'presentations': 'Business/Presentations', 'crm': 'Business/CRM', 'hr': 'Business/HR', 'meeting_notes': 'Business/MeetingNotes', 'clients': 'Business/Clients', 'other': 'Business/Other'}, 'personal': {'contacts': 'Personal/Contacts', 'employment': 'Personal/Employment', 'identification': 'Personal/Identification', 'certificates': 'Personal/Certificates', 'journal': 'Personal/Journal', 'events': 'Personal/Events', 'legal': 'Personal/Legal', 'records': 'Personal/Records', 'other': 'Personal/Other'}, 'medical': {'records': 'Medical/Records', 'bloodtest': 'Medical/BloodTest', 'pathologytest': 'Medical/PathologyTest', 'orders': 'Medical/Orders', 'insurance': 'Medical/Insurance', 'prescriptions': 'Medical/Prescriptions', 'other': 'Medical/Other'}, 'property': {'leases': 'Property/Leases', 'maintenance': 'Property/Maintenance', 'other': 'Property/Other'}, 'education': {'coursework': 'Education/Coursework', 'research': 'Education/Research', 'records': 'Education/Records', 'other': 'Education/Other'}, 'research': {'arxiv': 'Research/Papers/arXiv', 'ssrn': 'Research/Papers/SSRN', 'doi': 'Research/Papers/DOI', 'other': 'Research/Papers/Other'}, 'technical': {'documentation': 'Technical/Documentation', 'architecture': 'Technical/Architecture', 'config': 'Technical/Config', 'data': 'Technical/Data', 'logs': 'Technical/Logs', 'web': 'Technical/Web', 'software_packages': 'Technical/Software_Packages', 'other': 'Technical/Other'}, 'creative': {'design': 'Creative/Design', 'branding': 'Creative/Branding', 'photos': 'Creative/Photos', 'other': 'Creative/Other'}, 'property_management': 'Property_Management', 'zouk': {'events': 'Zouk/Events', 'classes': 'Zouk/Classes', 'other': 'Zouk/Other'}, 'organization': {'clients': 'Organization/Clients', 'vendors': 'Organization', 'partners': 'Organization', 'employers': 'Organization', 'government': 'Organization', 'healthcare': 'Organization', 'property_management': 'Organization', 'financial': 'Organization', 'educational': 'Organization', 'nonprofit': 'Organization', 'meeting_notes': 'Organization', 'other': 'Organization'}, 'events': 'Events', 'game_assets': {'sprites': 'GameAssets/Sprites', 'textures': 'GameAssets/Textures', 'fonts': 'GameAssets/Fonts', 'audio': 'GameAssets/Audio', 'music': 'GameAssets/Music', 'other': 'GameAssets/Other'}, 'fonts': {'truetype': 'CreativeWork/Fonts/TrueType', 'opentype': 'CreativeWork/Fonts/OpenType', 'web': 'CreativeWork/Fonts/Web', 'other': 'CreativeWork/Fonts/Other'}, 'media': {'photos': {'screenshots': {'browser': 'Media/Photos/Screenshots/Browser', 'terminal': 'Media/Photos/Screenshots/Terminal', 'code': 'Media/Photos/Screenshots/CodeEditors', 'docs': 'Media/Photos/Screenshots/Docs', 'settings': 'Media/Photos/Screenshots/Settings', 'products': 'Media/Photos/Screenshots/Products', 'dashboard': 'Media/Photos/Screenshots/Dashboards', 'chat': 'Media/Photos/Screenshots/Chat', 'interiors': 'Media/Photos/Screenshots/Interiors', 'exteriors': 'Media/Photos/Screenshots/Exteriors', 'places': 'Media/Photos/Screenshots/Places', 'other': 'Media/Photos/Screenshots'}, 'travel': 'Media/Photos/Travel', 'portraits': 'Media/Photos/Portraits', 'events': 'Media/Photos/Events', 'documents': 'Media/Photos/Documents', 'social': 'Media/Photos/Social', 'chatgpt': 'Media/Photos/ChatGPT', 'facebook': 'Media/Photos/Facebook', 'logos': 'Media/Photos/Logos', 'stock': 'Media/Photos/Stock', 'nature': 'Media/Photos/Nature', 'lifestyle': 'Media/Photos/Lifestyle', 'products': 'Media/Photos/Products', 'other': 'Media/Photos/Other'}, 'videos': {'recordings': 'Media/Videos/Recordings', 'exports': 'Media/Videos/Exports', 'screencasts': 'Media/Videos/Screencasts', 'other': 'Media/Videos/Other'}, 'audio': {'recordings': 'Media/Audio/Recordings', 'music': 'Media/Audio/Music', 'podcasts': 'Media/Audio/Podcasts', 'other': 'Media/Audio/Other'}, 'graphics': {'vector': 'Media/Graphics/Vector', 'icons': 'Media/Graphics/Icons', 'other': 'Media/Graphics/Other'}, 'interiors': {'hotel': 'Media/Interiors/HotelRoom', 'meeting': 'Media/Interiors/MeetingRoom', 'other': 'Media/Interiors'}, 'exteriors': {'other': 'Media/Exteriors'}, 'place': {'other': 'Media/Place'}, 'other': 'Media/Other'}, 'uncategorized': 'Uncategorized'}) ‑> Dict[str, Tuple[str, str | None]]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def build_path_to_category_map(
+    taxonomy: Dict[str, Any] = CONTENT_CATEGORY_PATHS,
+) -&gt; Dict[str, Tuple[str, Optional[str]]]:
+    &#34;&#34;&#34;Reverse ``CONTENT_CATEGORY_PATHS``: destination path -&gt; (category, subcategory).
+
+    Walks the nested taxonomy and maps every leaf destination string back to the
+    pair that produces it. Nested media forms collapse to the underscored
+    subcategory ``get_destination_path`` accepts (``photos`` + ``screenshots`` +
+    ``browser`` -&gt; ``photos_screenshots_browser``), so a recovered pair can be
+    handed straight back to ``add_file_to_category``.
+
+    Two pairs can share a destination folder (``media/photos_other`` and the
+    generic ``media/other`` both live under ``Media/``-rooted paths only when the
+    taxonomy says so); first-registered wins, matching the declaration order
+    consumers already rely on.
+    &#34;&#34;&#34;
+    reverse: Dict[str, Tuple[str, Optional[str]]] = {}
+
+    def walk(node: CategoryNode, category: str, parts: List[str]) -&gt; None:
+        if isinstance(node, str):
+            reverse.setdefault(node, (category, &#34;_&#34;.join(parts) if parts else None))
+            return
+        if isinstance(node, dict):
+            for key, child in node.items():
+                walk(child, category, [*parts, key])
+
+    for category, node in taxonomy.items():
+        walk(node, category, [])
+    return reverse</code></pre>
+</details>
+<div class="desc"><p>Reverse <code>CONTENT_CATEGORY_PATHS</code>: destination path -&gt; (category, subcategory).</p>
+<p>Walks the nested taxonomy and maps every leaf destination string back to the
+pair that produces it. Nested media forms collapse to the underscored
+subcategory <code>get_destination_path</code> accepts (<code>photos</code> + <code>screenshots</code> +
+<code>browser</code> -&gt; <code>photos_screenshots_browser</code>), so a recovered pair can be
+handed straight back to <code>add_file_to_category</code>.</p>
+<p>Two pairs can share a destination folder (<code>media/photos_other</code> and the
+generic <code>media/other</code> both live under <code>Media/</code>-rooted paths only when the
+taxonomy says so); first-registered wins, matching the declaration order
+consumers already rely on.</p></div>
+</dd>
+</dl>
 </section>
 <section>
 </section>
@@ -64,6 +116,11 @@ per instance).</p>
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="src.organizers" href="index.html">src.organizers</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="src.organizers.category_config.build_path_to_category_map" href="#src.organizers.category_config.build_path_to_category_map">build_path_to_category_map</a></code></li>
 </ul>
 </li>
 </ul>

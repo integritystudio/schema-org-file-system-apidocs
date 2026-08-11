@@ -60,7 +60,7 @@ el.replaceWith(d);
 <dl>
 <dt id="src.ml.DataPreprocessor"><code class="flex name class">
 <span>class <span class="ident">DataPreprocessor</span></span>
-<span>(</span><span>report_path: str = None)</span>
+<span>(</span><span>report_path: str | None = None)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -70,7 +70,7 @@ el.replaceWith(d);
 <pre><code class="python">class DataPreprocessor:
     &#34;&#34;&#34;Main preprocessing pipeline for file organization data.&#34;&#34;&#34;
 
-    def __init__(self, report_path: str = None):
+    def __init__(self, report_path: Optional[str] = None):
         &#34;&#34;&#34;Initialize preprocessor.
 
         Args:
@@ -78,22 +78,23 @@ el.replaceWith(d);
         &#34;&#34;&#34;
         self.report_path = report_path
         self.feature_extractor = FileFeatureExtractor()
-        self.data = None
-        self.features = None
-        self.statistics = {}
+        self.data: Optional[Dict[str, Any]] = None
+        self.features: Optional[List[Dict[str, Any]]] = None
+        self.statistics: dict[str, Any] = {}
 
-    def load_data(self, report_path: str = None) -&gt; Dict:
+    def load_data(self, report_path: Optional[str] = None) -&gt; Dict:
         &#34;&#34;&#34;Load organization report data.&#34;&#34;&#34;
         path = report_path or self.report_path
         if not path:
             raise ValueError(&#34;No report path provided&#34;)
 
         with open(path, &#39;r&#39;) as f:
-            self.data = json.load(f)
+            data: Dict[str, Any] = json.load(f)
 
-        self.statistics[&#39;total_records&#39;] = len(self.data.get(&#39;results&#39;, []))
+        self.data = data
+        self.statistics[&#39;total_records&#39;] = len(data.get(&#39;results&#39;, []))
         self.statistics[&#39;load_time&#39;] = datetime.now().isoformat()
-        return self.data
+        return data
 
     def extract_all_features(self) -&gt; List[Dict]:
         &#34;&#34;&#34;Extract features from all records.&#34;&#34;&#34;
@@ -134,7 +135,7 @@ el.replaceWith(d);
 
         # Filename analysis
         avg_filename_length = sum(f[&#39;filename_length&#39;] for f in self.features) / len(self.features)
-        token_counts = Counter()
+        token_counts: Counter[str] = Counter()
         for f in self.features:
             token_counts.update(f[&#39;filename_tokens&#39;])
 
@@ -210,6 +211,13 @@ el.replaceWith(d);
         if not docs:
             return {}
 
+        # With fewer docs than min_freq, no token can meet the threshold —
+        # return empty rather than letting CountVectorizer raise ValueError
+        # (sklearn converts max_df=1.0 to an integer floor, which undercuts
+        # an integer min_df when len(docs) &lt; min_freq).
+        if len(docs) &lt; min_freq:
+            return {}
+
         vectorizer = CountVectorizer(min_df=min_freq, token_pattern=r&#34;(?u)\b\w+\b&#34;)
         vectorizer.fit(docs)
         return {token: idx for idx, token in enumerate(vectorizer.get_feature_names_out())}
@@ -217,6 +225,9 @@ el.replaceWith(d);
     def get_label_encoder(self) -&gt; Tuple[Dict[str, int], Dict[int, str]]:
         &#34;&#34;&#34;Create label encoder for category classification.&#34;&#34;&#34;
         from sklearn.preprocessing import LabelEncoder
+
+        if not self.features:
+            return {}, {}
 
         categories = sorted({f.get(&#34;category&#34;, &#34;uncategorized&#34;) for f in self.features})
         if not categories:
@@ -228,12 +239,12 @@ el.replaceWith(d);
         id_to_label = {v: k for k, v in label_to_id.items()}
         return label_to_id, id_to_label
 
-    def validate_data_quality(self) -&gt; Dict[str, Any]:
+    def validate_data_quality(self) -&gt; QualityReport:
         &#34;&#34;&#34;Validate data quality and identify issues.&#34;&#34;&#34;
         if not self.features:
             raise ValueError(&#34;No features extracted. Call extract_all_features() first.&#34;)
 
-        issues = {
+        issues: _QualityIssues = {
             &#39;missing_category&#39;: [],
             &#39;empty_filename&#39;: [],
             &#39;duplicate_filenames&#39;: [],
@@ -261,7 +272,7 @@ el.replaceWith(d);
         ]
 
         # Summarize
-        quality_report = {
+        quality_report: QualityReport = {
             &#39;total_records&#39;: len(self.features),
             &#39;uncategorized_count&#39;: len(issues[&#39;missing_category&#39;]),
             &#39;empty_filename_count&#39;: len(issues[&#39;empty_filename&#39;]),
@@ -280,14 +291,14 @@ el.replaceWith(d);
         self.statistics[&#39;data_quality&#39;] = quality_report
         return quality_report
 
-    def _compute_quality_score(self, issues: Dict) -&gt; float:
+    def _compute_quality_score(self, issues: _QualityIssues) -&gt; float:
         &#34;&#34;&#34;Compute overall data quality score (0-100).&#34;&#34;&#34;
-        total = len(self.features)
+        total = len(self.features or [])
         if total == 0:
             return 0.0
 
         # Penalize based on issues
-        penalties = 0
+        penalties = 0.0
         penalties += len(issues[&#39;missing_category&#39;]) * 0.5
         penalties += len(issues[&#39;empty_filename&#39;]) * 1.0
         penalties += len(issues[&#39;duplicate_filenames&#39;]) * 0.1
@@ -446,8 +457,9 @@ el.replaceWith(d);
 </details>
 <div class="desc"><p>Main preprocessing pipeline for file organization data.</p>
 <p>Initialize preprocessor.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>report_path</code></strong></dt>
 <dd>Path to organization report JSON</dd>
 </dl></div>
@@ -485,7 +497,7 @@ el.replaceWith(d);
 
     # Filename analysis
     avg_filename_length = sum(f[&#39;filename_length&#39;] for f in self.features) / len(self.features)
-    token_counts = Counter()
+    token_counts: Counter[str] = Counter()
     for f in self.features:
         token_counts.update(f[&#39;filename_tokens&#39;])
 
@@ -632,15 +644,17 @@ el.replaceWith(d);
     return output_files</code></pre>
 </details>
 <div class="desc"><p>Export preprocessed data for ML training.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>output_dir</code></strong></dt>
 <dd>Directory to save files</dd>
 <dt><strong><code>include_test_split</code></strong></dt>
 <dd>Whether to create train/test split</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Dictionary of output file paths</p></div>
+<p>Returns
+-----=
+Dictionary of output file paths</p></div>
 </dd>
 <dt id="src.ml.DataPreprocessor.extract_all_features"><code class="name flex">
 <span>def <span class="ident">extract_all_features</span></span>(<span>self) ‑> List[Dict]</span>
@@ -775,6 +789,9 @@ el.replaceWith(d);
     &#34;&#34;&#34;Create label encoder for category classification.&#34;&#34;&#34;
     from sklearn.preprocessing import LabelEncoder
 
+    if not self.features:
+        return {}, {}
+
     categories = sorted({f.get(&#34;category&#34;, &#34;uncategorized&#34;) for f in self.features})
     if not categories:
         return {}, {}
@@ -807,6 +824,13 @@ el.replaceWith(d);
     if not docs:
         return {}
 
+    # With fewer docs than min_freq, no token can meet the threshold —
+    # return empty rather than letting CountVectorizer raise ValueError
+    # (sklearn converts max_df=1.0 to an integer floor, which undercuts
+    # an integer min_df when len(docs) &lt; min_freq).
+    if len(docs) &lt; min_freq:
+        return {}
+
     vectorizer = CountVectorizer(min_df=min_freq, token_pattern=r&#34;(?u)\b\w+\b&#34;)
     vectorizer.fit(docs)
     return {token: idx for idx, token in enumerate(vectorizer.get_feature_names_out())}</code></pre>
@@ -814,42 +838,43 @@ el.replaceWith(d);
 <div class="desc"><p>Build vocabulary from filename tokens with minimum frequency threshold.</p></div>
 </dd>
 <dt id="src.ml.DataPreprocessor.load_data"><code class="name flex">
-<span>def <span class="ident">load_data</span></span>(<span>self, report_path: str = None) ‑> Dict</span>
+<span>def <span class="ident">load_data</span></span>(<span>self, report_path: str | None = None) ‑> Dict</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def load_data(self, report_path: str = None) -&gt; Dict:
+<pre><code class="python">def load_data(self, report_path: Optional[str] = None) -&gt; Dict:
     &#34;&#34;&#34;Load organization report data.&#34;&#34;&#34;
     path = report_path or self.report_path
     if not path:
         raise ValueError(&#34;No report path provided&#34;)
 
     with open(path, &#39;r&#39;) as f:
-        self.data = json.load(f)
+        data: Dict[str, Any] = json.load(f)
 
-    self.statistics[&#39;total_records&#39;] = len(self.data.get(&#39;results&#39;, []))
+    self.data = data
+    self.statistics[&#39;total_records&#39;] = len(data.get(&#39;results&#39;, []))
     self.statistics[&#39;load_time&#39;] = datetime.now().isoformat()
-    return self.data</code></pre>
+    return data</code></pre>
 </details>
 <div class="desc"><p>Load organization report data.</p></div>
 </dd>
 <dt id="src.ml.DataPreprocessor.validate_data_quality"><code class="name flex">
-<span>def <span class="ident">validate_data_quality</span></span>(<span>self) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">validate_data_quality</span></span>(<span>self) ‑> <a title="src.ml.data_preprocessor.QualityReport" href="data_preprocessor.html#src.ml.data_preprocessor.QualityReport">QualityReport</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def validate_data_quality(self) -&gt; Dict[str, Any]:
+<pre><code class="python">def validate_data_quality(self) -&gt; QualityReport:
     &#34;&#34;&#34;Validate data quality and identify issues.&#34;&#34;&#34;
     if not self.features:
         raise ValueError(&#34;No features extracted. Call extract_all_features() first.&#34;)
 
-    issues = {
+    issues: _QualityIssues = {
         &#39;missing_category&#39;: [],
         &#39;empty_filename&#39;: [],
         &#39;duplicate_filenames&#39;: [],
@@ -877,7 +902,7 @@ el.replaceWith(d);
     ]
 
     # Summarize
-    quality_report = {
+    quality_report: QualityReport = {
         &#39;total_records&#39;: len(self.features),
         &#39;uncategorized_count&#39;: len(issues[&#39;missing_category&#39;]),
         &#39;empty_filename_count&#39;: len(issues[&#39;empty_filename&#39;]),
@@ -1004,7 +1029,7 @@ el.replaceWith(d);
     def _get_extension_category(self, filename: str) -&gt; str:
         &#34;&#34;&#34;Get category based on extension.&#34;&#34;&#34;
         ext = self._get_extension(filename)
-        return self.extension_map.get(ext, &#39;other&#39;)
+        return cast(str, self.extension_map.get(ext, &#39;other&#39;))
 
     def _tokenize_filename(self, filename: str) -&gt; List[str]:
         &#34;&#34;&#34;Tokenize filename into meaningful parts.&#34;&#34;&#34;
@@ -1018,7 +1043,7 @@ el.replaceWith(d);
         tokens = re.split(r&#39;[_\-\s\.]+&#39;, name)
 
         # Split camelCase
-        expanded_tokens = []
+        expanded_tokens: list[str] = []
         for token in tokens:
             # Split on camelCase boundaries
             parts = re.findall(r&#39;[A-Z]?[a-z]+|[A-Z]+(?=[A-Z][a-z]|\d|\W|$)|\d+&#39;, token)

@@ -87,10 +87,10 @@ el.replaceWith(d);
 
     def __exit__(
         self,
-        exc_type: Optional[type],
+        exc_type: Optional[type[BaseException]],
         exc_val: Optional[BaseException],
-        exc_tb: Optional[Any],
-    ) -&gt; bool:
+        exc_tb: Optional[TracebackType],
+    ) -&gt; Literal[False]:
         assert self._start is not None
         self.elapsed_seconds = time.monotonic() - self._start
         return False</code></pre>
@@ -128,11 +128,11 @@ print(ct.elapsed_seconds)
         tracker.print_summary()
     &#34;&#34;&#34;
 
-    def __init__(self):
+    def __init__(self) -&gt; None:
         self.processed = 0
         self.succeeded = 0
         self.failed = 0
-        self.errors: list[Dict[str, Any]] = []
+        self.errors: list[FileErrorInfo] = []
 
     @contextmanager
     def track_file(self, file_path: str, category: Optional[str] = None) -&gt; Generator[None, None, None]:
@@ -150,7 +150,7 @@ print(ct.elapsed_seconds)
             self.succeeded += 1
         except Exception as e:
             self.failed += 1
-            error_info = {
+            error_info: FileErrorInfo = {
                 &#39;file_path&#39;: file_path,
                 &#39;error_type&#39;: type(e).__name__,
                 &#39;error_message&#39;: str(e),
@@ -168,7 +168,7 @@ print(ct.elapsed_seconds)
 
     def print_summary(self) -&gt; None:
         &#34;&#34;&#34;Print processing summary.&#34;&#34;&#34;
-        print(f&#34;\nFile Processing Summary:&#34;)
+        print(&#34;\nFile Processing Summary:&#34;)
         print(f&#34;  Processed: {self.processed}&#34;)
         print(f&#34;  Succeeded: {self.succeeded} ({self.succeeded/max(self.processed,1)*100:.1f}%)&#34;)
         print(f&#34;  Failed: {self.failed}&#34;)
@@ -180,11 +180,11 @@ print(ct.elapsed_seconds)
                 error_type = error[&#39;error_type&#39;]
                 error_types[error_type] = error_types.get(error_type, 0) + 1
 
-            print(f&#34;\nError breakdown:&#34;)
+            print(&#34;\nError breakdown:&#34;)
             for error_type, count in sorted(error_types.items(), key=lambda x: -x[1]):
                 print(f&#34;  {error_type}: {count}&#34;)
 
-    def get_stats(self) -&gt; Dict[str, Any]:
+    def get_stats(self) -&gt; ProcessingStats:
         &#34;&#34;&#34;Get processing statistics as dict.&#34;&#34;&#34;
         return {
             &#39;processed&#39;: self.processed,
@@ -195,8 +195,9 @@ print(ct.elapsed_seconds)
         }</code></pre>
 </details>
 <div class="desc"><p>Specialized error tracker for file processing operations.</p>
-<h2 id="usage">Usage</h2>
-<p>tracker = FileProcessingErrorTracker()</p>
+<p>Usage
+-----=
+tracker = FileProcessingErrorTracker()</p>
 <p>for file in files:
 with tracker.track_file(file.path):
 process_file(file)</p>
@@ -204,14 +205,14 @@ process_file(file)</p>
 <h3>Methods</h3>
 <dl>
 <dt id="src.utils.FileProcessingErrorTracker.get_stats"><code class="name flex">
-<span>def <span class="ident">get_stats</span></span>(<span>self) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">get_stats</span></span>(<span>self) ‑> <a title="src.error_tracking.ProcessingStats" href="../error_tracking.html#src.error_tracking.ProcessingStats">ProcessingStats</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_stats(self) -&gt; Dict[str, Any]:
+<pre><code class="python">def get_stats(self) -&gt; ProcessingStats:
     &#34;&#34;&#34;Get processing statistics as dict.&#34;&#34;&#34;
     return {
         &#39;processed&#39;: self.processed,
@@ -233,7 +234,7 @@ process_file(file)</p>
 </summary>
 <pre><code class="python">def print_summary(self) -&gt; None:
     &#34;&#34;&#34;Print processing summary.&#34;&#34;&#34;
-    print(f&#34;\nFile Processing Summary:&#34;)
+    print(&#34;\nFile Processing Summary:&#34;)
     print(f&#34;  Processed: {self.processed}&#34;)
     print(f&#34;  Succeeded: {self.succeeded} ({self.succeeded/max(self.processed,1)*100:.1f}%)&#34;)
     print(f&#34;  Failed: {self.failed}&#34;)
@@ -245,7 +246,7 @@ process_file(file)</p>
             error_type = error[&#39;error_type&#39;]
             error_types[error_type] = error_types.get(error_type, 0) + 1
 
-        print(f&#34;\nError breakdown:&#34;)
+        print(&#34;\nError breakdown:&#34;)
         for error_type, count in sorted(error_types.items(), key=lambda x: -x[1]):
             print(f&#34;  {error_type}: {count}&#34;)</code></pre>
 </details>
@@ -275,7 +276,7 @@ def track_file(self, file_path: str, category: Optional[str] = None) -&gt; Gener
         self.succeeded += 1
     except Exception as e:
         self.failed += 1
-        error_info = {
+        error_info: FileErrorInfo = {
             &#39;file_path&#39;: file_path,
             &#39;error_type&#39;: type(e).__name__,
             &#39;error_message&#39;: str(e),

@@ -49,6 +49,14 @@ el.replaceWith(d);
 <dd>
 <div class="desc"><p>EntityDetector: extracts companies, people, and their relationships from text …</p></div>
 </dd>
+<dt><code class="name"><a title="src.classifiers.org_extraction" href="org_extraction.html">src.classifiers.org_extraction</a></code></dt>
+<dd>
+<div class="desc"><p>Model-free ("Phase 0") organization-name extraction …</p></div>
+</dd>
+<dt><code class="name"><a title="src.classifiers.person_name_validator" href="person_name_validator.html">src.classifiers.person_name_validator</a></code></dt>
+<dd>
+<div class="desc"><p>Layered, local-only person-name confidence gate …</p></div>
+</dd>
 </dl>
 </section>
 <section>
@@ -75,6 +83,11 @@ el.replaceWith(d);
     preserve the historical public API.
     &#34;&#34;&#34;
 
+    # Opening-position window (chars): a curated known company named within this
+    # prefix is treated as the document&#39;s letterhead subject and overrides
+    # topical scoring; named later it is a passing mention (Option C).
+    _KNOWN_COMPANY_LETTERHEAD_CHARS = 60
+
     def __init__(self) -&gt; None:
         &#34;&#34;&#34;Initialize classifier with keyword patterns.&#34;&#34;&#34;
         # Entity detection (company/people/relationship extraction) lives in a
@@ -82,152 +95,427 @@ el.replaceWith(d);
         self.entities = EntityDetector()
 
         self.patterns: dict[str, dict] = {
-            &#39;legal&#39;: {
-                &#39;keywords&#39;: [
-                    &#39;contract&#39;, &#39;agreement&#39;, &#39;terms&#39;, &#39;conditions&#39;, &#39;legal&#39;, &#39;attorney&#39;,
-                    &#39;law&#39;, &#39;litigation&#39;, &#39;plaintiff&#39;, &#39;defendant&#39;, &#39;court&#39;, &#39;settlement&#39;,
-                    &#39;lease&#39;, &#39;deed&#39;, &#39;will&#39;, &#39;testament&#39;, &#39;power of attorney&#39;, &#39;notary&#39;,
-                    &#39;amendment&#39;, &#39;exhibit&#39;, &#39;whereas&#39;, &#39;party&#39;, &#39;parties&#39;, &#39;executed&#39;,
-                    &#39;operating agreement&#39;, &#39;llc&#39;, &#39;corporation&#39;, &#39;bylaws&#39;, &#39;articles&#39;
+            &#34;legal&#34;: {
+                &#34;keywords&#34;: [
+                    &#34;contract&#34;,
+                    &#34;agreement&#34;,
+                    &#34;terms&#34;,
+                    &#34;conditions&#34;,
+                    &#34;legal&#34;,
+                    &#34;attorney&#34;,
+                    &#34;law&#34;,
+                    &#34;litigation&#34;,
+                    &#34;plaintiff&#34;,
+                    &#34;defendant&#34;,
+                    &#34;court&#34;,
+                    &#34;settlement&#34;,
+                    &#34;lease&#34;,
+                    &#34;deed&#34;,
+                    &#34;will&#34;,
+                    &#34;testament&#34;,
+                    &#34;power of attorney&#34;,
+                    &#34;notary&#34;,
+                    &#34;amendment&#34;,
+                    &#34;exhibit&#34;,
+                    &#34;whereas&#34;,
+                    &#34;party&#34;,
+                    &#34;parties&#34;,
+                    &#34;executed&#34;,
+                    &#34;operating agreement&#34;,
+                    &#34;llc&#34;,
+                    &#34;corporation&#34;,
+                    &#34;bylaws&#34;,
+                    &#34;articles&#34;,
                 ],
-                &#39;subcategories&#39;: {
-                    &#39;contracts&#39;: [&#39;contract&#39;, &#39;agreement&#39;, &#39;terms&#39;, &#39;subscription&#39;, &#39;saas&#39;],
-                    &#39;real_estate&#39;: [&#39;lease&#39;, &#39;deed&#39;, &#39;property&#39;, &#39;real estate&#39;, &#39;mortgage&#39;],
-                    &#39;litigation&#39;: [
-                        &#39;court&#39;, &#39;hearing&#39;, &#39;docket&#39;, &#39;plaintiff&#39;, &#39;defendant&#39;,
-                        &#39;petitioner&#39;, &#39;respondent&#39;, &#39;cause no&#39;, &#39;judgment&#39;,
-                        &#39;motion to&#39;, &#39;motion for&#39;,
+                &#34;subcategories&#34;: {
+                    &#34;contracts&#34;: [&#34;contract&#34;, &#34;agreement&#34;, &#34;terms&#34;, &#34;subscription&#34;, &#34;saas&#34;],
+                    &#34;real_estate&#34;: [&#34;lease&#34;, &#34;deed&#34;, &#34;property&#34;, &#34;real estate&#34;, &#34;mortgage&#34;],
+                    &#34;litigation&#34;: [
+                        &#34;court&#34;,
+                        &#34;hearing&#34;,
+                        &#34;docket&#34;,
+                        &#34;plaintiff&#34;,
+                        &#34;defendant&#34;,
+                        &#34;petitioner&#34;,
+                        &#34;respondent&#34;,
+                        &#34;cause no&#34;,
+                        &#34;judgment&#34;,
+                        &#34;motion to&#34;,
+                        &#34;motion for&#34;,
                     ],
-                    &#39;corporate&#39;: [&#39;llc&#39;, &#39;corporation&#39;, &#39;operating agreement&#39;, &#39;bylaws&#39;, &#39;articles&#39;, &#39;formation&#39;],
-                    &#39;other&#39;: []
-                }
+                    &#34;corporate&#34;: [
+                        &#34;llc&#34;,
+                        &#34;corporation&#34;,
+                        &#34;operating agreement&#34;,
+                        &#34;bylaws&#34;,
+                        &#34;articles&#34;,
+                        &#34;formation&#34;,
+                    ],
+                    &#34;other&#34;: [],
+                },
             },
-            &#39;financial&#39;: {
-                &#39;keywords&#39;: [
-                    &#39;invoice&#39;, &#39;receipt&#39;, &#39;tax&#39;, &#39;irs&#39;, &#39;payment&#39;, &#39;bill&#39;, &#39;billing&#39;,
-                    &#39;statement&#39;, &#39;account&#39;, &#39;balance&#39;, &#39;transaction&#39;, &#39;credit&#39;, &#39;debit&#39;,
-                    &#39;bank&#39;, &#39;finance&#39;, &#39;loan&#39;, &#39;interest&#39;, &#39;1098&#39;, &#39;1099&#39;, &#39;w-2&#39;, &#39;w2&#39;,
-                    &#39;federal&#39;, &#39;state return&#39;, &#39;refund&#39;, &#39;revenue&#39;, &#39;expense&#39;, &#39;budget&#39;,
-                    &#39;investment&#39;, &#39;portfolio&#39;, &#39;ein&#39;, &#39;employer identification&#39;
+            &#34;financial&#34;: {
+                &#34;keywords&#34;: [
+                    &#34;invoice&#34;,
+                    &#34;receipt&#34;,
+                    &#34;tax&#34;,
+                    &#34;irs&#34;,
+                    &#34;payment&#34;,
+                    &#34;bill&#34;,
+                    &#34;billing&#34;,
+                    &#34;statement&#34;,
+                    &#34;account&#34;,
+                    &#34;balance&#34;,
+                    &#34;transaction&#34;,
+                    &#34;credit&#34;,
+                    &#34;debit&#34;,
+                    &#34;bank&#34;,
+                    &#34;finance&#34;,
+                    &#34;loan&#34;,
+                    &#34;interest&#34;,
+                    &#34;1098&#34;,
+                    &#34;1099&#34;,
+                    &#34;w-2&#34;,
+                    &#34;w2&#34;,
+                    &#34;federal&#34;,
+                    &#34;state return&#34;,
+                    &#34;refund&#34;,
+                    &#34;revenue&#34;,
+                    &#34;expense&#34;,
+                    &#34;budget&#34;,
+                    &#34;investment&#34;,
+                    &#34;portfolio&#34;,
+                    &#34;ein&#34;,
+                    &#34;employer identification&#34;,
+                    # Insurance vocabulary (non-health): property/auto/liability
+                    # policies had no taxonomy home and oscillated between
+                    # organization/financial and legal/real_estate. Word-boundary
+                    # matching (_keyword_alt) keeps these from firing on
+                    # fragments; multi-word phrases (&#34;claim number&#34;) avoid the
+                    # bare &#34;claim&#34;/&#34;policy&#34; ambiguity that collides elsewhere.
+                    &#34;insurance&#34;,
+                    &#34;policy&#34;,
+                    &#34;premium&#34;,
+                    &#34;deductible&#34;,
+                    &#34;coverage&#34;,
+                    &#34;insured&#34;,
+                    &#34;policyholder&#34;,
+                    &#34;underwriting&#34;,
+                    &#34;claim number&#34;,
+                    &#34;policy number&#34;,
+                    # Property/casualty context — the generic terms above are
+                    # SHARED with health insurance (also on the medical list), so
+                    # these domain-specific terms are what steer an auto/property
+                    # policy to financial rather than medical. Without a domain
+                    # cue the two categories tie on the shared terms and the
+                    # category-margin gate routes the (genuinely ambiguous) file
+                    # to the fallback bucket.
+                    &#34;auto insurance&#34;,
+                    &#34;homeowner&#34;,
+                    &#34;vehicle&#34;,
+                    &#34;collision&#34;,
+                    &#34;liability coverage&#34;,
+                    &#34;comprehensive coverage&#34;,
+                    &#34;property damage&#34;,
+                    &#34;dwelling&#34;,
                 ],
-                &#39;subcategories&#39;: {
-                    &#39;tax&#39;: [&#39;tax&#39;, &#39;irs&#39;, &#39;1098&#39;, &#39;1099&#39;, &#39;w-2&#39;, &#39;w2&#39;, &#39;federal&#39;, &#39;state return&#39;],
-                    &#39;invoices&#39;: [&#39;invoice&#39;, &#39;bill&#39;, &#39;billing&#39;, &#39;payment&#39;],
-                    &#39;statements&#39;: [&#39;statement&#39;, &#39;account&#39;, &#39;balance&#39;, &#39;transaction&#39;],
-                    &#39;other&#39;: []
-                }
+                &#34;subcategories&#34;: {
+                    &#34;tax&#34;: [&#34;tax&#34;, &#34;irs&#34;, &#34;1098&#34;, &#34;1099&#34;, &#34;w-2&#34;, &#34;w2&#34;, &#34;federal&#34;, &#34;state return&#34;],
+                    &#34;invoices&#34;: [&#34;invoice&#34;, &#34;bill&#34;, &#34;billing&#34;, &#34;payment&#34;],
+                    &#34;statements&#34;: [&#34;statement&#34;, &#34;account&#34;, &#34;balance&#34;, &#34;transaction&#34;],
+                    &#34;insurance&#34;: [
+                        &#34;insurance&#34;,
+                        &#34;policy&#34;,
+                        &#34;premium&#34;,
+                        &#34;deductible&#34;,
+                        &#34;coverage&#34;,
+                        &#34;insured&#34;,
+                        &#34;policyholder&#34;,
+                        &#34;underwriting&#34;,
+                        &#34;claim number&#34;,
+                        &#34;policy number&#34;,
+                    ],
+                    &#34;other&#34;: [],
+                },
             },
-            &#39;business&#39;: {
-                &#39;keywords&#39;: [
-                    &#39;proposal&#39;, &#39;pitch&#39;, &#39;business plan&#39;, &#39;strategy&#39;, &#39;marketing&#39;,
-                    &#39;presentation&#39;, &#39;deck&#39;, &#39;startup&#39;, &#39;company&#39;, &#39;venture&#39;, &#39;investor&#39;,
-                    &#39;growth&#39;, &#39;revenue model&#39;, &#39;unit economics&#39;, &#39;expansion&#39;, &#39;rfp&#39;,
-                    &#39;guidelines&#39;, &#39;program&#39;, &#39;service package&#39;, &#39;pricing&#39;, &#39;client&#39;,
-                    &#39;customer&#39;, &#39;vendor&#39;, &#39;supplier&#39;, &#39;partner&#39;, &#39;contacts&#39;, &#39;crm&#39;,
-                    &#39;hiring&#39;, &#39;job posting&#39;, &#39;meeting&#39;, &#39;standup&#39;, &#39;minutes&#39;
+            &#34;business&#34;: {
+                &#34;keywords&#34;: [
+                    &#34;proposal&#34;,
+                    &#34;pitch&#34;,
+                    &#34;business plan&#34;,
+                    &#34;strategy&#34;,
+                    &#34;marketing&#34;,
+                    &#34;presentation&#34;,
+                    &#34;deck&#34;,
+                    &#34;startup&#34;,
+                    &#34;company&#34;,
+                    &#34;venture&#34;,
+                    &#34;investor&#34;,
+                    &#34;growth&#34;,
+                    &#34;revenue model&#34;,
+                    &#34;unit economics&#34;,
+                    &#34;expansion&#34;,
+                    &#34;rfp&#34;,
+                    &#34;guidelines&#34;,
+                    &#34;program&#34;,
+                    &#34;service package&#34;,
+                    &#34;pricing&#34;,
+                    &#34;client&#34;,
+                    &#34;customer&#34;,
+                    &#34;vendor&#34;,
+                    &#34;supplier&#34;,
+                    &#34;partner&#34;,
+                    &#34;contacts&#34;,
+                    &#34;crm&#34;,
+                    &#34;hiring&#34;,
+                    &#34;job posting&#34;,
+                    &#34;meeting&#34;,
+                    &#34;standup&#34;,
+                    &#34;minutes&#34;,
                 ],
-                &#39;subcategories&#39;: {
-                    &#39;planning&#39;: [&#39;business plan&#39;, &#39;strategy&#39;, &#39;expansion&#39;, &#39;growth&#39;, &#39;project&#39;],
-                    &#39;marketing&#39;: [&#39;marketing&#39;, &#39;pricing&#39;, &#39;service package&#39;, &#39;pitch&#39;, &#39;deck&#39;],
-                    &#39;proposals&#39;: [&#39;proposal&#39;, &#39;rfp&#39;, &#39;guidelines&#39;],
-                    &#39;crm&#39;: [&#39;crm&#39;, &#39;contacts&#39;, &#39;microlender&#39;, &#39;customer&#39;],
-                    &#39;hr&#39;: [&#39;hiring&#39;, &#39;job posting&#39;, &#39;team roster&#39;, &#39;application&#39;, &#39;linkedin&#39;],
-                    &#39;meeting_notes&#39;: [&#39;meeting&#39;, &#39;standup&#39;, &#39;minutes&#39;, &#39;agenda&#39;, &#39;retrospective&#39;],
-                    &#39;clients&#39;: [&#39;client&#39;, &#39;llc&#39;, &#39;inc&#39;, &#39;corp&#39;, &#39;company&#39;],  # Legacy
-                    &#39;other&#39;: []
-                }
+                &#34;subcategories&#34;: {
+                    &#34;planning&#34;: [&#34;business plan&#34;, &#34;strategy&#34;, &#34;expansion&#34;, &#34;growth&#34;, &#34;project&#34;],
+                    &#34;marketing&#34;: [&#34;marketing&#34;, &#34;pricing&#34;, &#34;service package&#34;, &#34;pitch&#34;, &#34;deck&#34;],
+                    &#34;proposals&#34;: [&#34;proposal&#34;, &#34;rfp&#34;, &#34;guidelines&#34;],
+                    &#34;crm&#34;: [&#34;crm&#34;, &#34;contacts&#34;, &#34;microlender&#34;, &#34;customer&#34;],
+                    &#34;hr&#34;: [&#34;hiring&#34;, &#34;job posting&#34;, &#34;team roster&#34;, &#34;application&#34;, &#34;linkedin&#34;],
+                    &#34;meeting_notes&#34;: [&#34;meeting&#34;, &#34;standup&#34;, &#34;minutes&#34;, &#34;agenda&#34;, &#34;retrospective&#34;],
+                    &#34;clients&#34;: [&#34;client&#34;, &#34;llc&#34;, &#34;inc&#34;, &#34;corp&#34;, &#34;company&#34;],  # Legacy
+                    &#34;other&#34;: [],
+                },
             },
-            &#39;personal&#39;: {
-                &#39;keywords&#39;: [
-                    &#39;resume&#39;, &#39;cv&#39;, &#39;cover letter&#39;, &#39;curriculum vitae&#39;, &#39;employment&#39;,
-                    &#39;personal&#39;, &#39;identification&#39;, &#39;passport&#39;, &#39;driver license&#39;, &#39;ssn&#39;,
-                    &#39;birth certificate&#39;, &#39;marriage&#39;, &#39;divorce&#39;, &#39;diploma&#39;, &#39;transcript&#39;,
-                    &#39;reference&#39;, &#39;recommendation&#39;, &#39;vcard&#39;, &#39;contact&#39;,
-                    &#39;journal&#39;, &#39;diary&#39;, &#39;event&#39;, &#39;wedding&#39;, &#39;citation&#39;
+            &#34;personal&#34;: {
+                &#34;keywords&#34;: [
+                    &#34;resume&#34;,
+                    &#34;cv&#34;,
+                    &#34;cover letter&#34;,
+                    &#34;curriculum vitae&#34;,
+                    &#34;employment&#34;,
+                    &#34;personal&#34;,
+                    &#34;identification&#34;,
+                    &#34;passport&#34;,
+                    &#34;driver license&#34;,
+                    &#34;ssn&#34;,
+                    &#34;birth certificate&#34;,
+                    &#34;marriage&#34;,
+                    &#34;divorce&#34;,
+                    &#34;diploma&#34;,
+                    &#34;transcript&#34;,
+                    &#34;reference&#34;,
+                    &#34;recommendation&#34;,
+                    &#34;vcard&#34;,
+                    &#34;contact&#34;,
+                    &#34;journal&#34;,
+                    &#34;diary&#34;,
+                    &#34;event&#34;,
+                    &#34;wedding&#34;,
+                    &#34;citation&#34;,
                 ],
-                &#39;subcategories&#39;: {
-                    &#39;employment&#39;: [&#39;resume&#39;, &#39;cv&#39;, &#39;cover letter&#39;, &#39;employment&#39;, &#39;reference&#39;],
-                    &#39;identification&#39;: [&#39;passport&#39;, &#39;driver license&#39;, &#39;ssn&#39;, &#39;id&#39;],
-                    &#39;certificates&#39;: [&#39;birth certificate&#39;, &#39;marriage&#39;, &#39;divorce&#39;, &#39;diploma&#39;],
-                    &#39;contacts&#39;: [&#39;resume&#39;, &#39;cv&#39;, &#39;vcard&#39;, &#39;contact&#39;, &#39;curriculum vitae&#39;],
-                    &#39;journal&#39;: [&#39;journal&#39;, &#39;diary&#39;, &#39;dream&#39;, &#39;reflection&#39;, &#39;memoir&#39;],
-                    &#39;events&#39;: [&#39;event&#39;, &#39;party&#39;, &#39;wedding&#39;, &#39;invitation&#39;, &#39;rsvp&#39;],
-                    &#39;legal&#39;: [&#39;dui&#39;, &#39;court&#39;, &#39;citation&#39;, &#39;traffic ticket&#39;, &#39;hearing&#39;, &#39;dmv&#39;],
-                    &#39;records&#39;: [&#39;personal record&#39;, &#39;records&#39;],
-                    &#39;other&#39;: []
-                }
+                &#34;subcategories&#34;: {
+                    &#34;employment&#34;: [&#34;resume&#34;, &#34;cv&#34;, &#34;cover letter&#34;, &#34;employment&#34;, &#34;reference&#34;],
+                    &#34;identification&#34;: [&#34;passport&#34;, &#34;driver license&#34;, &#34;ssn&#34;, &#34;id&#34;],
+                    &#34;certificates&#34;: [&#34;birth certificate&#34;, &#34;marriage&#34;, &#34;divorce&#34;, &#34;diploma&#34;],
+                    &#34;contacts&#34;: [&#34;resume&#34;, &#34;cv&#34;, &#34;vcard&#34;, &#34;contact&#34;, &#34;curriculum vitae&#34;],
+                    &#34;journal&#34;: [&#34;journal&#34;, &#34;diary&#34;, &#34;dream&#34;, &#34;reflection&#34;, &#34;memoir&#34;],
+                    &#34;events&#34;: [&#34;event&#34;, &#34;party&#34;, &#34;wedding&#34;, &#34;invitation&#34;, &#34;rsvp&#34;],
+                    &#34;legal&#34;: [&#34;dui&#34;, &#34;court&#34;, &#34;citation&#34;, &#34;traffic ticket&#34;, &#34;hearing&#34;, &#34;dmv&#34;],
+                    &#34;records&#34;: [&#34;personal record&#34;, &#34;records&#34;],
+                    &#34;other&#34;: [],
+                },
             },
-            &#39;medical&#39;: {
-                &#39;keywords&#39;: [
-                    &#39;medical&#39;, &#39;health&#39;, &#39;doctor&#39;, &#39;patient&#39;, &#39;prescription&#39;, &#39;diagnosis&#39;,
-                    &#39;treatment&#39;, &#39;hospital&#39;, &#39;clinic&#39;, &#39;insurance claim&#39;, &#39;hipaa&#39;,
-                    &#39;vaccination&#39;, &#39;immunization&#39;, &#39;lab results&#39;, &#39;pharmacy&#39;
+            &#34;medical&#34;: {
+                &#34;keywords&#34;: [
+                    &#34;medical&#34;,
+                    &#34;health&#34;,
+                    &#34;doctor&#34;,
+                    &#34;patient&#34;,
+                    &#34;prescription&#34;,
+                    &#34;diagnosis&#34;,
+                    &#34;treatment&#34;,
+                    &#34;hospital&#34;,
+                    &#34;clinic&#34;,
+                    &#34;insurance claim&#34;,
+                    &#34;hipaa&#34;,
+                    &#34;vaccination&#34;,
+                    &#34;immunization&#34;,
+                    &#34;lab results&#34;,
+                    &#34;pharmacy&#34;,
+                    # Insurance vocabulary — SHARED with financial (item #4). The
+                    # generic terms let a health-insurance document (EOB, health
+                    # plan) score the insurance category at all; the health-
+                    # specific terms below give medical the edge over financial
+                    # when clinical/plan context is present. A property/auto
+                    # policy carries none of the health-specific terms (and hits
+                    # financial&#39;s property/casualty context instead), so it stays
+                    # financial. See the financial category note.
+                    &#34;insurance&#34;,
+                    &#34;policy&#34;,
+                    &#34;premium&#34;,
+                    &#34;deductible&#34;,
+                    &#34;coverage&#34;,
+                    &#34;insured&#34;,
+                    &#34;policyholder&#34;,
+                    &#34;copay&#34;,
+                    &#34;coinsurance&#34;,
+                    &#34;explanation of benefits&#34;,
+                    &#34;health plan&#34;,
+                    &#34;health insurance&#34;,
+                    &#34;member id&#34;,
+                    &#34;in-network&#34;,
+                    &#34;out-of-pocket&#34;,
                 ],
-                &#39;subcategories&#39;: {
-                    &#39;records&#39;: [&#39;medical record&#39;, &#39;patient&#39;, &#39;diagnosis&#39;, &#39;treatment&#39;],
-                    &#39;insurance&#39;: [&#39;insurance&#39;, &#39;claim&#39;, &#39;coverage&#39;],
-                    &#39;prescriptions&#39;: [&#39;prescription&#39;, &#39;pharmacy&#39;, &#39;medication&#39;],
-                    &#39;other&#39;: []
-                }
+                &#34;subcategories&#34;: {
+                    &#34;records&#34;: [&#34;medical record&#34;, &#34;patient&#34;, &#34;diagnosis&#34;, &#34;treatment&#34;],
+                    &#34;insurance&#34;: [
+                        &#34;insurance&#34;,
+                        &#34;claim&#34;,
+                        &#34;coverage&#34;,
+                        &#34;copay&#34;,
+                        &#34;coinsurance&#34;,
+                        &#34;explanation of benefits&#34;,
+                        &#34;health plan&#34;,
+                        &#34;health insurance&#34;,
+                        &#34;member id&#34;,
+                        &#34;in-network&#34;,
+                        &#34;out-of-pocket&#34;,
+                        &#34;premium&#34;,
+                        &#34;deductible&#34;,
+                    ],
+                    &#34;prescriptions&#34;: [&#34;prescription&#34;, &#34;pharmacy&#34;, &#34;medication&#34;],
+                    &#34;other&#34;: [],
+                },
             },
-            &#39;property&#39;: {
-                &#39;keywords&#39;: [
-                    &#39;property management&#39;, &#39;tenant&#39;, &#39;landlord&#39;, &#39;rent&#39;, &#39;rental&#39;,
-                    &#39;maintenance&#39;, &#39;repair&#39;, &#39;inspection&#39;, &#39;utilities&#39;, &#39;hoa&#39;
+            &#34;property&#34;: {
+                &#34;keywords&#34;: [
+                    &#34;property management&#34;,
+                    &#34;tenant&#34;,
+                    &#34;landlord&#34;,
+                    &#34;rent&#34;,
+                    &#34;rental&#34;,
+                    &#34;maintenance&#34;,
+                    &#34;repair&#34;,
+                    &#34;inspection&#34;,
+                    &#34;utilities&#34;,
+                    &#34;hoa&#34;,
                 ],
-                &#39;subcategories&#39;: {
-                    &#39;leases&#39;: [&#39;lease&#39;, &#39;tenant&#39;, &#39;landlord&#39;, &#39;rent&#39;, &#39;rental&#39;],
-                    &#39;maintenance&#39;: [&#39;maintenance&#39;, &#39;repair&#39;, &#39;inspection&#39;],
-                    &#39;other&#39;: []
-                }
+                &#34;subcategories&#34;: {
+                    &#34;leases&#34;: [&#34;lease&#34;, &#34;tenant&#34;, &#34;landlord&#34;, &#34;rent&#34;, &#34;rental&#34;],
+                    &#34;maintenance&#34;: [&#34;maintenance&#34;, &#34;repair&#34;, &#34;inspection&#34;],
+                    &#34;other&#34;: [],
+                },
             },
-            &#39;education&#39;: {
-                &#39;keywords&#39;: [
-                    &#39;course&#39;, &#39;syllabus&#39;, &#39;lecture&#39;, &#39;assignment&#39;, &#39;homework&#39;, &#39;exam&#39;,
-                    &#39;grade&#39;, &#39;transcript&#39;, &#39;diploma&#39;, &#39;degree&#39;, &#39;certificate&#39;, &#39;university&#39;,
-                    &#39;college&#39;, &#39;school&#39;, &#39;research paper&#39;, &#39;thesis&#39;, &#39;dissertation&#39;
+            &#34;education&#34;: {
+                &#34;keywords&#34;: [
+                    &#34;course&#34;,
+                    &#34;syllabus&#34;,
+                    &#34;lecture&#34;,
+                    &#34;assignment&#34;,
+                    &#34;homework&#34;,
+                    &#34;exam&#34;,
+                    &#34;grade&#34;,
+                    &#34;transcript&#34;,
+                    &#34;diploma&#34;,
+                    &#34;degree&#34;,
+                    &#34;certificate&#34;,
+                    &#34;university&#34;,
+                    &#34;college&#34;,
+                    &#34;school&#34;,
+                    &#34;research paper&#34;,
+                    &#34;thesis&#34;,
+                    &#34;dissertation&#34;,
                 ],
-                &#39;subcategories&#39;: {
-                    &#39;coursework&#39;: [&#39;course&#39;, &#39;syllabus&#39;, &#39;lecture&#39;, &#39;assignment&#39;],
-                    &#39;research&#39;: [&#39;research&#39;, &#39;paper&#39;, &#39;thesis&#39;, &#39;dissertation&#39;],
-                    &#39;records&#39;: [&#39;transcript&#39;, &#39;diploma&#39;, &#39;degree&#39;, &#39;certificate&#39;],
-                    &#39;other&#39;: []
-                }
+                &#34;subcategories&#34;: {
+                    &#34;coursework&#34;: [&#34;course&#34;, &#34;syllabus&#34;, &#34;lecture&#34;, &#34;assignment&#34;],
+                    &#34;research&#34;: [&#34;research&#34;, &#34;paper&#34;, &#34;thesis&#34;, &#34;dissertation&#34;],
+                    &#34;records&#34;: [&#34;transcript&#34;, &#34;diploma&#34;, &#34;degree&#34;, &#34;certificate&#34;],
+                    &#34;other&#34;: [],
+                },
             },
-            &#39;technical&#39;: {
-                &#39;keywords&#39;: [
-                    &#39;code&#39;, &#39;software&#39;, &#39;development&#39;, &#39;programming&#39;, &#39;api&#39;, &#39;database&#39;,
-                    &#39;documentation&#39;, &#39;technical&#39;, &#39;specification&#39;, &#39;architecture&#39;, &#39;design&#39;,
-                    &#39;system&#39;, &#39;infrastructure&#39;, &#39;deployment&#39;, &#39;configuration&#39;
+            &#34;technical&#34;: {
+                &#34;keywords&#34;: [
+                    &#34;code&#34;,
+                    &#34;software&#34;,
+                    &#34;development&#34;,
+                    &#34;programming&#34;,
+                    &#34;api&#34;,
+                    &#34;database&#34;,
+                    &#34;documentation&#34;,
+                    &#34;technical&#34;,
+                    &#34;specification&#34;,
+                    &#34;architecture&#34;,
+                    &#34;design&#34;,
+                    &#34;system&#34;,
+                    &#34;infrastructure&#34;,
+                    &#34;deployment&#34;,
+                    &#34;configuration&#34;,
                 ],
-                &#39;subcategories&#39;: {
-                    &#39;documentation&#39;: [&#39;documentation&#39;, &#39;spec&#39;, &#39;specification&#39;, &#39;readme&#39;],
-                    &#39;architecture&#39;: [&#39;architecture&#39;, &#39;design&#39;, &#39;system&#39;, &#39;infrastructure&#39;],
-                    &#39;other&#39;: []
-                }
+                &#34;subcategories&#34;: {
+                    &#34;documentation&#34;: [&#34;documentation&#34;, &#34;spec&#34;, &#34;specification&#34;, &#34;readme&#34;],
+                    &#34;architecture&#34;: [&#34;architecture&#34;, &#34;design&#34;, &#34;system&#34;, &#34;infrastructure&#34;],
+                    &#34;other&#34;: [],
+                },
             },
-            &#39;creative&#39;: {
-                &#39;keywords&#39;: [
-                    &#39;design&#39;, &#39;graphic&#39;, &#39;illustration&#39;, &#39;artwork&#39;, &#39;photo&#39;, &#39;image&#39;,
-                    &#39;screenshot&#39;, &#39;mockup&#39;, &#39;prototype&#39;, &#39;wireframe&#39;, &#39;brand&#39;, &#39;logo&#39;
+            &#34;creative&#34;: {
+                &#34;keywords&#34;: [
+                    &#34;design&#34;,
+                    &#34;graphic&#34;,
+                    &#34;illustration&#34;,
+                    &#34;artwork&#34;,
+                    &#34;photo&#34;,
+                    &#34;image&#34;,
+                    &#34;screenshot&#34;,
+                    &#34;mockup&#34;,
+                    &#34;prototype&#34;,
+                    &#34;wireframe&#34;,
+                    &#34;brand&#34;,
+                    &#34;logo&#34;,
                 ],
-                &#39;subcategories&#39;: {
-                    &#39;design&#39;: [&#39;design&#39;, &#39;mockup&#39;, &#39;wireframe&#39;, &#39;prototype&#39;],
-                    &#39;branding&#39;: [&#39;brand&#39;, &#39;logo&#39;, &#39;identity&#39;],
-                    &#39;photos&#39;: [&#39;photo&#39;, &#39;photography&#39;, &#39;image&#39;],
-                    &#39;other&#39;: []
-                }
-            }
+                &#34;subcategories&#34;: {
+                    &#34;design&#34;: [&#34;design&#34;, &#34;mockup&#34;, &#34;wireframe&#34;, &#34;prototype&#34;],
+                    &#34;branding&#34;: [&#34;brand&#34;, &#34;logo&#34;, &#34;identity&#34;],
+                    &#34;photos&#34;: [&#34;photo&#34;, &#34;photography&#34;, &#34;image&#34;],
+                    &#34;other&#34;: [],
+                },
+            },
+            # Game mod/workshop descriptors (e.g. Steam Workshop `.mod` manifests).
+            # Keyed on strings unique to those descriptors so it only fires on real
+            # game-mod content, never on generic documents that mention &#34;game&#34;.
+            &#34;game_assets&#34;: {
+                &#34;keywords&#34;: [
+                    &#34;steamapps/workshop&#34;,
+                    &#34;remote_file_id&#34;,
+                    &#34;steam workshop&#34;,
+                    &#34;workshop/content&#34;,
+                ],
+                &#34;subcategories&#34;: {&#34;other&#34;: []},
+            },
         }
 
         # Pre-lowercase keywords and subcategory keyword lists
         self._keywords_lower: dict[str, list[str]] = {
-            cat: [kw.lower() for kw in data[&#39;keywords&#39;]]
-            for cat, data in self.patterns.items()
+            cat: [kw.lower() for kw in data[&#34;keywords&#34;]] for cat, data in self.patterns.items()
         }
         self._subcats_lower: dict[str, dict[str, list[str]]] = {
-            cat: {sc: [kw.lower() for kw in kws] for sc, kws in data[&#39;subcategories&#39;].items()}
+            cat: {sc: [kw.lower() for kw in kws] for sc, kws in data[&#34;subcategories&#34;].items()}
             for cat, data in self.patterns.items()
+        }
+        # Precompile word-boundary-aware matchers once (parallel to the *_lower
+        # lists); scoring uses these instead of substring containment so
+        # keyword fragments don&#39;t inflate the wrong category (see
+        # _keyword_alt / BACKLOG Phase-3 item #2). Per-keyword patterns serve
+        # score_all_categories (distinct-keyword fraction, screenshot-sized
+        # text); one-alternation-per-list group matchers serve the
+        # occurrence-counting core (single scan, viable on huge extractions).
+        self._keyword_res: dict[str, list[re.Pattern[str]]] = {
+            cat: [_compile_keyword_pattern(kw) for kw in kws]
+            for cat, kws in self._keywords_lower.items()
+        }
+        self._category_group_re: dict[str, re.Pattern[str] | None] = {
+            cat: _compile_keyword_group(kws) for cat, kws in self._keywords_lower.items()
+        }
+        self._subcat_group_re: dict[str, dict[str, re.Pattern[str] | None]] = {
+            cat: {sc: _compile_keyword_group(kws) for sc, kws in scs.items()}
+            for cat, scs in self._subcats_lower.items()
         }
 
     # ------------------------------------------------------------------
@@ -236,8 +524,15 @@ el.replaceWith(d);
     # ------------------------------------------------------------------
 
     def extract_company_names(self, text: str) -&gt; list[str]:
-        &#34;&#34;&#34;Extract company names from text (delegates to EntityDetector).&#34;&#34;&#34;
-        return self.entities.extract_company_names(text)
+        &#34;&#34;&#34;Extract organizations, ranked own-org-first and de-garbled.
+
+        Phase-0 layers (reference-span exclusion, email/URL domain-ownership
+        cue, salience ranking, ``cleanco`` canonicalization) wrap the base
+        ``EntityDetector`` regex to fix single-token-brand misses and citation
+        false positives. See ``src/classifiers/org_extraction.py`` and
+        ``docs/plans/ORG_NER_REPLACEMENT_PLAN.md``.
+        &#34;&#34;&#34;
+        return extract_organizations(text, base_extractor=self.entities)
 
     def extract_people_names(self, text: str) -&gt; list[str]:
         &#34;&#34;&#34;Extract people names from text (delegates to EntityDetector).&#34;&#34;&#34;
@@ -263,9 +558,6 @@ el.replaceWith(d);
     # KIE-based classification (structured document extraction)
     # ------------------------------------------------------------------
 
-    # Minimum per-field confidence for KIE to drive classification.
-    _KIE_CLASSIFICATION_MIN_CONFIDENCE = 0.5
-
     def classify_with_kie(
         self,
         kie_result: KIEResult,
@@ -278,14 +570,17 @@ el.replaceWith(d);
         tuple when high-confidence invoice/receipt fields are detected.
         Returns ``None`` when the KIE result is insufficient and the caller
         should fall through to keyword-based ``classify_content()``.
+
+        Confidence threshold and field-class groups are imported from
+        ``shared.kie_schema_mapping`` so all KIE consumers share one value.
         &#34;&#34;&#34;
-        threshold = self._KIE_CLASSIFICATION_MIN_CONFIDENCE
+        threshold = _KIE_CLASSIFICATION_MIN_CONFIDENCE
 
         # Look for strong financial document signals: a vendor/store AND
         # an amount OR a date.
-        vendor = self._best_kie_field(kie_result, (&#34;vendor_name&#34;, &#34;store_name&#34;), threshold)
-        amount = self._best_kie_field(kie_result, (&#34;total_amount&#34;, &#34;receipt_total&#34;), threshold)
-        date = self._best_kie_field(kie_result, (&#34;invoice_date&#34;, &#34;receipt_date&#34;), threshold)
+        vendor = self._best_kie_field(kie_result, _KIE_VENDOR_CLASSES, threshold)
+        amount = self._best_kie_field(kie_result, _KIE_AMOUNT_CLASSES, threshold)
+        date = self._best_kie_field(kie_result, _KIE_DATE_CLASSES, threshold)
 
         if vendor and (amount or date):
             people_names = self.extract_people_names(text) if text else []
@@ -303,7 +598,9 @@ el.replaceWith(d);
         best = None
         for name in class_names:
             for f in kie_result.fields.get(name, ()):
-                if f.confidence &gt;= min_confidence and (best is None or f.confidence &gt; best.confidence):
+                if f.confidence &gt;= min_confidence and (
+                    best is None or f.confidence &gt; best.confidence
+                ):
                     best = f
         return best
 
@@ -317,12 +614,98 @@ el.replaceWith(d);
         combined = f&#34;{text.lower()} {filename.lower()}&#34;
         scores: dict[str, float] = {}
 
-        for category, keywords in self._keywords_lower.items():
-            hits = sum(1 for kw in keywords if kw in combined)
+        for category, patterns in self._keyword_res.items():
+            hits = sum(1 for rx in patterns if rx.search(combined))
             if hits:
-                scores[category] = hits / len(keywords)
+                scores[category] = hits / len(patterns)
 
         return scores
+
+    def _count_category_scores(
+        self, combined: str
+    ) -&gt; tuple[dict[str, int], dict[str, dict[str, int]]]:
+        &#34;&#34;&#34;Occurrence-count scoring core shared by ``classify_content`` and
+        ``score_categories_detailed``.
+
+        Returns ``(scores, category_subcats)``: ``scores`` maps each hit
+        category to its total keyword-occurrence count; ``category_subcats``
+        maps hit categories to per-subcategory occurrence counts (only
+        subcategories with at least one hit are present, and categories whose
+        subcategory lists all missed are absent).
+        &#34;&#34;&#34;
+        scores: dict[str, int] = defaultdict(int)
+        category_subcats: dict[str, dict[str, int]] = {}
+
+        for category, group_re in self._category_group_re.items():
+            # Short-circuit: search() stops at the first hit; findall() scans
+            # fully — skip the count pass for categories with no keyword present.
+            if group_re is None or not group_re.search(combined):
+                continue
+
+            scores[category] = len(group_re.findall(combined))
+
+            subcat_scores: dict[str, int] = {}
+            for sc, sc_re in self._subcat_group_re[category].items():
+                if sc_re is None:
+                    continue
+                matches = len(sc_re.findall(combined))
+                if matches:
+                    subcat_scores[sc] = matches
+            if subcat_scores:
+                category_subcats[category] = subcat_scores
+
+        return scores, category_subcats
+
+    @staticmethod
+    def _resolve_best_subcategory(
+        category: str, category_subcats: dict[str, dict[str, int]]
+    ) -&gt; str:
+        &#34;&#34;&#34;Highest-scoring subcategory for *category*, or ``&#34;other&#34;``.
+
+        Exactly the resolution ``classify_content`` applies to its winning
+        category: occurrence-count max over the category&#39;s subcategory
+        keyword lists, defaulting to ``&#34;other&#34;`` when none hit.
+        &#34;&#34;&#34;
+        subcat_scores = category_subcats.get(category)
+        if subcat_scores:
+            return max(subcat_scores.items(), key=lambda x: x[1])[0]
+        return &#34;other&#34;
+
+    def score_categories_detailed(
+        self, text: str, filename: str = &#34;&#34;
+    ) -&gt; dict[str, tuple[str, float]]:
+        &#34;&#34;&#34;Subcategory-aware keyword scoring across ALL hit categories.
+
+        Returns ``{category: (best_subcategory, normalized_score)}`` where
+        ``normalized_score`` is that category&#39;s occurrence-count total divided
+        by the max category total (the top category scores 1.0), and
+        ``best_subcategory`` is resolved exactly as ``classify_content``
+        resolves its winner (occurrence-count max over the category&#39;s
+        subcategory lists, ``&#34;other&#34;`` default).
+
+        Pure keyword counting only — the entity-dependent adjustments of
+        ``classify_content`` (the known-company shortcut and the
+        business+company → ``clients`` subcategory override) are deliberately
+        excluded; callers that need them use ``classify_content`` for the
+        winner. Empty text returns ``{}`` (mirroring ``classify_content``&#39;s
+        empty-text early return, even when the filename alone would match).
+        &#34;&#34;&#34;
+        if not text:
+            return {}
+
+        combined = f&#34;{text.lower()} {filename.lower()}&#34;
+        scores, category_subcats = self._count_category_scores(combined)
+        if not scores:
+            return {}
+
+        max_total = max(scores.values())
+        return {
+            category: (
+                self._resolve_best_subcategory(category, category_subcats),
+                total / max_total,
+            )
+            for category, total in scores.items()
+        }
 
     def classify_content(
         self,
@@ -346,12 +729,12 @@ el.replaceWith(d);
             Tuple of (category, subcategory, company_name, people_names)
         &#34;&#34;&#34;
         if not text:
-            return (&#39;uncategorized&#39;, &#39;other&#39;, None, [])
+            return (&#34;uncategorized&#34;, &#34;other&#34;, None, [])
 
         # Non-English OCR text — English keyword patterns are unreliable.
         # Skip keyword classification and let the caller handle routing.
-        if detected_language is not None and detected_language != &#39;en&#39;:
-            return (&#39;uncategorized&#39;, &#39;other&#39;, None, [])
+        if detected_language is not None and detected_language != &#34;en&#34;:
+            return (&#34;uncategorized&#34;, &#34;other&#34;, None, [])
 
         text_lower = text.lower()
         filename_lower = filename.lower()
@@ -359,20 +742,38 @@ el.replaceWith(d);
 
         # Check for known companies in text (canonical name mapping)
         known_text_companies: dict[str, tuple[str, str, str | None]] = {
-            &#39;capital city village&#39;: (&#39;organization&#39;, &#39;property_management&#39;, &#39;Capital City Village&#39;),
-            &#39;leora home health&#39;: (&#39;organization&#39;, &#39;healthcare&#39;, &#39;Leora Home Health&#39;),
-            &#39;integrity studio&#39;: (&#39;organization&#39;, &#39;vendors&#39;, &#39;Integrity Studio&#39;),
-            &#39;inspired movement&#39;: (&#39;organization&#39;, &#39;vendors&#39;, &#39;Inspired Movement&#39;),
-            &#39;new beginnings child development&#39;: (&#39;organization&#39;, &#39;vendors&#39;, &#39;New Beginnings Child Development Center&#39;),
-            &#39;zouk&#39;: (&#39;zouk&#39;, &#39;events&#39;, None),
+            &#34;capital city village&#34;: (&#34;organization&#34;, &#34;property_management&#34;, &#34;Capital City Village&#34;),
+            &#34;leora home health&#34;: (&#34;organization&#34;, &#34;healthcare&#34;, &#34;Leora Home Health&#34;),
+            &#34;integrity studio&#34;: (&#34;organization&#34;, &#34;vendors&#34;, &#34;Integrity Studio&#34;),
+            &#34;inspired movement&#34;: (&#34;organization&#34;, &#34;vendors&#34;, &#34;Inspired Movement&#34;),
+            &#34;new beginnings child development&#34;: (
+                &#34;organization&#34;,
+                &#34;vendors&#34;,
+                &#34;New Beginnings Child Development Center&#34;,
+            ),
+            &#34;zouk&#34;: (&#34;zouk&#34;, &#34;events&#34;, None),
         }
-        for phrase, (cat, subcat, canonical_name) in known_text_companies.items():
-            if phrase in text_lower:
-                return (cat, subcat, canonical_name, self.extract_people_names(text))
+        # Known companies seed the canonical entity name and a category
+        # FALLBACK only; they no longer override genuine topical content.
+        # Entity attribution is a side-channel, not a filing driver (Option C),
+        # so a technical doc that merely mentions a known company still files
+        # by its topic — the company rides along as the extracted entity. The
+        # exception is a curated org named in the LETTERHEAD position (see
+        # below): there it is the document&#39;s subject, not a passing mention.
+        known_hit: tuple[str, str, str | None] | None = None
+        known_hit_pos = -1
+        for phrase, mapping in known_text_companies.items():
+            pos = text_lower.find(phrase)
+            if pos != -1:
+                known_hit = mapping
+                known_hit_pos = pos
+                break
 
         # Extract company names and people names
         company_names = self.extract_company_names(text)
         primary_company: str | None = company_names[0] if company_names else None
+        if known_hit and known_hit[2] and not primary_company:
+            primary_company = known_hit[2]
 
         people_names = self.extract_people_names(text)
 
@@ -386,15 +787,31 @@ el.replaceWith(d);
             relationship_company = next(iter(person_company_relationships.values()))
 
             # Check if relationship company has proper legal suffix
-            has_legal_suffix = any(relationship_company.endswith(suffix)
-                                  for suffix in [&#39;LLC&#39;, &#39;Inc.&#39;, &#39;Inc&#39;, &#39;Corp.&#39;, &#39;Corp&#39;,
-                                                &#39;Ltd.&#39;, &#39;Ltd&#39;, &#39;LLP&#39;, &#39;L.L.C.&#39;, &#39;L.L.P.&#39;])
+            has_legal_suffix = any(
+                relationship_company.endswith(suffix)
+                for suffix in [
+                    &#34;LLC&#34;,
+                    &#34;Inc.&#34;,
+                    &#34;Inc&#34;,
+                    &#34;Corp.&#34;,
+                    &#34;Corp&#34;,
+                    &#34;Ltd.&#34;,
+                    &#34;Ltd&#34;,
+                    &#34;LLP&#34;,
+                    &#34;L.L.C.&#34;,
+                    &#34;L.L.P.&#34;,
+                ]
+            )
 
             # Prefer relationship company if it has legal suffix or we don&#39;t have a primary company
             if has_legal_suffix or not primary_company:
                 primary_company = relationship_company
             # Or if the relationship company is much cleaner (shorter and no weird prefixes)
-            elif primary_company and &#39;CEO&#39; not in relationship_company and &#39;at&#39; not in relationship_company:
+            elif (
+                primary_company
+                and &#34;CEO&#34; not in relationship_company
+                and &#34;at&#34; not in relationship_company
+            ):
                 if len(relationship_company) &lt; len(primary_company) * 0.8:
                     primary_company = relationship_company
 
@@ -412,46 +829,33 @@ el.replaceWith(d);
         # not the first-listed subcategory with any hit (the old behavior gave
         # every matched subcategory an identical copy of the category total,
         # making max() a dict-insertion-order tie-break).
-        scores: dict[str, int] = defaultdict(int)
-        category_subcats: dict[str, dict[str, int]] = {}
-
-        for category, keywords in self._keywords_lower.items():
-            # Short-circuit: skip count() pass entirely if no keyword is present.
-            # `in` stops at first hit; count() always scans the full string.
-            if not any(kw in combined for kw in keywords):
-                continue
-
-            for keyword in keywords:
-                scores[category] += combined.count(keyword)
-
-            subcat_scores = {
-                sc: sum(combined.count(sk) for sk in sc_kws)
-                for sc, sc_kws in self._subcats_lower[category].items()
-                if any(sk in combined for sk in sc_kws)
-            }
-            if subcat_scores:
-                category_subcats[category] = subcat_scores
+        scores, category_subcats = self._count_category_scores(combined)
 
         if not scores:
-            return (&#39;uncategorized&#39;, &#39;other&#39;, primary_company, people_names)
+            # No topical keywords — fall back to the known-company category
+            # (e.g. a bare letterhead/invoice that only names the company).
+            if known_hit:
+                return (known_hit[0], known_hit[1], primary_company, people_names)
+            return (&#34;uncategorized&#34;, &#34;other&#34;, primary_company, people_names)
+
+        # A curated known company named in the LETTERHEAD (document opening) is
+        # the filing subject and overrides topical content — a provider&#39;s own
+        # letter files under the provider org even though it is dense in the
+        # provider&#39;s topic vocabulary. Named later, it is a passing mention and
+        # topical scoring wins (Option C: attribution is a side-channel).
+        if known_hit and 0 &lt;= known_hit_pos &lt; self._KNOWN_COMPANY_LETTERHEAD_CHARS:
+            return (known_hit[0], known_hit[1], primary_company, people_names)
 
         # Get category with highest score
         best_category = max(scores.items(), key=lambda x: x[1])[0]
 
         # Get subcategory with highest score for this category
-        if best_category in category_subcats:
-            subcat_scores = category_subcats[best_category]
-            if subcat_scores:
-                best_subcategory = max(subcat_scores.items(), key=lambda x: x[1])[0]
-            else:
-                best_subcategory = &#39;other&#39;
-        else:
-            best_subcategory = &#39;other&#39;
+        best_subcategory = self._resolve_best_subcategory(best_category, category_subcats)
 
         # If we detected a company (either directly or via person relationship)
         # and it&#39;s business-related, use clients subcategory
-        if primary_company and best_category == &#39;business&#39;:
-            best_subcategory = &#39;clients&#39;
+        if primary_company and best_category == &#34;business&#34;:
+            best_subcategory = &#34;clients&#34;
 
         return (best_category, best_subcategory, primary_company, people_names)</code></pre>
 </details>
@@ -493,12 +897,12 @@ preserve the historical public API.</p>
         Tuple of (category, subcategory, company_name, people_names)
     &#34;&#34;&#34;
     if not text:
-        return (&#39;uncategorized&#39;, &#39;other&#39;, None, [])
+        return (&#34;uncategorized&#34;, &#34;other&#34;, None, [])
 
     # Non-English OCR text — English keyword patterns are unreliable.
     # Skip keyword classification and let the caller handle routing.
-    if detected_language is not None and detected_language != &#39;en&#39;:
-        return (&#39;uncategorized&#39;, &#39;other&#39;, None, [])
+    if detected_language is not None and detected_language != &#34;en&#34;:
+        return (&#34;uncategorized&#34;, &#34;other&#34;, None, [])
 
     text_lower = text.lower()
     filename_lower = filename.lower()
@@ -506,20 +910,38 @@ preserve the historical public API.</p>
 
     # Check for known companies in text (canonical name mapping)
     known_text_companies: dict[str, tuple[str, str, str | None]] = {
-        &#39;capital city village&#39;: (&#39;organization&#39;, &#39;property_management&#39;, &#39;Capital City Village&#39;),
-        &#39;leora home health&#39;: (&#39;organization&#39;, &#39;healthcare&#39;, &#39;Leora Home Health&#39;),
-        &#39;integrity studio&#39;: (&#39;organization&#39;, &#39;vendors&#39;, &#39;Integrity Studio&#39;),
-        &#39;inspired movement&#39;: (&#39;organization&#39;, &#39;vendors&#39;, &#39;Inspired Movement&#39;),
-        &#39;new beginnings child development&#39;: (&#39;organization&#39;, &#39;vendors&#39;, &#39;New Beginnings Child Development Center&#39;),
-        &#39;zouk&#39;: (&#39;zouk&#39;, &#39;events&#39;, None),
+        &#34;capital city village&#34;: (&#34;organization&#34;, &#34;property_management&#34;, &#34;Capital City Village&#34;),
+        &#34;leora home health&#34;: (&#34;organization&#34;, &#34;healthcare&#34;, &#34;Leora Home Health&#34;),
+        &#34;integrity studio&#34;: (&#34;organization&#34;, &#34;vendors&#34;, &#34;Integrity Studio&#34;),
+        &#34;inspired movement&#34;: (&#34;organization&#34;, &#34;vendors&#34;, &#34;Inspired Movement&#34;),
+        &#34;new beginnings child development&#34;: (
+            &#34;organization&#34;,
+            &#34;vendors&#34;,
+            &#34;New Beginnings Child Development Center&#34;,
+        ),
+        &#34;zouk&#34;: (&#34;zouk&#34;, &#34;events&#34;, None),
     }
-    for phrase, (cat, subcat, canonical_name) in known_text_companies.items():
-        if phrase in text_lower:
-            return (cat, subcat, canonical_name, self.extract_people_names(text))
+    # Known companies seed the canonical entity name and a category
+    # FALLBACK only; they no longer override genuine topical content.
+    # Entity attribution is a side-channel, not a filing driver (Option C),
+    # so a technical doc that merely mentions a known company still files
+    # by its topic — the company rides along as the extracted entity. The
+    # exception is a curated org named in the LETTERHEAD position (see
+    # below): there it is the document&#39;s subject, not a passing mention.
+    known_hit: tuple[str, str, str | None] | None = None
+    known_hit_pos = -1
+    for phrase, mapping in known_text_companies.items():
+        pos = text_lower.find(phrase)
+        if pos != -1:
+            known_hit = mapping
+            known_hit_pos = pos
+            break
 
     # Extract company names and people names
     company_names = self.extract_company_names(text)
     primary_company: str | None = company_names[0] if company_names else None
+    if known_hit and known_hit[2] and not primary_company:
+        primary_company = known_hit[2]
 
     people_names = self.extract_people_names(text)
 
@@ -533,15 +955,31 @@ preserve the historical public API.</p>
         relationship_company = next(iter(person_company_relationships.values()))
 
         # Check if relationship company has proper legal suffix
-        has_legal_suffix = any(relationship_company.endswith(suffix)
-                              for suffix in [&#39;LLC&#39;, &#39;Inc.&#39;, &#39;Inc&#39;, &#39;Corp.&#39;, &#39;Corp&#39;,
-                                            &#39;Ltd.&#39;, &#39;Ltd&#39;, &#39;LLP&#39;, &#39;L.L.C.&#39;, &#39;L.L.P.&#39;])
+        has_legal_suffix = any(
+            relationship_company.endswith(suffix)
+            for suffix in [
+                &#34;LLC&#34;,
+                &#34;Inc.&#34;,
+                &#34;Inc&#34;,
+                &#34;Corp.&#34;,
+                &#34;Corp&#34;,
+                &#34;Ltd.&#34;,
+                &#34;Ltd&#34;,
+                &#34;LLP&#34;,
+                &#34;L.L.C.&#34;,
+                &#34;L.L.P.&#34;,
+            ]
+        )
 
         # Prefer relationship company if it has legal suffix or we don&#39;t have a primary company
         if has_legal_suffix or not primary_company:
             primary_company = relationship_company
         # Or if the relationship company is much cleaner (shorter and no weird prefixes)
-        elif primary_company and &#39;CEO&#39; not in relationship_company and &#39;at&#39; not in relationship_company:
+        elif (
+            primary_company
+            and &#34;CEO&#34; not in relationship_company
+            and &#34;at&#34; not in relationship_company
+        ):
             if len(relationship_company) &lt; len(primary_company) * 0.8:
                 primary_company = relationship_company
 
@@ -559,53 +997,41 @@ preserve the historical public API.</p>
     # not the first-listed subcategory with any hit (the old behavior gave
     # every matched subcategory an identical copy of the category total,
     # making max() a dict-insertion-order tie-break).
-    scores: dict[str, int] = defaultdict(int)
-    category_subcats: dict[str, dict[str, int]] = {}
-
-    for category, keywords in self._keywords_lower.items():
-        # Short-circuit: skip count() pass entirely if no keyword is present.
-        # `in` stops at first hit; count() always scans the full string.
-        if not any(kw in combined for kw in keywords):
-            continue
-
-        for keyword in keywords:
-            scores[category] += combined.count(keyword)
-
-        subcat_scores = {
-            sc: sum(combined.count(sk) for sk in sc_kws)
-            for sc, sc_kws in self._subcats_lower[category].items()
-            if any(sk in combined for sk in sc_kws)
-        }
-        if subcat_scores:
-            category_subcats[category] = subcat_scores
+    scores, category_subcats = self._count_category_scores(combined)
 
     if not scores:
-        return (&#39;uncategorized&#39;, &#39;other&#39;, primary_company, people_names)
+        # No topical keywords — fall back to the known-company category
+        # (e.g. a bare letterhead/invoice that only names the company).
+        if known_hit:
+            return (known_hit[0], known_hit[1], primary_company, people_names)
+        return (&#34;uncategorized&#34;, &#34;other&#34;, primary_company, people_names)
+
+    # A curated known company named in the LETTERHEAD (document opening) is
+    # the filing subject and overrides topical content — a provider&#39;s own
+    # letter files under the provider org even though it is dense in the
+    # provider&#39;s topic vocabulary. Named later, it is a passing mention and
+    # topical scoring wins (Option C: attribution is a side-channel).
+    if known_hit and 0 &lt;= known_hit_pos &lt; self._KNOWN_COMPANY_LETTERHEAD_CHARS:
+        return (known_hit[0], known_hit[1], primary_company, people_names)
 
     # Get category with highest score
     best_category = max(scores.items(), key=lambda x: x[1])[0]
 
     # Get subcategory with highest score for this category
-    if best_category in category_subcats:
-        subcat_scores = category_subcats[best_category]
-        if subcat_scores:
-            best_subcategory = max(subcat_scores.items(), key=lambda x: x[1])[0]
-        else:
-            best_subcategory = &#39;other&#39;
-    else:
-        best_subcategory = &#39;other&#39;
+    best_subcategory = self._resolve_best_subcategory(best_category, category_subcats)
 
     # If we detected a company (either directly or via person relationship)
     # and it&#39;s business-related, use clients subcategory
-    if primary_company and best_category == &#39;business&#39;:
-        best_subcategory = &#39;clients&#39;
+    if primary_company and best_category == &#34;business&#34;:
+        best_subcategory = &#34;clients&#34;
 
     return (best_category, best_subcategory, primary_company, people_names)</code></pre>
 </details>
 <div class="desc"><p>Classify content based on extracted text.
 Uses Schema.org person-company relationships to improve categorization.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>text</code></strong></dt>
 <dd>Extracted document text.</dd>
 <dt><strong><code>filename</code></strong></dt>
@@ -616,8 +1042,9 @@ When a non-English language is detected the English keyword matching
 is skipped to avoid false positives; the document routes to
 <code>("uncategorized", "other")</code>.</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Tuple of (category, subcategory, company_name, people_names)</p></div>
+<p>Returns
+-----=
+Tuple of (category, subcategory, company_name, people_names)</p></div>
 </dd>
 <dt id="src.classifiers.ContentClassifier.classify_with_kie"><code class="name flex">
 <span>def <span class="ident">classify_with_kie</span></span>(<span>self, kie_result: KIEResult, text: str = '', filename: str = '') ‑> tuple[str, str, str | None, list[str]] | None</span>
@@ -639,14 +1066,17 @@ is skipped to avoid false positives; the document routes to
     tuple when high-confidence invoice/receipt fields are detected.
     Returns ``None`` when the KIE result is insufficient and the caller
     should fall through to keyword-based ``classify_content()``.
+
+    Confidence threshold and field-class groups are imported from
+    ``shared.kie_schema_mapping`` so all KIE consumers share one value.
     &#34;&#34;&#34;
-    threshold = self._KIE_CLASSIFICATION_MIN_CONFIDENCE
+    threshold = _KIE_CLASSIFICATION_MIN_CONFIDENCE
 
     # Look for strong financial document signals: a vendor/store AND
     # an amount OR a date.
-    vendor = self._best_kie_field(kie_result, (&#34;vendor_name&#34;, &#34;store_name&#34;), threshold)
-    amount = self._best_kie_field(kie_result, (&#34;total_amount&#34;, &#34;receipt_total&#34;), threshold)
-    date = self._best_kie_field(kie_result, (&#34;invoice_date&#34;, &#34;receipt_date&#34;), threshold)
+    vendor = self._best_kie_field(kie_result, _KIE_VENDOR_CLASSES, threshold)
+    amount = self._best_kie_field(kie_result, _KIE_AMOUNT_CLASSES, threshold)
+    date = self._best_kie_field(kie_result, _KIE_DATE_CLASSES, threshold)
 
     if vendor and (amount or date):
         people_names = self.extract_people_names(text) if text else []
@@ -658,7 +1088,9 @@ is skipped to avoid false positives; the document routes to
 <p>Returns a <code>(category, subcategory, company_name, people_names)</code>
 tuple when high-confidence invoice/receipt fields are detected.
 Returns <code>None</code> when the KIE result is insufficient and the caller
-should fall through to keyword-based <code>classify_content()</code>.</p></div>
+should fall through to keyword-based <code>classify_content()</code>.</p>
+<p>Confidence threshold and field-class groups are imported from
+<code>shared.kie_schema_mapping</code> so all KIE consumers share one value.</p></div>
 </dd>
 <dt id="src.classifiers.ContentClassifier.extract_company_names"><code class="name flex">
 <span>def <span class="ident">extract_company_names</span></span>(<span>self, text: str) ‑> list[str]</span>
@@ -669,10 +1101,22 @@ should fall through to keyword-based <code>classify_content()</code>.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def extract_company_names(self, text: str) -&gt; list[str]:
-    &#34;&#34;&#34;Extract company names from text (delegates to EntityDetector).&#34;&#34;&#34;
-    return self.entities.extract_company_names(text)</code></pre>
+    &#34;&#34;&#34;Extract organizations, ranked own-org-first and de-garbled.
+
+    Phase-0 layers (reference-span exclusion, email/URL domain-ownership
+    cue, salience ranking, ``cleanco`` canonicalization) wrap the base
+    ``EntityDetector`` regex to fix single-token-brand misses and citation
+    false positives. See ``src/classifiers/org_extraction.py`` and
+    ``docs/plans/ORG_NER_REPLACEMENT_PLAN.md``.
+    &#34;&#34;&#34;
+    return extract_organizations(text, base_extractor=self.entities)</code></pre>
 </details>
-<div class="desc"><p>Extract company names from text (delegates to EntityDetector).</p></div>
+<div class="desc"><p>Extract organizations, ranked own-org-first and de-garbled.</p>
+<p>Phase-0 layers (reference-span exclusion, email/URL domain-ownership
+cue, salience ranking, <code>cleanco</code> canonicalization) wrap the base
+<code><a title="src.classifiers.EntityDetector" href="#src.classifiers.EntityDetector">EntityDetector</a></code> regex to fix single-token-brand misses and citation
+false positives. See <code>src/classifiers/org_extraction.py</code> and
+<code>docs/plans/ORG_NER_REPLACEMENT_PLAN.md</code>.</p></div>
 </dd>
 <dt id="src.classifiers.ContentClassifier.extract_people_names"><code class="name flex">
 <span>def <span class="ident">extract_people_names</span></span>(<span>self, text: str) ‑> list[str]</span>
@@ -762,10 +1206,10 @@ should fall through to keyword-based <code>classify_content()</code>.</p></div>
     combined = f&#34;{text.lower()} {filename.lower()}&#34;
     scores: dict[str, float] = {}
 
-    for category, keywords in self._keywords_lower.items():
-        hits = sum(1 for kw in keywords if kw in combined)
+    for category, patterns in self._keyword_res.items():
+        hits = sum(1 for rx in patterns if rx.search(combined))
         if hits:
-            scores[category] = hits / len(keywords)
+            scores[category] = hits / len(patterns)
 
     return scores</code></pre>
 </details>
@@ -774,6 +1218,64 @@ should fall through to keyword-based <code>classify_content()</code>.</p></div>
 the fraction of category keywords found in the text.
 Categories
 with zero hits are omitted.</p></div>
+</dd>
+<dt id="src.classifiers.ContentClassifier.score_categories_detailed"><code class="name flex">
+<span>def <span class="ident">score_categories_detailed</span></span>(<span>self, text: str, filename: str = '') ‑> dict[str, tuple[str, float]]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def score_categories_detailed(
+    self, text: str, filename: str = &#34;&#34;
+) -&gt; dict[str, tuple[str, float]]:
+    &#34;&#34;&#34;Subcategory-aware keyword scoring across ALL hit categories.
+
+    Returns ``{category: (best_subcategory, normalized_score)}`` where
+    ``normalized_score`` is that category&#39;s occurrence-count total divided
+    by the max category total (the top category scores 1.0), and
+    ``best_subcategory`` is resolved exactly as ``classify_content``
+    resolves its winner (occurrence-count max over the category&#39;s
+    subcategory lists, ``&#34;other&#34;`` default).
+
+    Pure keyword counting only — the entity-dependent adjustments of
+    ``classify_content`` (the known-company shortcut and the
+    business+company → ``clients`` subcategory override) are deliberately
+    excluded; callers that need them use ``classify_content`` for the
+    winner. Empty text returns ``{}`` (mirroring ``classify_content``&#39;s
+    empty-text early return, even when the filename alone would match).
+    &#34;&#34;&#34;
+    if not text:
+        return {}
+
+    combined = f&#34;{text.lower()} {filename.lower()}&#34;
+    scores, category_subcats = self._count_category_scores(combined)
+    if not scores:
+        return {}
+
+    max_total = max(scores.values())
+    return {
+        category: (
+            self._resolve_best_subcategory(category, category_subcats),
+            total / max_total,
+        )
+        for category, total in scores.items()
+    }</code></pre>
+</details>
+<div class="desc"><p>Subcategory-aware keyword scoring across ALL hit categories.</p>
+<p>Returns <code>{category: (best_subcategory, normalized_score)}</code> where
+<code>normalized_score</code> is that category's occurrence-count total divided
+by the max category total (the top category scores 1.0), and
+<code>best_subcategory</code> is resolved exactly as <code>classify_content</code>
+resolves its winner (occurrence-count max over the category's
+subcategory lists, <code>"other"</code> default).</p>
+<p>Pure keyword counting only — the entity-dependent adjustments of
+<code>classify_content</code> (the known-company shortcut and the
+business+company → <code>clients</code> subcategory override) are deliberately
+excluded; callers that need them use <code>classify_content</code> for the
+winner. Empty text returns <code>{}</code> (mirroring <code>classify_content</code>'s
+empty-text early return, even when the filename alone would match).</p></div>
 </dd>
 </dl>
 </dd>
@@ -792,101 +1294,154 @@ with zero hits are omitted.</p></div>
         &#34;&#34;&#34;Compile the entity-extraction regex patterns once (hot path).&#34;&#34;&#34;
         # Company name patterns
         self.company_patterns = [
-            r&#39;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+LLC\b&#39;,
-            r&#39;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+L\.L\.C\.\b&#39;,
-            r&#39;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+Inc\.?\b&#39;,
-            r&#39;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+Incorporated\b&#39;,
-            r&#39;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+Corp\.?\b&#39;,
-            r&#39;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+Corporation\b&#39;,
-            r&#39;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+Company\b&#39;,
-            r&#39;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+Co\.\b&#39;,
-            r&#39;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+Ltd\.?\b&#39;,
-            r&#39;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+Limited\b&#39;,
-            r&#39;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+LLP\b&#39;,
-            r&#39;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+L\.L\.P\.\b&#39;,
+            r&#34;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+LLC\b&#34;,
+            r&#34;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+L\.L\.C\.\b&#34;,
+            r&#34;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+Inc\.?\b&#34;,
+            r&#34;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+Incorporated\b&#34;,
+            r&#34;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+Corp\.?\b&#34;,
+            r&#34;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+Corporation\b&#34;,
+            r&#34;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+Company\b&#34;,
+            r&#34;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+Co\.\b&#34;,
+            r&#34;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+Ltd\.?\b&#34;,
+            r&#34;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+Limited\b&#34;,
+            r&#34;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+LLP\b&#34;,
+            r&#34;\b([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50})\s+L\.L\.P\.\b&#34;,
         ]
+
+        # Institutional / public-sector names carry NO legal suffix — the
+        # institutional word is PART of the name (e.g. &#34;…Appraisal District&#34;,
+        # &#34;…Education Services&#34;), so unlike the legal-suffix patterns above the
+        # capture group KEEPS the trailing keyword. Requires &gt;=2 leading
+        # capitalized tokens (Title-case OR ALL-CAPS) before the keyword, which
+        # excludes bare &#34;Customer Services&#34; / &#34;the Department&#34;. ALL-CAPS matches
+        # are title-cased in extract_company_names.
+        institutional_keywords = (
+            &#34;Services|District|Department|Agency|Authority|Bureau|Commission|&#34;
+            &#34;University|College|Institute|Foundation|Hospital|Clinic|Center|&#34;
+            &#34;Centre|Council|Association|Society&#34;
+        )
+        # [^\S\r\n] = whitespace but NOT a line break, so the name cannot span
+        # lines (prevents grabbing &#34;…APPRAISED VALUE\nTRAVIS…APPRAISAL DISTRICT&#34;
+        # as one name — the letterhead line stands alone).
+        # Token = a capitalized word (Title-case OR ALL-CAPS) allowing internal
+        # &amp; and -, but NOT &#39;.&#39;, so an abbreviation like &#34;U.S.A.&#34; can&#39;t be
+        # swallowed as one token (it is not part of an institution name).
+        inst_token = r&#34;[A-Z][A-Za-z0-9&amp;\-]*&#34;
+        self.company_patterns.append(
+            r&#34;\b(&#34;
+            # Not an instruction sentence — &#34;Contact the hospital&#34;, &#34;Contacting
+            # the department&#34; are imperatives/verbs, not org names. The
+            # (?:s|ing|ed)? tail also blocks the gerund/past-tense/plural forms
+            # (&#34;Contacting&#34;, &#34;Called&#34;) that a bare \b would let through.
+            r&#34;(?!(?:Contact|Please|Call|Visit|See|Refer|Return|Send|Mail|Pay|&#34;
+            r&#34;Complete|Sign|Note|Attn|Fax|Email|Write|Bring|Submit|Review|Read|&#34;
+            r&#34;Enter|Provide|Check)(?:s|ing|ed)?\b)&#34;
+            + inst_token
+            + r&#34;(?:[^\S\r\n]+(?:of|and|the|for|&amp;|OF|AND|THE|FOR|&#34;
+            + inst_token
+            + r&#34;)){1,5}&#34;
+            r&#34;[^\S\r\n]+(?i:&#34; + institutional_keywords + r&#34;)&#34;
+            r&#34;)\b&#34;
+        )
 
         # People name patterns - look for common name patterns
         self.people_patterns = [
             # ALL-CAPS names at start of resume (common in templates)
             # Matches: &#34;ISABEL BUDENZ\nLLM&#34; or &#34;JOHN DOE\nSoftware Engineer&#34;
-            r&#39;^([A-Z]{2,})\s+([A-Z]{2,})\s*\n&#39;,
+            r&#34;^([A-Z]{2,})\s+([A-Z]{2,})\s*\n&#34;,
             # ALL-CAPS name followed by title/degree
-            r&#39;\b([A-Z]{2,})\s+([A-Z]{2,})\s*\n\s*(?:LLM|MBA|PhD|MD|JD|CPA|Software|Engineer|Manager|Director|Analyst)&#39;,
+            r&#34;\b([A-Z]{2,})\s+([A-Z]{2,})\s*\n\s*(?:LLM|MBA|PhD|MD|JD|CPA|Software|Engineer|Manager|Director|Analyst)&#34;,
             # Name with document type indicators
-            r&#39;\b([A-Z][a-z]+)\s+([A-Z][a-z]+)\s+(?:Resume|CV|Cover Letter)\b&#39;,
-            r&#39;\b([A-Z][a-z]+)\s+([A-Z][a-z]+)\s+(?:Portfolio|Biography|Bio)\b&#39;,
+            r&#34;\b([A-Z][a-z]+)\s+([A-Z][a-z]+)\s+(?:Resume|CV|Cover Letter)\b&#34;,
+            r&#34;\b([A-Z][a-z]+)\s+([A-Z][a-z]+)\s+(?:Portfolio|Biography|Bio)\b&#34;,
             # Field labels followed by names
-            r&#39;\b(?:Name|Contact|From|To|Attn|Author|Client|Patient|Student):\s+([A-Z][a-z]+(?:\s+[A-Z]\.?)?\s+[A-Z][a-z]+)\b&#39;,
+            r&#34;\b(?:Name|Contact|From|To|Attn|Author|Client|Patient|Student):\s+([A-Z][a-z]+(?:\s+[A-Z]\.?)?\s+[A-Z][a-z]+)\b&#34;,
             # Email signatures (name before email)
-            r&#39;\b([A-Z][a-z]+\s+[A-Z][a-z]+)\s+&lt;[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}&gt;&#39;,
+            r&#34;\b([A-Z][a-z]+\s+[A-Z][a-z]+)\s+&lt;[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}&gt;&#34;,
             # Name in &#34;Prepared by/for&#34; statements
-            r&#39;\b(?:Prepared|Written|Submitted|Signed)\s+(?:by|for):\s+([A-Z][a-z]+\s+[A-Z][a-z]+)\b&#39;,
+            r&#34;\b(?:Prepared|Written|Submitted|Signed)\s+(?:by|for):\s+([A-Z][a-z]+\s+[A-Z][a-z]+)\b&#34;,
             # Name followed by credentials (MD, PhD, Esq, etc.)
-            r&#39;\b([A-Z][a-z]+\s+[A-Z][a-z]+),?\s+(?:MD|PhD|Esq|DDS|CPA|MBA|JD|RN)\b&#39;,
+            r&#34;\b([A-Z][a-z]+\s+[A-Z][a-z]+),?\s+(?:MD|PhD|Esq|DDS|CPA|MBA|JD|RN)\b&#34;,
             # Mr./Mrs./Ms./Dr. followed by name
-            r&#39;\b(?:Mr|Mrs|Ms|Dr|Prof)\.?\s+([A-Z][a-z]+(?:\s+[A-Z]\.?)?\s+[A-Z][a-z]+)\b&#39;,
+            r&#34;\b(?:Mr|Mrs|Ms|Dr|Prof)\.?\s+([A-Z][a-z]+(?:\s+[A-Z]\.?)?\s+[A-Z][a-z]+)\b&#34;,
             # Name in meeting notes format
-            r&#39;\b(?:Attendee|Participant|Speaker|Presenter):\s+([A-Z][a-z]+\s+[A-Z][a-z]+)\b&#39;,
+            r&#34;\b(?:Attendee|Participant|Speaker|Presenter):\s+([A-Z][a-z]+\s+[A-Z][a-z]+)\b&#34;,
+            # ALL-CAPS 2-3 token name alone on a line (scanned letterhead /
+            # roster / form header, e.g. &#34;TAYLOR NICHOLAS RYAN&#34;). Broad by
+            # design: the L0 denylist drops obvious non-names at extraction
+            # (document headings like &#34;INSURANCE POLICY&#34;), and the write-time
+            # validation gate routes the rest to review/reject, so headings
+            # never spawn Person/{Name}/ folders.
+            r&#34;(?m)^([A-Z][A-Z&#39;\-]+(?:[ \t]+[A-Z][A-Z&#39;\-]+){1,2})[ \t]*$&#34;,
+            # Label (incl. payment/form labels) followed by a 2-3 token name in
+            # Title-case OR ALL-CAPS, e.g. &#34;Name on Card: ALYSHIA LEDLIE&#34;.
+            # [ \t] (not \s) keeps the capture on one line so it can&#39;t swallow
+            # the next field (&#34;…LEDLIE\nReference #&#34;).
+            r&#34;(?:Name on Card|Cardholder|Name|Client|Patient|Signed by)&#34;
+            r&#34;[ \t]*:[ \t]*([A-Z][A-Za-z&#39;\-]+(?:[ \t]+[A-Z][A-Za-z&#39;\-]+){1,2})&#34;,
         ]
 
         # Pre-compile regex patterns once (hot path: extract_* methods)
         self._company_regexes = [re.compile(p) for p in self.company_patterns]
         self._people_regexes = [re.compile(p) for p in self.people_patterns]
         self._relationship_regexes = [
-            re.compile(p) for p in (
-                r&#39;([A-Z][a-z]+\s+[A-Z][a-z]+)\s+(?:at|from)\s+([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50}(?:\s+LLC|\s+Inc\.?|\s+Corp\.?|\s+Ltd\.?|\s+LLP))&#39;,
-                r&#39;([A-Z][a-z]+\s+[A-Z][a-z]+),?\s+(?:CEO|CFO|CTO|COO|President|Director|Manager|Founder)\s+(?:of|at)\s+([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50}(?:\s+LLC|\s+Inc\.?|\s+Corp\.?|\s+Ltd\.?|\s+LLP))&#39;,
-                r&#39;([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50}(?:\s+LLC|\s+Inc\.?|\s+Corp\.?|\s+Ltd\.?|\s+LLP))\s*[-:]\s*(?:Contact|Representative):\s*([A-Z][a-z]+\s+[A-Z][a-z]+)&#39;,
-                r&#39;([A-Z][a-z]+\s+[A-Z][a-z]+)\s+\(([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50}(?:\s+LLC|\s+Inc\.?|\s+Corp\.?|\s+Ltd\.?|\s+LLP))\)&#39;,
-                r&#39;([A-Z][a-z]+\s+[A-Z][a-z]+)\s+&lt;[a-zA-Z0-9._%+-]+@([a-zA-Z0-9.-]+)\.[a-zA-Z]{2,}&gt;&#39;,
+            re.compile(p)
+            for p in (
+                r&#34;([A-Z][a-z]+\s+[A-Z][a-z]+)\s+(?:at|from)\s+([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50}(?:\s+LLC|\s+Inc\.?|\s+Corp\.?|\s+Ltd\.?|\s+LLP))&#34;,
+                r&#34;([A-Z][a-z]+\s+[A-Z][a-z]+),?\s+(?:CEO|CFO|CTO|COO|President|Director|Manager|Founder)\s+(?:of|at)\s+([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50}(?:\s+LLC|\s+Inc\.?|\s+Corp\.?|\s+Ltd\.?|\s+LLP))&#34;,
+                r&#34;([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50}(?:\s+LLC|\s+Inc\.?|\s+Corp\.?|\s+Ltd\.?|\s+LLP))\s*[-:]\s*(?:Contact|Representative):\s*([A-Z][a-z]+\s+[A-Z][a-z]+)&#34;,
+                r&#34;([A-Z][a-z]+\s+[A-Z][a-z]+)\s+\(([A-Z][A-Za-z0-9\s&amp;\-\.]{2,50}(?:\s+LLC|\s+Inc\.?|\s+Corp\.?|\s+Ltd\.?|\s+LLP))\)&#34;,
+                r&#34;([A-Z][a-z]+\s+[A-Z][a-z]+)\s+&lt;[a-zA-Z0-9._%+-]+@([a-zA-Z0-9.-]+)\.[a-zA-Z]{2,}&gt;&#34;,
             )
         ]
-        self._spaced_letters_re = re.compile(r&#39;\b([A-Z] ){2,}[A-Z]\b&#39;)
+        self._spaced_letters_re = re.compile(r&#34;\b([A-Z] ){2,}[A-Z]\b&#34;)
         self._sentence_regexes = [
-            re.compile(p) for p in (
-                r&#39;\b(?:is|are|was|were|be|been|being)\b&#39;,
-                r&#39;\b(?:to|of|in|on|at|by)\s+(?:the|a|an)\b&#39;,
-                r&#39;\b(?:you|your|we|our|they|their|it|its)\b&#39;,
-                r&#39;\b(?:can|could|will|would|shall|should|may|might|must)\b&#39;,
-                r&#39;\b(?:and|or|but|nor|yet|so)\s+\w+\s+\w+&#39;,
+            re.compile(p)
+            for p in (
+                r&#34;\b(?:is|are|was|were|be|been|being)\b&#34;,
+                r&#34;\b(?:to|of|in|on|at|by)\s+(?:the|a|an)\b&#34;,
+                r&#34;\b(?:you|your|we|our|they|their|it|its)\b&#34;,
+                r&#34;\b(?:can|could|will|would|shall|should|may|might|must)\b&#34;,
+                r&#34;\b(?:and|or|but|nor|yet|so)\s+\w+\s+\w+&#34;,
             )
         ]
         self._copyright_regexes = [
-            re.compile(p, re.IGNORECASE) for p in (
-                r&#39;(?:copyright|©|\(c\))\s*(?:\(c\))?\s*(?:\d{4}(?:\s*[-–—]\s*\d{4})?)\s+(.+)&#39;,
-                r&#39;^\d{4}(?:\s*[-–—]\s*\d{4})?\s+([A-Z][A-Za-z0-9\s&amp;\-\.]+)$&#39;,
-                r&#39;(?:copyright|©|\(c\))\s+([A-Z][A-Za-z0-9\s&amp;\-\.]+?)\s+\d{4}&#39;,
-                r&#39;^(?:copyright|©|\(c\))\s+([A-Za-z][A-Za-z0-9\s&amp;\-\.]+)$&#39;,
+            re.compile(p, re.IGNORECASE)
+            for p in (
+                r&#34;(?:copyright|©|\(c\))\s*(?:\(c\))?\s*(?:\d{4}(?:\s*[-–—]\s*\d{4})?)\s+(.+)&#34;,
+                r&#34;^\d{4}(?:\s*[-–—]\s*\d{4})?\s+([A-Z][A-Za-z0-9\s&amp;\-\.]+)$&#34;,
+                r&#34;(?:copyright|©|\(c\))\s+([A-Z][A-Za-z0-9\s&amp;\-\.]+?)\s+\d{4}&#34;,
+                r&#34;^(?:copyright|©|\(c\))\s+([A-Za-z][A-Za-z0-9\s&amp;\-\.]+)$&#34;,
             )
         ]
-        self._year_prefix_re = re.compile(r&#39;^(\d{4}(?:\s*[-–—]\s*\d{4})?)\s+(.+)$&#39;)
+        self._year_prefix_re = re.compile(r&#34;^(\d{4}(?:\s*[-–—]\s*\d{4})?)\s+(.+)$&#34;)
         # Legal suffixes stripped from the *end* of a company name.  Order
         # matters (longer suffixes first) and each pattern is applied once in
         # sequence, so stacked suffixes like &#34;Foo Co. Inc.&#34; collapse to &#34;Foo&#34;
         # (&#34;Inc.&#34; strips first, then &#34;Co.&#34; — matches the production organizer).
         self._legal_suffix_regexes = [
-            re.compile(p, re.IGNORECASE) for p in (
+            re.compile(p, re.IGNORECASE)
+            for p in (
                 # Full words with variations
-                r&#39;\s+Incorporated$&#39;,
-                r&#39;\s+Corporation$&#39;,
-                r&#39;\s+Limited$&#39;,
-                r&#39;\s+Company$&#39;,
+                r&#34;\s+Incorporated$&#34;,
+                r&#34;\s+Corporation$&#34;,
+                r&#34;\s+Limited$&#34;,
+                r&#34;\s+Company$&#34;,
                 # Abbreviations with optional period
-                r&#39;\s+L\.L\.C\.$&#39;,
-                r&#39;\s+L\.L\.P\.$&#39;,
-                r&#39;\s+LLC\.?$&#39;,
-                r&#39;\s+LLP\.?$&#39;,
-                r&#39;\s+Inc\.?$&#39;,
-                r&#39;\s+Corp\.?$&#39;,
-                r&#39;\s+Ltd\.?$&#39;,
-                r&#39;\s+Co\.?$&#39;,
+                r&#34;\s+L\.L\.C\.$&#34;,
+                r&#34;\s+L\.L\.P\.$&#34;,
+                r&#34;\s+LLC\.?$&#34;,
+                r&#34;\s+LLP\.?$&#34;,
+                r&#34;\s+Inc\.?$&#34;,
+                r&#34;\s+Corp\.?$&#34;,
+                r&#34;\s+Ltd\.?$&#34;,
+                r&#34;\s+Co\.?$&#34;,
                 # Other common suffixes
-                r&#39;\s+PLC\.?$&#39;,
-                r&#39;\s+LP\.?$&#39;,
-                r&#39;\s+SA$&#39;,
-                r&#39;\s+GmbH$&#39;,
-                r&#39;\s+AG$&#39;,
+                r&#34;\s+PLC\.?$&#34;,
+                r&#34;\s+LP\.?$&#34;,
+                r&#34;\s+SA$&#34;,
+                r&#34;\s+GmbH$&#34;,
+                r&#34;\s+AG$&#34;,
             )
         ]
         self._folder_sanitize_re = re.compile(r&#39;[&lt;&gt;:&#34;/\\|?*]&#39;)
@@ -906,8 +1461,8 @@ with zero hits are omitted.</p></div>
         unique_companies: list[str] = []
         seen: set[str] = set()
         for company in companies:
-            # Clean up whitespace
-            clean = &#39; &#39;.join(company.split())
+            # Clean up whitespace; normalize ALL-CAPS OCR letterheads.
+            clean = _titlecase_if_upper(&#34; &#34;.join(company.split()))
             # Skip if too short or already seen
             if len(clean) &gt; 2 and clean.lower() not in seen:
                 seen.add(clean.lower())
@@ -920,12 +1475,13 @@ with zero hits are omitted.</p></div>
         Collapse spaced-out text like &#34;I S A B E L  B U D E N Z&#34; to &#34;ISABEL BUDENZ&#34;.
         Common in stylized resume/CV templates.
         &#34;&#34;&#34;
+
         # Pattern: single letters separated by spaces (at least 3 in a row)
         # Match sequences like &#34;I S A B E L&#34; (single chars with single spaces)
         def collapse_match(match: re.Match) -&gt; str:
             spaced = match.group(0)
             # Remove single spaces between single characters
-            collapsed = re.sub(r&#39;(?&lt;=\b[A-Z]) (?=[A-Z]\b)&#39;, &#39;&#39;, spaced)
+            collapsed = re.sub(r&#34;(?&lt;=\b[A-Z]) (?=[A-Z]\b)&#34;, &#34;&#34;, spaced)
             return collapsed
 
         # Find sequences of spaced single uppercase letters
@@ -949,7 +1505,7 @@ with zero hits are omitted.</p></div>
             for match in matches:
                 if isinstance(match, tuple):
                     # Join tuple elements (e.g., first name + last name)
-                    full_name = &#39; &#39;.join([m for m in match if m])
+                    full_name = &#34; &#34;.join([m for m in match if m])
                 else:
                     full_name = match
                 people.append(full_name)
@@ -958,13 +1514,12 @@ with zero hits are omitted.</p></div>
         unique_people: list[str] = []
         seen: set[str] = set()
         for person in people:
-            # Clean up whitespace
-            clean = &#39; &#39;.join(person.split())
-            # Convert ALL-CAPS to Title Case (common in resume headers)
-            if clean.isupper():
-                clean = clean.title()
-            # Skip if too short or already seen
-            if len(clean) &gt; 2 and clean.lower() not in seen:
+            # Clean up whitespace; normalize ALL-CAPS resume/form headers.
+            clean = _titlecase_if_upper(&#34; &#34;.join(person.split()))
+            # Skip if too short, already seen, or an obvious non-person —
+            # broad heading captures (&#34;Insurance Policy&#34;) must not reach the
+            # scoring path, which consumes names before the write-time gate.
+            if len(clean) &gt; 2 and clean.lower() not in seen and not is_denylisted(clean):
                 seen.add(clean.lower())
                 unique_people.append(clean)
 
@@ -986,14 +1541,20 @@ with zero hits are omitted.</p></div>
                 if len(match) == 2:
                     person, company = match
                     # Clean up
-                    person_clean = &#39; &#39;.join(person.split())
-                    company_clean = &#39; &#39;.join(company.split())
+                    person_clean = &#34; &#34;.join(person.split())
+                    company_clean = &#34; &#34;.join(company.split())
 
                     # For email domains, capitalize company name
-                    if &#39;@&#39; in text and &#39;.&#39; in company_clean and len(company_clean.split(&#39;.&#39;)) &gt;= 2:
+                    if &#34;@&#34; in text and &#34;.&#34; in company_clean and len(company_clean.split(&#34;.&#34;)) &gt;= 2:
                         # This is likely a domain name, extract company name
-                        domain_parts = company_clean.split(&#39;.&#39;)
-                        if domain_parts[0].lower() not in [&#39;gmail&#39;, &#39;yahoo&#39;, &#39;hotmail&#39;, &#39;outlook&#39;, &#39;mail&#39;]:
+                        domain_parts = company_clean.split(&#34;.&#34;)
+                        if domain_parts[0].lower() not in [
+                            &#34;gmail&#34;,
+                            &#34;yahoo&#34;,
+                            &#34;hotmail&#34;,
+                            &#34;outlook&#34;,
+                            &#34;mail&#34;,
+                        ]:
                             company_clean = domain_parts[0].capitalize()
 
                     # Store relationship (person -&gt; company)
@@ -1025,16 +1586,74 @@ with zero hits are omitted.</p></div>
 
         # Sentence fragment indicators - words that start sentences, not companies
         sentence_starters = {
-            &#39;neither&#39;, &#39;either&#39;, &#39;total&#39;, &#39;the&#39;, &#39;a&#39;, &#39;an&#39;, &#39;if&#39;, &#39;when&#39;,
-            &#39;where&#39;, &#39;while&#39;, &#39;although&#39;, &#39;because&#39;, &#39;since&#39;, &#39;unless&#39;,
-            &#39;however&#39;, &#39;therefore&#39;, &#39;moreover&#39;, &#39;furthermore&#39;, &#39;additionally&#39;,
-            &#39;please&#39;, &#39;note&#39;, &#39;see&#39;, &#39;refer&#39;, &#39;click&#39;, &#39;visit&#39;, &#39;contact&#39;,
-            &#39;for&#39;, &#39;with&#39;, &#39;from&#39;, &#39;into&#39;, &#39;about&#39;, &#39;above&#39;, &#39;below&#39;,
-            &#39;between&#39;, &#39;under&#39;, &#39;over&#39;, &#39;after&#39;, &#39;before&#39;, &#39;during&#39;,
-            &#39;this&#39;, &#39;that&#39;, &#39;these&#39;, &#39;those&#39;, &#39;which&#39;, &#39;what&#39;, &#39;who&#39;,
-            &#39;all&#39;, &#39;any&#39;, &#39;each&#39;, &#39;every&#39;, &#39;both&#39;, &#39;few&#39;, &#39;many&#39;, &#39;most&#39;,
-            &#39;other&#39;, &#39;some&#39;, &#39;such&#39;, &#39;no&#39;, &#39;not&#39;, &#39;only&#39;, &#39;own&#39;, &#39;same&#39;,
-            &#39;output&#39;, &#39;input&#39;, &#39;return&#39;, &#39;returns&#39;, &#39;required&#39;, &#39;optional&#39;,
+            &#34;neither&#34;,
+            &#34;either&#34;,
+            &#34;total&#34;,
+            &#34;the&#34;,
+            &#34;a&#34;,
+            &#34;an&#34;,
+            &#34;if&#34;,
+            &#34;when&#34;,
+            &#34;where&#34;,
+            &#34;while&#34;,
+            &#34;although&#34;,
+            &#34;because&#34;,
+            &#34;since&#34;,
+            &#34;unless&#34;,
+            &#34;however&#34;,
+            &#34;therefore&#34;,
+            &#34;moreover&#34;,
+            &#34;furthermore&#34;,
+            &#34;additionally&#34;,
+            &#34;please&#34;,
+            &#34;note&#34;,
+            &#34;see&#34;,
+            &#34;refer&#34;,
+            &#34;click&#34;,
+            &#34;visit&#34;,
+            &#34;contact&#34;,
+            &#34;for&#34;,
+            &#34;with&#34;,
+            &#34;from&#34;,
+            &#34;into&#34;,
+            &#34;about&#34;,
+            &#34;above&#34;,
+            &#34;below&#34;,
+            &#34;between&#34;,
+            &#34;under&#34;,
+            &#34;over&#34;,
+            &#34;after&#34;,
+            &#34;before&#34;,
+            &#34;during&#34;,
+            &#34;this&#34;,
+            &#34;that&#34;,
+            &#34;these&#34;,
+            &#34;those&#34;,
+            &#34;which&#34;,
+            &#34;what&#34;,
+            &#34;who&#34;,
+            &#34;all&#34;,
+            &#34;any&#34;,
+            &#34;each&#34;,
+            &#34;every&#34;,
+            &#34;both&#34;,
+            &#34;few&#34;,
+            &#34;many&#34;,
+            &#34;most&#34;,
+            &#34;other&#34;,
+            &#34;some&#34;,
+            &#34;such&#34;,
+            &#34;no&#34;,
+            &#34;not&#34;,
+            &#34;only&#34;,
+            &#34;own&#34;,
+            &#34;same&#34;,
+            &#34;output&#34;,
+            &#34;input&#34;,
+            &#34;return&#34;,
+            &#34;returns&#34;,
+            &#34;required&#34;,
+            &#34;optional&#34;,
         }
 
         # Check first word
@@ -1048,19 +1667,42 @@ with zero hits are omitted.</p></div>
 
         # Check for specific problematic patterns
         problematic_phrases = [
-            &#39;the name of&#39;, &#39;in usd&#39;, &#39;total in&#39;, &#39;output only&#39;,
-            &#39;required for&#39;, &#39;agreement between&#39;, &#39;agreement of&#39;,
-            &#39;certificate of&#39;, &#39;description of&#39;, &#39;operating agreement&#39;,
-            &#39;license this&#39;, &#39;http rule&#39;, &#39;member-managed&#39;,
-            &#39;need some&#39;, &#39;print out&#39;, &#39;user provided&#39;,
-            &#39;ceo of&#39;, &#39;cfo of&#39;, &#39;cto of&#39;, &#39;coo of&#39;,  # Title patterns
-            &#39;president of&#39;, &#39;director of&#39;, &#39;manager of&#39;,
-            &#39;taxpayer number&#39;, &#39;tax id&#39;, &#39;ein number&#39;,  # Tax/ID patterns
-            &#39;student award&#39;, &#39;professional access&#39;,  # Award patterns
-            &#39;proprietor general&#39;, &#39;general partnership&#39;,  # Legal entity types
-            &#39;personal workload&#39;, &#39;workload and&#39;,  # Incomplete phrases
-            &#39;data usage agreement&#39;, &#39;service agreement&#39;,
-            &#39;contributions on behalf&#39;, &#39;on behalf of&#39;,
+            &#34;the name of&#34;,
+            &#34;in usd&#34;,
+            &#34;total in&#34;,
+            &#34;output only&#34;,
+            &#34;required for&#34;,
+            &#34;agreement between&#34;,
+            &#34;agreement of&#34;,
+            &#34;certificate of&#34;,
+            &#34;description of&#34;,
+            &#34;operating agreement&#34;,
+            &#34;license this&#34;,
+            &#34;http rule&#34;,
+            &#34;member-managed&#34;,
+            &#34;need some&#34;,
+            &#34;print out&#34;,
+            &#34;user provided&#34;,
+            &#34;ceo of&#34;,
+            &#34;cfo of&#34;,
+            &#34;cto of&#34;,
+            &#34;coo of&#34;,  # Title patterns
+            &#34;president of&#34;,
+            &#34;director of&#34;,
+            &#34;manager of&#34;,
+            &#34;taxpayer number&#34;,
+            &#34;tax id&#34;,
+            &#34;ein number&#34;,  # Tax/ID patterns
+            &#34;student award&#34;,
+            &#34;professional access&#34;,  # Award patterns
+            &#34;proprietor general&#34;,
+            &#34;general partnership&#34;,  # Legal entity types
+            &#34;personal workload&#34;,
+            &#34;workload and&#34;,  # Incomplete phrases
+            &#34;data usage agreement&#34;,
+            &#34;service agreement&#34;,
+            &#34;contributions on behalf&#34;,
+            &#34;on behalf of&#34;,
         ]
 
         for phrase in problematic_phrases:
@@ -1068,12 +1710,38 @@ with zero hits are omitted.</p></div>
                 return False
 
         # Reject names ending with conjunctions (incomplete phrases)
-        if words and words[-1].lower() in {&#39;and&#39;, &#39;or&#39;, &#39;but&#39;, &#39;nor&#39;, &#39;yet&#39;, &#39;so&#39;, &#39;the&#39;, &#39;a&#39;, &#39;an&#39;, &#39;of&#39;, &#39;to&#39;, &#39;in&#39;, &#39;on&#39;, &#39;at&#39;, &#39;by&#39;}:
+        if words and words[-1].lower() in {
+            &#34;and&#34;,
+            &#34;or&#34;,
+            &#34;but&#34;,
+            &#34;nor&#34;,
+            &#34;yet&#34;,
+            &#34;so&#34;,
+            &#34;the&#34;,
+            &#34;a&#34;,
+            &#34;an&#34;,
+            &#34;of&#34;,
+            &#34;to&#34;,
+            &#34;in&#34;,
+            &#34;on&#34;,
+            &#34;at&#34;,
+            &#34;by&#34;,
+        }:
             return False
 
         # Reject names starting with titles followed by &#34;of&#34;
-        if len(words) &gt;= 3 and words[1].lower() == &#39;of&#39;:
-            title_words = {&#39;ceo&#39;, &#39;cfo&#39;, &#39;cto&#39;, &#39;coo&#39;, &#39;president&#39;, &#39;director&#39;, &#39;manager&#39;, &#39;chairman&#39;, &#39;founder&#39;}
+        if len(words) &gt;= 3 and words[1].lower() == &#34;of&#34;:
+            title_words = {
+                &#34;ceo&#34;,
+                &#34;cfo&#34;,
+                &#34;cto&#34;,
+                &#34;coo&#34;,
+                &#34;president&#34;,
+                &#34;director&#34;,
+                &#34;manager&#34;,
+                &#34;chairman&#34;,
+                &#34;founder&#34;,
+            }
             if words[0].lower() in title_words:
                 return False
 
@@ -1101,13 +1769,13 @@ with zero hits are omitted.</p></div>
         result = company_name
 
         # Check if this looks like a copyright notice
-        if any(indicator in name_lower for indicator in (&#39;copyright&#39;, &#39;©&#39;, &#39;(c)&#39;)):
+        if any(indicator in name_lower for indicator in (&#34;copyright&#34;, &#34;©&#34;, &#34;(c)&#34;)):
             for regex in self._copyright_regexes:
                 match = regex.search(company_name)
                 if match:
                     extracted = match.group(1).strip()
                     # Clean up trailing punctuation
-                    extracted = extracted.rstrip(&#39;.,;:&#39;).strip()
+                    extracted = extracted.rstrip(&#34;.,;:&#34;).strip()
                     if extracted and len(extracted) &gt;= 2:
                         result = extracted
                         break
@@ -1124,7 +1792,7 @@ with zero hits are omitted.</p></div>
         # pass over the suffix list, so stacked suffixes are all removed
         # (e.g. &#34;Foo Co. Inc.&#34; -&gt; &#34;Foo&#34;) — matches the production organizer.
         for suffix_regex in self._legal_suffix_regexes:
-            result = suffix_regex.sub(&#39;&#39;, result).strip()
+            result = suffix_regex.sub(&#34;&#34;, result).strip()
         return result
 
     def sanitize_company_name(self, company_name: str) -&gt; str | None:
@@ -1142,9 +1810,9 @@ with zero hits are omitted.</p></div>
             return None
 
         # Remove special characters that aren&#39;t allowed in folder names
-        sanitized = self._folder_sanitize_re.sub(&#39;&#39;, normalized)
+        sanitized = self._folder_sanitize_re.sub(&#34;&#34;, normalized)
         # Replace multiple spaces with single space
-        sanitized = &#39; &#39;.join(sanitized.split())
+        sanitized = &#34; &#34;.join(sanitized.split())
         # Limit length
         if len(sanitized) &gt; 50:
             sanitized = sanitized[:50].strip()
@@ -1177,8 +1845,8 @@ with zero hits are omitted.</p></div>
     unique_companies: list[str] = []
     seen: set[str] = set()
     for company in companies:
-        # Clean up whitespace
-        clean = &#39; &#39;.join(company.split())
+        # Clean up whitespace; normalize ALL-CAPS OCR letterheads.
+        clean = _titlecase_if_upper(&#34; &#34;.join(company.split()))
         # Skip if too short or already seen
         if len(clean) &gt; 2 and clean.lower() not in seen:
             seen.add(clean.lower())
@@ -1187,8 +1855,9 @@ with zero hits are omitted.</p></div>
     return unique_companies</code></pre>
 </details>
 <div class="desc"><p>Extract company names from text using regex patterns.</p>
-<h2 id="returns">Returns</h2>
-<p>List of detected company names</p></div>
+<p>Returns
+-----=
+List of detected company names</p></div>
 </dd>
 <dt id="src.classifiers.EntityDetector.extract_people_names"><code class="name flex">
 <span>def <span class="ident">extract_people_names</span></span>(<span>self, text: str) ‑> list[str]</span>
@@ -1215,7 +1884,7 @@ with zero hits are omitted.</p></div>
         for match in matches:
             if isinstance(match, tuple):
                 # Join tuple elements (e.g., first name + last name)
-                full_name = &#39; &#39;.join([m for m in match if m])
+                full_name = &#34; &#34;.join([m for m in match if m])
             else:
                 full_name = match
             people.append(full_name)
@@ -1224,21 +1893,21 @@ with zero hits are omitted.</p></div>
     unique_people: list[str] = []
     seen: set[str] = set()
     for person in people:
-        # Clean up whitespace
-        clean = &#39; &#39;.join(person.split())
-        # Convert ALL-CAPS to Title Case (common in resume headers)
-        if clean.isupper():
-            clean = clean.title()
-        # Skip if too short or already seen
-        if len(clean) &gt; 2 and clean.lower() not in seen:
+        # Clean up whitespace; normalize ALL-CAPS resume/form headers.
+        clean = _titlecase_if_upper(&#34; &#34;.join(person.split()))
+        # Skip if too short, already seen, or an obvious non-person —
+        # broad heading captures (&#34;Insurance Policy&#34;) must not reach the
+        # scoring path, which consumes names before the write-time gate.
+        if len(clean) &gt; 2 and clean.lower() not in seen and not is_denylisted(clean):
             seen.add(clean.lower())
             unique_people.append(clean)
 
     return unique_people</code></pre>
 </details>
 <div class="desc"><p>Extract people names from text using regex patterns.</p>
-<h2 id="returns">Returns</h2>
-<p>List of detected people names</p></div>
+<p>Returns
+-----=
+List of detected people names</p></div>
 </dd>
 <dt id="src.classifiers.EntityDetector.extract_person_company_relationships"><code class="name flex">
 <span>def <span class="ident">extract_person_company_relationships</span></span>(<span>self, text: str) ‑> dict[str, str]</span>
@@ -1264,14 +1933,20 @@ with zero hits are omitted.</p></div>
             if len(match) == 2:
                 person, company = match
                 # Clean up
-                person_clean = &#39; &#39;.join(person.split())
-                company_clean = &#39; &#39;.join(company.split())
+                person_clean = &#34; &#34;.join(person.split())
+                company_clean = &#34; &#34;.join(company.split())
 
                 # For email domains, capitalize company name
-                if &#39;@&#39; in text and &#39;.&#39; in company_clean and len(company_clean.split(&#39;.&#39;)) &gt;= 2:
+                if &#34;@&#34; in text and &#34;.&#34; in company_clean and len(company_clean.split(&#34;.&#34;)) &gt;= 2:
                     # This is likely a domain name, extract company name
-                    domain_parts = company_clean.split(&#39;.&#39;)
-                    if domain_parts[0].lower() not in [&#39;gmail&#39;, &#39;yahoo&#39;, &#39;hotmail&#39;, &#39;outlook&#39;, &#39;mail&#39;]:
+                    domain_parts = company_clean.split(&#34;.&#34;)
+                    if domain_parts[0].lower() not in [
+                        &#34;gmail&#34;,
+                        &#34;yahoo&#34;,
+                        &#34;hotmail&#34;,
+                        &#34;outlook&#34;,
+                        &#34;mail&#34;,
+                    ]:
                         company_clean = domain_parts[0].capitalize()
 
                 # Store relationship (person -&gt; company)
@@ -1282,8 +1957,9 @@ with zero hits are omitted.</p></div>
 </details>
 <div class="desc"><p>Extract relationships between people and companies from text.
 Uses Schema.org-style connections (Person worksFor/memberOf Organization).</p>
-<h2 id="returns">Returns</h2>
-<p>Dictionary mapping person names to company names</p></div>
+<p>Returns
+-----=
+Dictionary mapping person names to company names</p></div>
 </dd>
 <dt id="src.classifiers.EntityDetector.is_valid_company_name"><code class="name flex">
 <span>def <span class="ident">is_valid_company_name</span></span>(<span>self, name: str) ‑> bool</span>
@@ -1316,16 +1992,74 @@ Uses Schema.org-style connections (Person worksFor/memberOf Organization).</p>
 
     # Sentence fragment indicators - words that start sentences, not companies
     sentence_starters = {
-        &#39;neither&#39;, &#39;either&#39;, &#39;total&#39;, &#39;the&#39;, &#39;a&#39;, &#39;an&#39;, &#39;if&#39;, &#39;when&#39;,
-        &#39;where&#39;, &#39;while&#39;, &#39;although&#39;, &#39;because&#39;, &#39;since&#39;, &#39;unless&#39;,
-        &#39;however&#39;, &#39;therefore&#39;, &#39;moreover&#39;, &#39;furthermore&#39;, &#39;additionally&#39;,
-        &#39;please&#39;, &#39;note&#39;, &#39;see&#39;, &#39;refer&#39;, &#39;click&#39;, &#39;visit&#39;, &#39;contact&#39;,
-        &#39;for&#39;, &#39;with&#39;, &#39;from&#39;, &#39;into&#39;, &#39;about&#39;, &#39;above&#39;, &#39;below&#39;,
-        &#39;between&#39;, &#39;under&#39;, &#39;over&#39;, &#39;after&#39;, &#39;before&#39;, &#39;during&#39;,
-        &#39;this&#39;, &#39;that&#39;, &#39;these&#39;, &#39;those&#39;, &#39;which&#39;, &#39;what&#39;, &#39;who&#39;,
-        &#39;all&#39;, &#39;any&#39;, &#39;each&#39;, &#39;every&#39;, &#39;both&#39;, &#39;few&#39;, &#39;many&#39;, &#39;most&#39;,
-        &#39;other&#39;, &#39;some&#39;, &#39;such&#39;, &#39;no&#39;, &#39;not&#39;, &#39;only&#39;, &#39;own&#39;, &#39;same&#39;,
-        &#39;output&#39;, &#39;input&#39;, &#39;return&#39;, &#39;returns&#39;, &#39;required&#39;, &#39;optional&#39;,
+        &#34;neither&#34;,
+        &#34;either&#34;,
+        &#34;total&#34;,
+        &#34;the&#34;,
+        &#34;a&#34;,
+        &#34;an&#34;,
+        &#34;if&#34;,
+        &#34;when&#34;,
+        &#34;where&#34;,
+        &#34;while&#34;,
+        &#34;although&#34;,
+        &#34;because&#34;,
+        &#34;since&#34;,
+        &#34;unless&#34;,
+        &#34;however&#34;,
+        &#34;therefore&#34;,
+        &#34;moreover&#34;,
+        &#34;furthermore&#34;,
+        &#34;additionally&#34;,
+        &#34;please&#34;,
+        &#34;note&#34;,
+        &#34;see&#34;,
+        &#34;refer&#34;,
+        &#34;click&#34;,
+        &#34;visit&#34;,
+        &#34;contact&#34;,
+        &#34;for&#34;,
+        &#34;with&#34;,
+        &#34;from&#34;,
+        &#34;into&#34;,
+        &#34;about&#34;,
+        &#34;above&#34;,
+        &#34;below&#34;,
+        &#34;between&#34;,
+        &#34;under&#34;,
+        &#34;over&#34;,
+        &#34;after&#34;,
+        &#34;before&#34;,
+        &#34;during&#34;,
+        &#34;this&#34;,
+        &#34;that&#34;,
+        &#34;these&#34;,
+        &#34;those&#34;,
+        &#34;which&#34;,
+        &#34;what&#34;,
+        &#34;who&#34;,
+        &#34;all&#34;,
+        &#34;any&#34;,
+        &#34;each&#34;,
+        &#34;every&#34;,
+        &#34;both&#34;,
+        &#34;few&#34;,
+        &#34;many&#34;,
+        &#34;most&#34;,
+        &#34;other&#34;,
+        &#34;some&#34;,
+        &#34;such&#34;,
+        &#34;no&#34;,
+        &#34;not&#34;,
+        &#34;only&#34;,
+        &#34;own&#34;,
+        &#34;same&#34;,
+        &#34;output&#34;,
+        &#34;input&#34;,
+        &#34;return&#34;,
+        &#34;returns&#34;,
+        &#34;required&#34;,
+        &#34;optional&#34;,
     }
 
     # Check first word
@@ -1339,19 +2073,42 @@ Uses Schema.org-style connections (Person worksFor/memberOf Organization).</p>
 
     # Check for specific problematic patterns
     problematic_phrases = [
-        &#39;the name of&#39;, &#39;in usd&#39;, &#39;total in&#39;, &#39;output only&#39;,
-        &#39;required for&#39;, &#39;agreement between&#39;, &#39;agreement of&#39;,
-        &#39;certificate of&#39;, &#39;description of&#39;, &#39;operating agreement&#39;,
-        &#39;license this&#39;, &#39;http rule&#39;, &#39;member-managed&#39;,
-        &#39;need some&#39;, &#39;print out&#39;, &#39;user provided&#39;,
-        &#39;ceo of&#39;, &#39;cfo of&#39;, &#39;cto of&#39;, &#39;coo of&#39;,  # Title patterns
-        &#39;president of&#39;, &#39;director of&#39;, &#39;manager of&#39;,
-        &#39;taxpayer number&#39;, &#39;tax id&#39;, &#39;ein number&#39;,  # Tax/ID patterns
-        &#39;student award&#39;, &#39;professional access&#39;,  # Award patterns
-        &#39;proprietor general&#39;, &#39;general partnership&#39;,  # Legal entity types
-        &#39;personal workload&#39;, &#39;workload and&#39;,  # Incomplete phrases
-        &#39;data usage agreement&#39;, &#39;service agreement&#39;,
-        &#39;contributions on behalf&#39;, &#39;on behalf of&#39;,
+        &#34;the name of&#34;,
+        &#34;in usd&#34;,
+        &#34;total in&#34;,
+        &#34;output only&#34;,
+        &#34;required for&#34;,
+        &#34;agreement between&#34;,
+        &#34;agreement of&#34;,
+        &#34;certificate of&#34;,
+        &#34;description of&#34;,
+        &#34;operating agreement&#34;,
+        &#34;license this&#34;,
+        &#34;http rule&#34;,
+        &#34;member-managed&#34;,
+        &#34;need some&#34;,
+        &#34;print out&#34;,
+        &#34;user provided&#34;,
+        &#34;ceo of&#34;,
+        &#34;cfo of&#34;,
+        &#34;cto of&#34;,
+        &#34;coo of&#34;,  # Title patterns
+        &#34;president of&#34;,
+        &#34;director of&#34;,
+        &#34;manager of&#34;,
+        &#34;taxpayer number&#34;,
+        &#34;tax id&#34;,
+        &#34;ein number&#34;,  # Tax/ID patterns
+        &#34;student award&#34;,
+        &#34;professional access&#34;,  # Award patterns
+        &#34;proprietor general&#34;,
+        &#34;general partnership&#34;,  # Legal entity types
+        &#34;personal workload&#34;,
+        &#34;workload and&#34;,  # Incomplete phrases
+        &#34;data usage agreement&#34;,
+        &#34;service agreement&#34;,
+        &#34;contributions on behalf&#34;,
+        &#34;on behalf of&#34;,
     ]
 
     for phrase in problematic_phrases:
@@ -1359,20 +2116,47 @@ Uses Schema.org-style connections (Person worksFor/memberOf Organization).</p>
             return False
 
     # Reject names ending with conjunctions (incomplete phrases)
-    if words and words[-1].lower() in {&#39;and&#39;, &#39;or&#39;, &#39;but&#39;, &#39;nor&#39;, &#39;yet&#39;, &#39;so&#39;, &#39;the&#39;, &#39;a&#39;, &#39;an&#39;, &#39;of&#39;, &#39;to&#39;, &#39;in&#39;, &#39;on&#39;, &#39;at&#39;, &#39;by&#39;}:
+    if words and words[-1].lower() in {
+        &#34;and&#34;,
+        &#34;or&#34;,
+        &#34;but&#34;,
+        &#34;nor&#34;,
+        &#34;yet&#34;,
+        &#34;so&#34;,
+        &#34;the&#34;,
+        &#34;a&#34;,
+        &#34;an&#34;,
+        &#34;of&#34;,
+        &#34;to&#34;,
+        &#34;in&#34;,
+        &#34;on&#34;,
+        &#34;at&#34;,
+        &#34;by&#34;,
+    }:
         return False
 
     # Reject names starting with titles followed by &#34;of&#34;
-    if len(words) &gt;= 3 and words[1].lower() == &#39;of&#39;:
-        title_words = {&#39;ceo&#39;, &#39;cfo&#39;, &#39;cto&#39;, &#39;coo&#39;, &#39;president&#39;, &#39;director&#39;, &#39;manager&#39;, &#39;chairman&#39;, &#39;founder&#39;}
+    if len(words) &gt;= 3 and words[1].lower() == &#34;of&#34;:
+        title_words = {
+            &#34;ceo&#34;,
+            &#34;cfo&#34;,
+            &#34;cto&#34;,
+            &#34;coo&#34;,
+            &#34;president&#34;,
+            &#34;director&#34;,
+            &#34;manager&#34;,
+            &#34;chairman&#34;,
+            &#34;founder&#34;,
+        }
         if words[0].lower() in title_words:
             return False
 
     return True</code></pre>
 </details>
 <div class="desc"><p>Check if a string is a valid company name (not a sentence fragment).</p>
-<h2 id="returns">Returns</h2>
-<p>True if valid company name, False if likely a sentence fragment</p></div>
+<p>Returns
+-----=
+True if valid company name, False if likely a sentence fragment</p></div>
 </dd>
 <dt id="src.classifiers.EntityDetector.normalize_company_name"><code class="name flex">
 <span>def <span class="ident">normalize_company_name</span></span>(<span>self, company_name: str) ‑> str</span>
@@ -1404,13 +2188,13 @@ Uses Schema.org-style connections (Person worksFor/memberOf Organization).</p>
     result = company_name
 
     # Check if this looks like a copyright notice
-    if any(indicator in name_lower for indicator in (&#39;copyright&#39;, &#39;©&#39;, &#39;(c)&#39;)):
+    if any(indicator in name_lower for indicator in (&#34;copyright&#34;, &#34;©&#34;, &#34;(c)&#34;)):
         for regex in self._copyright_regexes:
             match = regex.search(company_name)
             if match:
                 extracted = match.group(1).strip()
                 # Clean up trailing punctuation
-                extracted = extracted.rstrip(&#39;.,;:&#39;).strip()
+                extracted = extracted.rstrip(&#34;.,;:&#34;).strip()
                 if extracted and len(extracted) &gt;= 2:
                     result = extracted
                     break
@@ -1427,7 +2211,7 @@ Uses Schema.org-style connections (Person worksFor/memberOf Organization).</p>
     # pass over the suffix list, so stacked suffixes are all removed
     # (e.g. &#34;Foo Co. Inc.&#34; -&gt; &#34;Foo&#34;) — matches the production organizer.
     for suffix_regex in self._legal_suffix_regexes:
-        result = suffix_regex.sub(&#39;&#39;, result).strip()
+        result = suffix_regex.sub(&#34;&#34;, result).strip()
     return result</code></pre>
 </details>
 <div class="desc"><p>Normalize company name by extracting actual company from common patterns.</p>
@@ -1438,8 +2222,9 @@ Uses Schema.org-style connections (Person worksFor/memberOf Organization).</p>
 - "Copyright (C) 2023 Amazon" -&gt; "Amazon"
 - "Google LLC" -&gt; "Google"
 - "Apple Inc." -&gt; "Apple"</p>
-<h2 id="returns">Returns</h2>
-<p>Normalized company name, or None if invalid</p></div>
+<p>Returns
+-----=
+Normalized company name, or None if invalid</p></div>
 </dd>
 <dt id="src.classifiers.EntityDetector.sanitize_company_name"><code class="name flex">
 <span>def <span class="ident">sanitize_company_name</span></span>(<span>self, company_name: str) ‑> str | None</span>
@@ -1464,17 +2249,18 @@ Uses Schema.org-style connections (Person worksFor/memberOf Organization).</p>
         return None
 
     # Remove special characters that aren&#39;t allowed in folder names
-    sanitized = self._folder_sanitize_re.sub(&#39;&#39;, normalized)
+    sanitized = self._folder_sanitize_re.sub(&#34;&#34;, normalized)
     # Replace multiple spaces with single space
-    sanitized = &#39; &#39;.join(sanitized.split())
+    sanitized = &#34; &#34;.join(sanitized.split())
     # Limit length
     if len(sanitized) &gt; 50:
         sanitized = sanitized[:50].strip()
     return sanitized if sanitized else None</code></pre>
 </details>
 <div class="desc"><p>Sanitize company name for use in folder names.</p>
-<h2 id="returns">Returns</h2>
-<p>Sanitized folder name, or None if the name is invalid (sentence fragment)</p></div>
+<p>Returns
+-----=
+Sanitized folder name, or None if the name is invalid (sentence fragment)</p></div>
 </dd>
 </dl>
 </dd>
@@ -1495,6 +2281,8 @@ Uses Schema.org-style connections (Person worksFor/memberOf Organization).</p>
 <ul>
 <li><code><a title="src.classifiers.content_classifier" href="content_classifier.html">src.classifiers.content_classifier</a></code></li>
 <li><code><a title="src.classifiers.entity_detector" href="entity_detector.html">src.classifiers.entity_detector</a></code></li>
+<li><code><a title="src.classifiers.org_extraction" href="org_extraction.html">src.classifiers.org_extraction</a></code></li>
+<li><code><a title="src.classifiers.person_name_validator" href="person_name_validator.html">src.classifiers.person_name_validator</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
@@ -1511,6 +2299,7 @@ Uses Schema.org-style connections (Person worksFor/memberOf Organization).</p>
 <li><code><a title="src.classifiers.ContentClassifier.normalize_company_name" href="#src.classifiers.ContentClassifier.normalize_company_name">normalize_company_name</a></code></li>
 <li><code><a title="src.classifiers.ContentClassifier.sanitize_company_name" href="#src.classifiers.ContentClassifier.sanitize_company_name">sanitize_company_name</a></code></li>
 <li><code><a title="src.classifiers.ContentClassifier.score_all_categories" href="#src.classifiers.ContentClassifier.score_all_categories">score_all_categories</a></code></li>
+<li><code><a title="src.classifiers.ContentClassifier.score_categories_detailed" href="#src.classifiers.ContentClassifier.score_categories_detailed">score_categories_detailed</a></code></li>
 </ul>
 </li>
 <li>

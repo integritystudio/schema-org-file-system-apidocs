@@ -60,7 +60,7 @@ el.replaceWith(d);
 <dl>
 <dt id="src.feedback.CorrectionFeedbackSystem"><code class="flex name class">
 <span>class <span class="ident">CorrectionFeedbackSystem</span></span>
-<span>(</span><span>feedback_file: str = None)</span>
+<span>(</span><span>feedback_file: str | None = None)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -70,7 +70,7 @@ el.replaceWith(d);
 <pre><code class="python">class CorrectionFeedbackSystem:
     &#34;&#34;&#34;Manages correction feedback for file categorization improvements.&#34;&#34;&#34;
 
-    def __init__(self, feedback_file: str = None):
+    def __init__(self, feedback_file: Optional[str] = None):
         &#34;&#34;&#34;Initialize the feedback system.
 
         Args:
@@ -91,7 +91,7 @@ el.replaceWith(d);
         if os.path.exists(self.feedback_file):
             try:
                 with open(self.feedback_file, &#39;r&#39;) as f:
-                    return json.load(f)
+                    return cast(Dict, json.load(f))
             except (json.JSONDecodeError, IOError):
                 pass
 
@@ -196,10 +196,10 @@ el.replaceWith(d);
         correct_destination: str,
         assigned_category: str,
         correct_category: str,
-        assigned_subcategory: str = None,
-        correct_subcategory: str = None,
-        correction_reason: str = None,
-        content_hints: List[str] = None
+        assigned_subcategory: Optional[str] = None,
+        correct_subcategory: Optional[str] = None,
+        correction_reason: Optional[str] = None,
+        content_hints: Optional[List[str]] = None
     ) -&gt; str:
         &#34;&#34;&#34;Add a correction for a miscategorized file.
 
@@ -290,7 +290,7 @@ el.replaceWith(d);
         self,
         patterns: List[str],
         correct_category: str,
-        correct_subcategory: str
+        correct_subcategory: Optional[str]
     ) -&gt; None:
         &#34;&#34;&#34;Update learned patterns from corrections.&#34;&#34;&#34;
         for pattern in patterns:
@@ -313,7 +313,9 @@ el.replaceWith(d);
                     learned[&#34;subcategories&#34;][correct_subcategory] = 0
                 learned[&#34;subcategories&#34;][correct_subcategory] += 1
 
-    def get_suggestion(self, filename: str, current_category: str = None) -&gt; Optional[Dict]:
+    def get_suggestion(
+        self, filename: str, current_category: Optional[str] = None
+    ) -&gt; Optional[CategorySuggestion]:
         &#34;&#34;&#34;Get a category suggestion based on learned patterns.
 
         Args:
@@ -325,8 +327,8 @@ el.replaceWith(d);
         &#34;&#34;&#34;
         patterns = self.extract_filename_patterns(filename)
 
-        category_votes = defaultdict(float)
-        subcategory_votes = defaultdict(float)
+        category_votes: defaultdict[str, float] = defaultdict(float)
+        subcategory_votes: defaultdict[str, float] = defaultdict(float)
 
         for pattern in patterns:
             if pattern in self.data[&#34;learned_patterns&#34;]:
@@ -373,7 +375,7 @@ el.replaceWith(d);
         Returns:
             The correction record or None
         &#34;&#34;&#34;
-        return self.data[&#34;corrections&#34;].get(file_hash)
+        return cast(Optional[Dict], self.data[&#34;corrections&#34;].get(file_hash))
 
     def check_file(self, file_path: str) -&gt; Optional[Dict]:
         &#34;&#34;&#34;Check if a file has a correction recorded.
@@ -427,7 +429,7 @@ el.replaceWith(d);
         Returns:
             Dictionary of rules that can be applied to improve categorization
         &#34;&#34;&#34;
-        rules = {
+        rules: dict[str, Any] = {
             &#34;pattern_rules&#34;: [],
             &#34;content_rules&#34;: [],
             &#34;extension_rules&#34;: {}
@@ -457,7 +459,7 @@ el.replaceWith(d);
         rules[&#34;pattern_rules&#34;].sort(key=lambda x: -x[&#34;sample_count&#34;])
 
         # Extract content hint rules
-        content_hints = defaultdict(lambda: defaultdict(int))
+        content_hints: defaultdict[str, defaultdict[str, int]] = defaultdict(lambda: defaultdict(int))
         for correction in self.data[&#34;corrections&#34;].values():
             for hint in correction.get(&#34;content_hints&#34;, []):
                 content_hints[hint][correction[&#34;correct_category&#34;]] += 1
@@ -527,8 +529,9 @@ el.replaceWith(d);
 </details>
 <div class="desc"><p>Manages correction feedback for file categorization improvements.</p>
 <p>Initialize the feedback system.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>feedback_file</code></strong></dt>
 <dd>Path to the JSON file storing corrections.
 Defaults to ~/.schema-org-file-system/corrections.json</dd>
@@ -565,13 +568,15 @@ def compute_file_hash(file_path: str) -&gt; str:
         return hashlib.sha256(file_path.encode()).hexdigest()</code></pre>
 </details>
 <div class="desc"><p>Compute SHA-256 hash of a file.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_path</code></strong></dt>
 <dd>Path to the file</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Hexadecimal hash string</p></div>
+<p>Returns
+-----=
+Hexadecimal hash string</p></div>
 </dd>
 <dt id="src.feedback.CorrectionFeedbackSystem.extract_filename_patterns"><code class="name flex">
 <span>def <span class="ident">extract_filename_patterns</span></span>(<span>filename: str) ‑> List[str]</span>
@@ -633,19 +638,21 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
     return patterns</code></pre>
 </details>
 <div class="desc"><p>Extract categorizable patterns from a filename.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>filename</code></strong></dt>
 <dd>The filename to analyze</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>List of patterns found</p></div>
+<p>Returns
+-----=
+List of patterns found</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
 <dt id="src.feedback.CorrectionFeedbackSystem.add_correction"><code class="name flex">
-<span>def <span class="ident">add_correction</span></span>(<span>self,<br>file_path: str,<br>assigned_destination: str,<br>correct_destination: str,<br>assigned_category: str,<br>correct_category: str,<br>assigned_subcategory: str = None,<br>correct_subcategory: str = None,<br>correction_reason: str = None,<br>content_hints: List[str] = None) ‑> str</span>
+<span>def <span class="ident">add_correction</span></span>(<span>self,<br>file_path: str,<br>assigned_destination: str,<br>correct_destination: str,<br>assigned_category: str,<br>correct_category: str,<br>assigned_subcategory: str | None = None,<br>correct_subcategory: str | None = None,<br>correction_reason: str | None = None,<br>content_hints: List[str] | None = None) ‑> str</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -659,10 +666,10 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
     correct_destination: str,
     assigned_category: str,
     correct_category: str,
-    assigned_subcategory: str = None,
-    correct_subcategory: str = None,
-    correction_reason: str = None,
-    content_hints: List[str] = None
+    assigned_subcategory: Optional[str] = None,
+    correct_subcategory: Optional[str] = None,
+    correction_reason: Optional[str] = None,
+    content_hints: Optional[List[str]] = None
 ) -&gt; str:
     &#34;&#34;&#34;Add a correction for a miscategorized file.
 
@@ -720,8 +727,9 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
     return file_hash</code></pre>
 </details>
 <div class="desc"><p>Add a correction for a miscategorized file.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_path</code></strong></dt>
 <dd>Original path of the file</dd>
 <dt><strong><code>assigned_destination</code></strong></dt>
@@ -741,8 +749,9 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
 <dt><strong><code>content_hints</code></strong></dt>
 <dd>Keywords from file content that should indicate correct category</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>The file hash used as the key</p></div>
+<p>Returns
+-----=
+The file hash used as the key</p></div>
 </dd>
 <dt id="src.feedback.CorrectionFeedbackSystem.check_file"><code class="name flex">
 <span>def <span class="ident">check_file</span></span>(<span>self, file_path: str) ‑> Dict | None</span>
@@ -767,13 +776,15 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
     return None</code></pre>
 </details>
 <div class="desc"><p>Check if a file has a correction recorded.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_path</code></strong></dt>
 <dd>Path to the file</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>The correction record if found, None otherwise</p></div>
+<p>Returns
+-----=
+The correction record if found, None otherwise</p></div>
 </dd>
 <dt id="src.feedback.CorrectionFeedbackSystem.clear_all"><code class="name flex">
 <span>def <span class="ident">clear_all</span></span>(<span>self) ‑> None</span>
@@ -818,7 +829,7 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
     Returns:
         Dictionary of rules that can be applied to improve categorization
     &#34;&#34;&#34;
-    rules = {
+    rules: dict[str, Any] = {
         &#34;pattern_rules&#34;: [],
         &#34;content_rules&#34;: [],
         &#34;extension_rules&#34;: {}
@@ -848,7 +859,7 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
     rules[&#34;pattern_rules&#34;].sort(key=lambda x: -x[&#34;sample_count&#34;])
 
     # Extract content hint rules
-    content_hints = defaultdict(lambda: defaultdict(int))
+    content_hints: defaultdict[str, defaultdict[str, int]] = defaultdict(lambda: defaultdict(int))
     for correction in self.data[&#34;corrections&#34;].values():
         for hint in correction.get(&#34;content_hints&#34;, []):
             content_hints[hint][correction[&#34;correct_category&#34;]] += 1
@@ -871,8 +882,9 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
     return rules</code></pre>
 </details>
 <div class="desc"><p>Export learned rules for integration with the file organizer.</p>
-<h2 id="returns">Returns</h2>
-<p>Dictionary of rules that can be applied to improve categorization</p></div>
+<p>Returns
+-----=
+Dictionary of rules that can be applied to improve categorization</p></div>
 </dd>
 <dt id="src.feedback.CorrectionFeedbackSystem.get_correction_by_hash"><code class="name flex">
 <span>def <span class="ident">get_correction_by_hash</span></span>(<span>self, file_hash: str) ‑> Dict | None</span>
@@ -891,16 +903,18 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
     Returns:
         The correction record or None
     &#34;&#34;&#34;
-    return self.data[&#34;corrections&#34;].get(file_hash)</code></pre>
+    return cast(Optional[Dict], self.data[&#34;corrections&#34;].get(file_hash))</code></pre>
 </details>
 <div class="desc"><p>Get a correction by file hash.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_hash</code></strong></dt>
 <dd>The SHA-256 hash of the file</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>The correction record or None</p></div>
+<p>Returns
+-----=
+The correction record or None</p></div>
 </dd>
 <dt id="src.feedback.CorrectionFeedbackSystem.get_corrections_for_category"><code class="name flex">
 <span>def <span class="ident">get_corrections_for_category</span></span>(<span>self, category: str) ‑> List[Dict]</span>
@@ -926,13 +940,15 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
     ]</code></pre>
 </details>
 <div class="desc"><p>Get all corrections where files should have been in a category.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>category</code></strong></dt>
 <dd>The correct category to filter by</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>List of correction records</p></div>
+<p>Returns
+-----=
+List of correction records</p></div>
 </dd>
 <dt id="src.feedback.CorrectionFeedbackSystem.get_mistake_patterns"><code class="name flex">
 <span>def <span class="ident">get_mistake_patterns</span></span>(<span>self, from_category: str, to_category: str) ‑> List[Dict]</span>
@@ -960,15 +976,17 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
     ]</code></pre>
 </details>
 <div class="desc"><p>Get corrections where files were miscategorized from one category to another.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>from_category</code></strong></dt>
 <dd>The incorrectly assigned category</dd>
 <dt><strong><code>to_category</code></strong></dt>
 <dd>The correct category</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>List of correction records</p></div>
+<p>Returns
+-----=
+List of correction records</p></div>
 </dd>
 <dt id="src.feedback.CorrectionFeedbackSystem.get_statistics"><code class="name flex">
 <span>def <span class="ident">get_statistics</span></span>(<span>self) ‑> Dict</span>
@@ -991,18 +1009,21 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
     }</code></pre>
 </details>
 <div class="desc"><p>Get correction statistics.</p>
-<h2 id="returns">Returns</h2>
-<p>Statistics dictionary</p></div>
+<p>Returns
+-----=
+Statistics dictionary</p></div>
 </dd>
 <dt id="src.feedback.CorrectionFeedbackSystem.get_suggestion"><code class="name flex">
-<span>def <span class="ident">get_suggestion</span></span>(<span>self, filename: str, current_category: str = None) ‑> Dict | None</span>
+<span>def <span class="ident">get_suggestion</span></span>(<span>self, filename: str, current_category: str | None = None) ‑> <a title="src.feedback.correction_tracker.CategorySuggestion" href="correction_tracker.html#src.feedback.correction_tracker.CategorySuggestion">CategorySuggestion</a> | None</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_suggestion(self, filename: str, current_category: str = None) -&gt; Optional[Dict]:
+<pre><code class="python">def get_suggestion(
+    self, filename: str, current_category: Optional[str] = None
+) -&gt; Optional[CategorySuggestion]:
     &#34;&#34;&#34;Get a category suggestion based on learned patterns.
 
     Args:
@@ -1014,8 +1035,8 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
     &#34;&#34;&#34;
     patterns = self.extract_filename_patterns(filename)
 
-    category_votes = defaultdict(float)
-    subcategory_votes = defaultdict(float)
+    category_votes: defaultdict[str, float] = defaultdict(float)
+    subcategory_votes: defaultdict[str, float] = defaultdict(float)
 
     for pattern in patterns:
         if pattern in self.data[&#34;learned_patterns&#34;]:
@@ -1054,15 +1075,17 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
     return None</code></pre>
 </details>
 <div class="desc"><p>Get a category suggestion based on learned patterns.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>filename</code></strong></dt>
 <dd>The filename to check</dd>
 <dt><strong><code>current_category</code></strong></dt>
 <dd>The currently assigned category</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Dictionary with suggested category and confidence, or None</p></div>
+<p>Returns
+-----=
+Dictionary with suggested category and confidence, or None</p></div>
 </dd>
 <dt id="src.feedback.CorrectionFeedbackSystem.remove_correction"><code class="name flex">
 <span>def <span class="ident">remove_correction</span></span>(<span>self, file_hash: str) ‑> bool</span>
@@ -1088,19 +1111,21 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
     return False</code></pre>
 </details>
 <div class="desc"><p>Remove a correction by hash.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_hash</code></strong></dt>
 <dd>The hash of the correction to remove</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>True if removed, False if not found</p></div>
+<p>Returns
+-----=
+True if removed, False if not found</p></div>
 </dd>
 </dl>
 </dd>
 <dt id="src.feedback.FeedbackIntegration"><code class="flex name class">
 <span>class <span class="ident">FeedbackIntegration</span></span>
-<span>(</span><span>feedback_file: str = None)</span>
+<span>(</span><span>feedback_file: str | None = None)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -1110,16 +1135,16 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
 <pre><code class="python">class FeedbackIntegration:
     &#34;&#34;&#34;Integrates correction feedback with the file organizer.&#34;&#34;&#34;
 
-    def __init__(self, feedback_file: str = None):
+    def __init__(self, feedback_file: Optional[str] = None):
         &#34;&#34;&#34;Initialize the integration.
 
         Args:
             feedback_file: Path to corrections JSON file
         &#34;&#34;&#34;
         self.feedback = CorrectionFeedbackSystem(feedback_file)
-        self._cached_rules = None
+        self._cached_rules: Optional[Dict[str, Any]] = None
 
-    def get_cached_rules(self) -&gt; Dict:
+    def get_cached_rules(self) -&gt; Dict[str, Any]:
         &#34;&#34;&#34;Get or compute cached rules.&#34;&#34;&#34;
         if self._cached_rules is None:
             self._cached_rules = self.feedback.export_rules()
@@ -1134,8 +1159,8 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
         file_path: str,
         filename: str,
         proposed_category: str,
-        proposed_subcategory: str = None
-    ) -&gt; Tuple[str, str, float]:
+        proposed_subcategory: Optional[str] = None
+    ) -&gt; Tuple[str, Optional[str], float]:
         &#34;&#34;&#34;Check if corrections suggest a different category.
 
         This should be called BEFORE final categorization to apply learned rules.
@@ -1171,7 +1196,7 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
         # No correction needed
         return (proposed_category, proposed_subcategory, 1.0)
 
-    def get_pattern_keywords(self) -&gt; Dict[str, Dict]:
+    def get_pattern_keywords(self) -&gt; Dict[str, Dict[str, List[str]]]:
         &#34;&#34;&#34;Get learned keyword patterns for each category.
 
         Returns keywords that should trigger specific categories based on
@@ -1181,7 +1206,7 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
             Dictionary mapping categories to their learned keywords
         &#34;&#34;&#34;
         rules = self.get_cached_rules()
-        keywords = {}
+        keywords: dict[str, dict[str, list[str]]] = {}
 
         for rule in rules.get(&#34;pattern_rules&#34;, []):
             category = rule[&#34;category&#34;]
@@ -1211,9 +1236,9 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
 
     def apply_to_organization_result(
         self,
-        result: Dict,
+        result: Dict[str, Any],
         auto_apply: bool = False
-    ) -&gt; Dict:
+    ) -&gt; Dict[str, Any]:
         &#34;&#34;&#34;Apply feedback suggestions to an organization result.
 
         Args:
@@ -1244,9 +1269,9 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
 
     def batch_apply_corrections(
         self,
-        results: List[Dict],
+        results: List[Dict[str, Any]],
         confidence_threshold: float = 0.85
-    ) -&gt; Tuple[List[Dict], Dict]:
+    ) -&gt; Tuple[List[Dict[str, Any]], _ApplyStats]:
         &#34;&#34;&#34;Apply corrections to a batch of organization results.
 
         Args:
@@ -1257,7 +1282,7 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
             Tuple of (modified_results, statistics)
         &#34;&#34;&#34;
         modified = []
-        stats = {
+        stats: _ApplyStats = {
             &#34;total&#34;: len(results),
             &#34;suggestions_made&#34;: 0,
             &#34;auto_applied&#34;: 0,
@@ -1284,7 +1309,7 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
 
         return modified, stats
 
-    def generate_correction_report(self, results: List[Dict]) -&gt; str:
+    def generate_correction_report(self, results: List[Dict[str, Any]]) -&gt; str:
         &#34;&#34;&#34;Generate a report of suggested corrections from organization results.
 
         Args:
@@ -1293,7 +1318,7 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
         Returns:
             Markdown report string
         &#34;&#34;&#34;
-        suggestions = []
+        suggestions: List[_SuggestionRow] = []
 
         for result in results:
             filename = (
@@ -1329,15 +1354,16 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
 </details>
 <div class="desc"><p>Integrates correction feedback with the file organizer.</p>
 <p>Initialize the integration.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>feedback_file</code></strong></dt>
 <dd>Path to corrections JSON file</dd>
 </dl></div>
 <h3>Methods</h3>
 <dl>
 <dt id="src.feedback.FeedbackIntegration.apply_to_organization_result"><code class="name flex">
-<span>def <span class="ident">apply_to_organization_result</span></span>(<span>self, result: Dict, auto_apply: bool = False) ‑> Dict</span>
+<span>def <span class="ident">apply_to_organization_result</span></span>(<span>self, result: Dict[str, Any], auto_apply: bool = False) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -1346,9 +1372,9 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
 </summary>
 <pre><code class="python">def apply_to_organization_result(
     self,
-    result: Dict,
+    result: Dict[str, Any],
     auto_apply: bool = False
-) -&gt; Dict:
+) -&gt; Dict[str, Any]:
     &#34;&#34;&#34;Apply feedback suggestions to an organization result.
 
     Args:
@@ -1378,18 +1404,20 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
     return result</code></pre>
 </details>
 <div class="desc"><p>Apply feedback suggestions to an organization result.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>result</code></strong></dt>
 <dd>A single result from the organization report</dd>
 <dt><strong><code>auto_apply</code></strong></dt>
 <dd>Whether to automatically apply high-confidence suggestions</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Modified result with feedback suggestions</p></div>
+<p>Returns
+-----=
+Modified result with feedback suggestions</p></div>
 </dd>
 <dt id="src.feedback.FeedbackIntegration.batch_apply_corrections"><code class="name flex">
-<span>def <span class="ident">batch_apply_corrections</span></span>(<span>self, results: List[Dict], confidence_threshold: float = 0.85) ‑> Tuple[List[Dict], Dict]</span>
+<span>def <span class="ident">batch_apply_corrections</span></span>(<span>self, results: List[Dict[str, Any]], confidence_threshold: float = 0.85) ‑> Tuple[List[Dict[str, Any]], src.feedback.feedback_loop._ApplyStats]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -1398,9 +1426,9 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
 </summary>
 <pre><code class="python">def batch_apply_corrections(
     self,
-    results: List[Dict],
+    results: List[Dict[str, Any]],
     confidence_threshold: float = 0.85
-) -&gt; Tuple[List[Dict], Dict]:
+) -&gt; Tuple[List[Dict[str, Any]], _ApplyStats]:
     &#34;&#34;&#34;Apply corrections to a batch of organization results.
 
     Args:
@@ -1411,7 +1439,7 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
         Tuple of (modified_results, statistics)
     &#34;&#34;&#34;
     modified = []
-    stats = {
+    stats: _ApplyStats = {
         &#34;total&#34;: len(results),
         &#34;suggestions_made&#34;: 0,
         &#34;auto_applied&#34;: 0,
@@ -1439,25 +1467,27 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
     return modified, stats</code></pre>
 </details>
 <div class="desc"><p>Apply corrections to a batch of organization results.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>results</code></strong></dt>
 <dd>List of organization results</dd>
 <dt><strong><code>confidence_threshold</code></strong></dt>
 <dd>Minimum confidence to auto-apply</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Tuple of (modified_results, statistics)</p></div>
+<p>Returns
+-----=
+Tuple of (modified_results, statistics)</p></div>
 </dd>
 <dt id="src.feedback.FeedbackIntegration.generate_correction_report"><code class="name flex">
-<span>def <span class="ident">generate_correction_report</span></span>(<span>self, results: List[Dict]) ‑> str</span>
+<span>def <span class="ident">generate_correction_report</span></span>(<span>self, results: List[Dict[str, Any]]) ‑> str</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def generate_correction_report(self, results: List[Dict]) -&gt; str:
+<pre><code class="python">def generate_correction_report(self, results: List[Dict[str, Any]]) -&gt; str:
     &#34;&#34;&#34;Generate a report of suggested corrections from organization results.
 
     Args:
@@ -1466,7 +1496,7 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
     Returns:
         Markdown report string
     &#34;&#34;&#34;
-    suggestions = []
+    suggestions: List[_SuggestionRow] = []
 
     for result in results:
         filename = (
@@ -1501,23 +1531,25 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
     return report</code></pre>
 </details>
 <div class="desc"><p>Generate a report of suggested corrections from organization results.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>results</code></strong></dt>
 <dd>List of organization results</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Markdown report string</p></div>
+<p>Returns
+-----=
+Markdown report string</p></div>
 </dd>
 <dt id="src.feedback.FeedbackIntegration.get_cached_rules"><code class="name flex">
-<span>def <span class="ident">get_cached_rules</span></span>(<span>self) ‑> Dict</span>
+<span>def <span class="ident">get_cached_rules</span></span>(<span>self) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_cached_rules(self) -&gt; Dict:
+<pre><code class="python">def get_cached_rules(self) -&gt; Dict[str, Any]:
     &#34;&#34;&#34;Get or compute cached rules.&#34;&#34;&#34;
     if self._cached_rules is None:
         self._cached_rules = self.feedback.export_rules()
@@ -1526,14 +1558,14 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
 <div class="desc"><p>Get or compute cached rules.</p></div>
 </dd>
 <dt id="src.feedback.FeedbackIntegration.get_pattern_keywords"><code class="name flex">
-<span>def <span class="ident">get_pattern_keywords</span></span>(<span>self) ‑> Dict[str, Dict]</span>
+<span>def <span class="ident">get_pattern_keywords</span></span>(<span>self) ‑> Dict[str, Dict[str, List[str]]]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_pattern_keywords(self) -&gt; Dict[str, Dict]:
+<pre><code class="python">def get_pattern_keywords(self) -&gt; Dict[str, Dict[str, List[str]]]:
     &#34;&#34;&#34;Get learned keyword patterns for each category.
 
     Returns keywords that should trigger specific categories based on
@@ -1543,7 +1575,7 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
         Dictionary mapping categories to their learned keywords
     &#34;&#34;&#34;
     rules = self.get_cached_rules()
-    keywords = {}
+    keywords: dict[str, dict[str, list[str]]] = {}
 
     for rule in rules.get(&#34;pattern_rules&#34;, []):
         category = rule[&#34;category&#34;]
@@ -1574,8 +1606,9 @@ def extract_filename_patterns(filename: str) -&gt; List[str]:
 <div class="desc"><p>Get learned keyword patterns for each category.</p>
 <p>Returns keywords that should trigger specific categories based on
 correction feedback.</p>
-<h2 id="returns">Returns</h2>
-<p>Dictionary mapping categories to their learned keywords</p></div>
+<p>Returns
+-----=
+Dictionary mapping categories to their learned keywords</p></div>
 </dd>
 <dt id="src.feedback.FeedbackIntegration.invalidate_cache"><code class="name flex">
 <span>def <span class="ident">invalidate_cache</span></span>(<span>self)</span>
@@ -1592,7 +1625,7 @@ correction feedback.</p>
 <div class="desc"><p>Invalidate the cached rules (call after adding corrections).</p></div>
 </dd>
 <dt id="src.feedback.FeedbackIntegration.pre_categorize_check"><code class="name flex">
-<span>def <span class="ident">pre_categorize_check</span></span>(<span>self,<br>file_path: str,<br>filename: str,<br>proposed_category: str,<br>proposed_subcategory: str = None) ‑> Tuple[str, str, float]</span>
+<span>def <span class="ident">pre_categorize_check</span></span>(<span>self,<br>file_path: str,<br>filename: str,<br>proposed_category: str,<br>proposed_subcategory: str | None = None) ‑> Tuple[str, str | None, float]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -1604,8 +1637,8 @@ correction feedback.</p>
     file_path: str,
     filename: str,
     proposed_category: str,
-    proposed_subcategory: str = None
-) -&gt; Tuple[str, str, float]:
+    proposed_subcategory: Optional[str] = None
+) -&gt; Tuple[str, Optional[str], float]:
     &#34;&#34;&#34;Check if corrections suggest a different category.
 
     This should be called BEFORE final categorization to apply learned rules.
@@ -1643,8 +1676,9 @@ correction feedback.</p>
 </details>
 <div class="desc"><p>Check if corrections suggest a different category.</p>
 <p>This should be called BEFORE final categorization to apply learned rules.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_path</code></strong></dt>
 <dd>Path to the file</dd>
 <dt><strong><code>filename</code></strong></dt>
@@ -1654,8 +1688,9 @@ correction feedback.</p>
 <dt><strong><code>proposed_subcategory</code></strong></dt>
 <dd>Subcategory the organizer wants to assign</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Tuple of (final_category, final_subcategory, confidence)
+<p>Returns
+-----=
+Tuple of (final_category, final_subcategory, confidence)
 confidence is 1.0 for original proposal, &lt;1.0 for suggestions</p></div>
 </dd>
 </dl>

@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>src.scoring.signals.graphic_detection API documentation</title>
+<meta name="description" content="GraphicDetectionSignal — cheap non-CLIP gate for logos/icons/graphics …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>src.scoring.signals.graphic_detection</code></h1>
+</header>
+<section id="section-intro">
+<p>GraphicDetectionSignal — cheap non-CLIP gate for logos/icons/graphics.</p>
+<p>CLIP zero-shot cannot distinguish logos and app icons from photographs: real
+brand graphics score at the softmax floor (~0.077 in a 13-label vocab) and sit
+on CLIP's decision boundary for a binary 'graphic vs. photograph' contrast.
+This signal replaces the CLIP attempt with cheap, non-semantic pixel cues
+evaluated before CLIP runs (cheap tier → runs in the first wave).</p>
+<p>Detection strategy (pre-CLIP gate):</p>
+<ul>
+<li><strong>SVG extension</strong> — always a graphic; route to <code>media/graphics_vector</code>.</li>
+<li><strong>Raster images</strong> — scored by up to four independent heuristics; confidence
+is the clamped sum of individual scores.
+An image must reach
+<code>_MIN_RASTER_CONFIDENCE</code> (0.35) to emit a vote.
+Routes to
+<code>media/graphics_icons</code> when it has a transparency channel <em>and</em> square
+icon-standard dimensions; <code>media/graphics_other</code> otherwise.</li>
+</ul>
+<p>Heuristic scores (additive, each independent):</p>
+<ol>
+<li><code>has_alpha</code> (+0.40): image has a transparency channel (RGBA, LA, PA
+mode, or P mode with <code>transparency</code> info).
+Brand graphics almost always
+have transparent backgrounds; photographs essentially never do.</li>
+<li><code>is_square_icon</code> (+0.30): width == height and max dimension ≤ 512 px.
+App icons and logos are typically square at standard sizes (16–512 px);
+photographs rarely are.</li>
+<li><code>small_palette</code> (+0.25): after a 64×64 thumbnail, the image has ≤ 64
+distinct sRGB colours.
+Flat-colour / limited-palette graphics are far
+below the hundreds-to-thousands of colours a photograph produces.</li>
+<li><code>asset_path</code> (+0.15): the filename's immediate parent directory name is
+one of the known asset-folder names (<code>assets</code>, <code>icons</code>, <code>img</code>, etc.).</li>
+</ol>
+<p>Pixel analysis is skipped for images larger than <code>_PIXEL_ANALYSIS_LIMIT</code>
+(4 MP); only the path-based cues apply in that case (real photos).</p>
+<p>Pillow is optional — the signal no-ops (<code>applies_to</code> → False) when
+unavailable, matching the graceful-degrade pattern of other heavy-import
+signals.</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="src.scoring.signals.graphic_detection.score_raster_graphic"><code class="name flex">
+<span>def <span class="ident">score_raster_graphic</span></span>(<span>path: Path, img: object) ‑> tuple[float, dict]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def score_raster_graphic(path: Path, img: object) -&gt; tuple[float, dict]:
+    &#34;&#34;&#34;Compute the additive raster-graphic confidence and evidence dict.
+
+    Returns ``(confidence, evidence)``.  The caller is responsible for
+    opening and closing the Pillow image object.
+    &#34;&#34;&#34;
+    score = 0.0
+    evidence: dict = {}
+
+    try:
+        width: int = img.width  # type: ignore[attr-defined]
+        height: int = img.height  # type: ignore[attr-defined]
+        pixel_count = width * height
+    except Exception:
+        return 0.0, {}
+
+    # --- 1. Transparency channel (most discriminative for logos) ----------
+    if _has_alpha_channel(img):
+        score += _SCORE_HAS_ALPHA
+        evidence[EVIDENCE_HAS_ALPHA] = True
+
+    # --- 2. Square icon dimensions ----------------------------------------
+    if _is_square_icon_size(width, height):
+        score += _SCORE_IS_SQUARE_ICON
+        evidence[EVIDENCE_IS_SQUARE_ICON] = True
+
+    # --- 3. Small palette (skip for large images — they are real photos) --
+    if pixel_count &lt;= _PIXEL_ANALYSIS_LIMIT:
+        distinct = _count_distinct_colors(img)
+        if distinct is not None and distinct &lt;= _PALETTE_DISTINCT_THRESHOLD:
+            score += _SCORE_SMALL_PALETTE
+            evidence[EVIDENCE_SMALL_PALETTE] = distinct
+
+    # --- 4. Asset-folder path hint ----------------------------------------
+    if _asset_path_hint(path):
+        score += _SCORE_ASSET_PATH
+        evidence[EVIDENCE_ASSET_PATH] = True
+
+    evidence[EVIDENCE_GRAPHIC_SCORE] = round(score, 3)
+    return min(score, 1.0), evidence</code></pre>
+</details>
+<div class="desc"><p>Compute the additive raster-graphic confidence and evidence dict.</p>
+<p>Returns <code>(confidence, evidence)</code>.
+The caller is responsible for
+opening and closing the Pillow image object.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="src.scoring.signals.graphic_detection.GraphicDetectionSignal"><code class="flex name class">
+<span>class <span class="ident">GraphicDetectionSignal</span></span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GraphicDetectionSignal:
+    &#34;&#34;&#34;Cheap non-CLIP gate that routes logos/icons/graphics to Media/Graphics.
+
+    Cost tier is &#39;cheap&#39; so it runs in the first wave, before CLIP and OCR,
+    acting as a pre-CLIP gate for files the CLIP vocab cannot distinguish.
+
+    Gracefully no-ops when Pillow is absent (SVG routing still works; raster
+    analysis is skipped via ``applies_to`` → True but pixel analysis returns
+    0.0 if the import fails inside ``score_raster_graphic``).
+    &#34;&#34;&#34;
+
+    name = &#34;graphic_detection&#34;
+    weight = W_GRAPHIC
+    cost_tier = &#34;cheap&#34;
+
+    def applies_to(self, ctx: &#34;FileContext&#34;) -&gt; bool:
+        ext = ctx.path.suffix.lower()
+        return ext == SVG_EXTENSION or ext in RASTER_EXTENSIONS
+
+    def run(self, ctx: &#34;FileContext&#34;) -&gt; List[CategoryScore]:
+        ext = ctx.path.suffix.lower()
+
+        # SVG: always a vector graphic.
+        if ext == SVG_EXTENSION:
+            return [
+                CategoryScore(
+                    category=GRAPHICS_CATEGORY,
+                    subcategory=VECTOR_SUBCATEGORY,
+                    confidence=_SVG_CONFIDENCE,
+                    signal_name=self.name,
+                    evidence={EVIDENCE_SVG: True},
+                )
+            ]
+
+        # Raster images: score from cheap pixel/path heuristics.
+        if ext not in RASTER_EXTENSIONS:
+            return []
+
+        try:
+            from PIL import Image  # noqa: PLC0415 — optional dep
+        except ImportError:
+            return []
+
+        try:
+            with Image.open(ctx.path) as img:
+                confidence, evidence = score_raster_graphic(ctx.path, img)
+        except Exception:
+            return []
+
+        if confidence &lt; _MIN_RASTER_CONFIDENCE:
+            return []
+
+        # Route: transparency + square icon → icons; otherwise other.
+        is_icon = bool(
+            evidence.get(EVIDENCE_HAS_ALPHA) and evidence.get(EVIDENCE_IS_SQUARE_ICON)
+        )
+        subcategory = ICONS_SUBCATEGORY if is_icon else OTHER_SUBCATEGORY
+
+        return [
+            CategoryScore(
+                category=GRAPHICS_CATEGORY,
+                subcategory=subcategory,
+                confidence=confidence,
+                signal_name=self.name,
+                evidence=evidence,
+            )
+        ]</code></pre>
+</details>
+<div class="desc"><p>Cheap non-CLIP gate that routes logos/icons/graphics to Media/Graphics.</p>
+<p>Cost tier is 'cheap' so it runs in the first wave, before CLIP and OCR,
+acting as a pre-CLIP gate for files the CLIP vocab cannot distinguish.</p>
+<p>Gracefully no-ops when Pillow is absent (SVG routing still works; raster
+analysis is skipped via <code>applies_to</code> → True but pixel analysis returns
+0.0 if the import fails inside <code><a title="src.scoring.signals.graphic_detection.score_raster_graphic" href="#src.scoring.signals.graphic_detection.score_raster_graphic">score_raster_graphic()</a></code>).</p></div>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.scoring.signals.graphic_detection.GraphicDetectionSignal.cost_tier"><code class="name">var <span class="ident">cost_tier</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.signals.graphic_detection.GraphicDetectionSignal.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.signals.graphic_detection.GraphicDetectionSignal.weight"><code class="name">var <span class="ident">weight</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="src.scoring.signals.graphic_detection.GraphicDetectionSignal.applies_to"><code class="name flex">
+<span>def <span class="ident">applies_to</span></span>(<span>self, ctx: "'FileContext'") ‑> bool</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def applies_to(self, ctx: &#34;FileContext&#34;) -&gt; bool:
+    ext = ctx.path.suffix.lower()
+    return ext == SVG_EXTENSION or ext in RASTER_EXTENSIONS</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="src.scoring.signals.graphic_detection.GraphicDetectionSignal.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self, ctx: "'FileContext'") ‑> List[CategoryScore]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self, ctx: &#34;FileContext&#34;) -&gt; List[CategoryScore]:
+    ext = ctx.path.suffix.lower()
+
+    # SVG: always a vector graphic.
+    if ext == SVG_EXTENSION:
+        return [
+            CategoryScore(
+                category=GRAPHICS_CATEGORY,
+                subcategory=VECTOR_SUBCATEGORY,
+                confidence=_SVG_CONFIDENCE,
+                signal_name=self.name,
+                evidence={EVIDENCE_SVG: True},
+            )
+        ]
+
+    # Raster images: score from cheap pixel/path heuristics.
+    if ext not in RASTER_EXTENSIONS:
+        return []
+
+    try:
+        from PIL import Image  # noqa: PLC0415 — optional dep
+    except ImportError:
+        return []
+
+    try:
+        with Image.open(ctx.path) as img:
+            confidence, evidence = score_raster_graphic(ctx.path, img)
+    except Exception:
+        return []
+
+    if confidence &lt; _MIN_RASTER_CONFIDENCE:
+        return []
+
+    # Route: transparency + square icon → icons; otherwise other.
+    is_icon = bool(
+        evidence.get(EVIDENCE_HAS_ALPHA) and evidence.get(EVIDENCE_IS_SQUARE_ICON)
+    )
+    subcategory = ICONS_SUBCATEGORY if is_icon else OTHER_SUBCATEGORY
+
+    return [
+        CategoryScore(
+            category=GRAPHICS_CATEGORY,
+            subcategory=subcategory,
+            confidence=confidence,
+            signal_name=self.name,
+            evidence=evidence,
+        )
+    ]</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="src.scoring.signals" href="index.html">src.scoring.signals</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="src.scoring.signals.graphic_detection.score_raster_graphic" href="#src.scoring.signals.graphic_detection.score_raster_graphic">score_raster_graphic</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="src.scoring.signals.graphic_detection.GraphicDetectionSignal" href="#src.scoring.signals.graphic_detection.GraphicDetectionSignal">GraphicDetectionSignal</a></code></h4>
+<ul class="">
+<li><code><a title="src.scoring.signals.graphic_detection.GraphicDetectionSignal.applies_to" href="#src.scoring.signals.graphic_detection.GraphicDetectionSignal.applies_to">applies_to</a></code></li>
+<li><code><a title="src.scoring.signals.graphic_detection.GraphicDetectionSignal.cost_tier" href="#src.scoring.signals.graphic_detection.GraphicDetectionSignal.cost_tier">cost_tier</a></code></li>
+<li><code><a title="src.scoring.signals.graphic_detection.GraphicDetectionSignal.name" href="#src.scoring.signals.graphic_detection.GraphicDetectionSignal.name">name</a></code></li>
+<li><code><a title="src.scoring.signals.graphic_detection.GraphicDetectionSignal.run" href="#src.scoring.signals.graphic_detection.GraphicDetectionSignal.run">run</a></code></li>
+<li><code><a title="src.scoring.signals.graphic_detection.GraphicDetectionSignal.weight" href="#src.scoring.signals.graphic_detection.GraphicDetectionSignal.weight">weight</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

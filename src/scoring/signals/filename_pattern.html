@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>src.scoring.signals.filename_pattern API documentation</title>
+<meta name="description" content="FilenamePatternSignal — shared filename-rule classification (§4 row 2) …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>src.scoring.signals.filename_pattern</code></h1>
+</header>
+<section id="section-intro">
+<p>FilenamePatternSignal — shared filename-rule classification (§4 row 2).</p>
+<p>Wraps <code>shared.filename_classifier.classify_by_filename_patterns</code> — the
+single-homed ~40-group rule module — as ONE signal (plan v2 decision, Open
+Question #5 tracks later per-domain decomposition). The rule module itself is
+neither copied nor modified; <code>ContentOrganizer.classify_by_filename_patterns</code>
+already delegates to it, so no organizer edit accompanies this signal.</p>
+<p>Behavior divergences from the legacy chain (by design):</p>
+<ul>
+<li>Research-publisher provenance moves from the <code>last_file_state</code> side
+channel into <code>evidence["research"]</code> (§4 row 2); the legacy chain's
+<code>schema_type = SCHOLARLY_ARTICLE_SCHEMA_TYPE</code> mutation becomes an
+<code>evidence["schema_type"]</code> override that the scorer applies only when this
+signal contributes to the winning candidate.</li>
+<li><code>skip</code>/<code>duplicate</code> results pass through as a normal
+:class:<code>~src.scoring.types.CategoryScore</code> instead of short-circuiting the
+chain; the decision assembler sees them compete like any candidate.</li>
+<li>Weak generic rules emit graduated confidence: a <code>media/photos_other</code>
+result is the rule module's "Named image" catch-all — the exact case the
+legacy chain routes through <code>enhance_weak_image_classification</code> (Point A)
+rather than trusting. At full confidence it would early-exit the cheap wave
+(W_FILENAME × 1.0 &gt; EARLY_EXIT_CONFIDENCE) and OCR/CLIP evidence would
+never run; at <code>FILENAME_WEAK_CONFIDENCE</code> content signals outscore it,
+which is the §4 format-drift fix in action.</li>
+</ul>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="src.scoring.signals.filename_pattern.graduated_filename_confidence"><code class="name flex">
+<span>def <span class="ident">graduated_filename_confidence</span></span>(<span>stem: str, category: str, subcategory: str, ext: str) ‑> float</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def graduated_filename_confidence(stem: str, category: str, subcategory: str, ext: str) -&gt; float:
+    &#34;&#34;&#34;Confidence for a shared filename-rule verdict, downgraded to
+    ``FILENAME_WEAK_CONFIDENCE`` when the rule is a weak catch-all the content
+    signals should outscore, otherwise ``FILENAME_MATCH_CONFIDENCE``.
+
+    Pure and signal-local: it re-derives the downgrade condition from the
+    (case-folded) ``stem``, the returned ``(category, subcategory)`` and the
+    extension, because the signal cannot see which shared rule fired.
+    &#34;&#34;&#34;
+    result = (category, subcategory)
+    if result in FILENAME_WEAK_RESULTS:
+        return FILENAME_WEAK_CONFIDENCE
+    # Source/host provenance (ChatGPT / Facebook): filename says where the file
+    # came from, not what it depicts — content signals should decide the bucket.
+    if result in SOURCE_PROVENANCE_RESULTS:
+        return FILENAME_WEAK_CONFIDENCE
+    # Event/venue maps: let the mid wave run so EventContentSignal can supply
+    # the Events/{EventName}/ folder name (see EVENTS_MAP_RESULT above).
+    if result == EVENTS_MAP_RESULT:
+        return FILENAME_WEAK_CONFIDENCE
+    # Archives: let the mid wave read the member listing (ARCHIVE_RESULT above).
+    if result == ARCHIVE_RESULT:
+        return FILENAME_WEAK_CONFIDENCE
+    # Sprite verdict on a camera-roll / scanner stem: it is a photo or a scan.
+    if result == GAME_SPRITES_RESULT and _is_camera_or_scan_stem(stem):
+        return FILENAME_WEAK_CONFIDENCE
+    # Sprite verdict from a weak-shape naming trap (bare word, word+number,
+    # hyphenated): the stem attests nothing — let content evidence decide.
+    if result == GAME_SPRITES_RESULT and _is_weak_sprite_stem(stem):
+        return FILENAME_WEAK_CONFIDENCE
+    # The generic &#34;Audio file&#34; catch-all (no music/podcast awareness) on an
+    # extension MediaHeuristicSignal can refine to audio_podcasts/audio_music.
+    if result == MEDIA_AUDIO_OTHER_RESULT and ext in REFINABLE_AUDIO_EXTENSIONS:
+        return FILENAME_WEAK_CONFIDENCE
+    return FILENAME_MATCH_CONFIDENCE</code></pre>
+</details>
+<div class="desc"><p>Confidence for a shared filename-rule verdict, downgraded to
+<code>FILENAME_WEAK_CONFIDENCE</code> when the rule is a weak catch-all the content
+signals should outscore, otherwise <code>FILENAME_MATCH_CONFIDENCE</code>.</p>
+<p>Pure and signal-local: it re-derives the downgrade condition from the
+(case-folded) <code>stem</code>, the returned <code>(category, subcategory)</code> and the
+extension, because the signal cannot see which shared rule fired.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="src.scoring.signals.filename_pattern.FilenamePatternSignal"><code class="flex name class">
+<span>class <span class="ident">FilenamePatternSignal</span></span>
+<span>(</span><span>game_sprite_keywords: List[str])</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FilenamePatternSignal:
+    &#34;&#34;&#34;One signal over the whole shared filename-pattern rule module.&#34;&#34;&#34;
+
+    name = &#34;filename_pattern&#34;
+    weight = W_FILENAME
+    cost_tier = &#34;cheap&#34;
+
+    def __init__(self, game_sprite_keywords: List[str]) -&gt; None:
+        # The caller&#39;s sprite vocabulary (gates the snake_case &#34;Game asset
+        # (named)&#34; rule inside the shared module).
+        self._game_sprite_keywords: List[str] = list(game_sprite_keywords)
+
+    def applies_to(self, ctx: FileContext) -&gt; bool:
+        return True
+
+    def run(self, ctx: FileContext) -&gt; List[CategoryScore]:
+        # Local state dict replaces the organizer&#39;s per-file side channel;
+        # provenance lands in evidence instead (§4 row 2).
+        state: Dict[str, object] = {}
+        path = ctx.pattern_path
+        result = classify_by_filename_patterns(
+            path,
+            game_sprite_keywords=self._game_sprite_keywords,
+            last_file_state=state,
+        )
+        if result is None:
+            return []
+        category, subcategory, company_name, people_names = result
+
+        evidence: Dict[str, object] = {}
+        if company_name:
+            evidence[EVIDENCE_COMPANY] = company_name
+        if people_names:
+            evidence[EVIDENCE_PEOPLE] = list(people_names)
+        if category == RESEARCH_CATEGORY:
+            evidence[EVIDENCE_SCHEMA_TYPE] = SCHOLARLY_ARTICLE_SCHEMA_TYPE
+            evidence[EVIDENCE_RESEARCH] = state.get(RESEARCH_STATE_KEY)
+
+        stem_lower = path.stem.lower()
+        confidence = graduated_filename_confidence(
+            stem_lower, category, subcategory, path.suffix.lower()
+        )
+
+        # Person-name stems on images: the shared rule files images named after
+        # known people as personal/contacts at full strength, but contact records
+        # are vCards/resumes — not photographs. Graduate to weak confidence for
+        # ImageObject files so content signals (PhotoCompositionSignal,
+        # MediaHeuristicSignal, CLIP) can outscore and decide the real bucket.
+        # Document-typed resumes (&#34;Alyshia_Ledlie_Resume.pdf&#34;) keep full confidence.
+        if (category, subcategory) == CONTACTS_RESULT and ctx.is_image:
+            confidence = FILENAME_WEAK_CONFIDENCE
+
+        # Stock-asset stems (&#34;stock-vector-*&#34;, &#34;pngtree-*&#34;): the stem explicitly
+        # asserts vector illustration / graphic template format. The shared rule
+        # fires &#34;Hyphenated asset&#34; → game_assets/sprites (already downgraded to
+        # weak confidence by the sprite trap graduation). Promote to
+        # media/graphics_other to match the explicit format claim; confidence
+        # stays at FILENAME_WEAK_CONFIDENCE so CLIP/GraphicDetectionSignal can
+        # confirm or override.
+        if (category, subcategory) == GAME_SPRITES_RESULT and _is_stock_asset_stem(stem_lower):
+            category, subcategory = &#34;media&#34;, &#34;graphics_other&#34;
+
+        return [
+            CategoryScore(
+                category=category,
+                subcategory=subcategory,
+                confidence=confidence,
+                signal_name=self.name,
+                evidence=evidence,
+            )
+        ]</code></pre>
+</details>
+<div class="desc"><p>One signal over the whole shared filename-pattern rule module.</p></div>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.scoring.signals.filename_pattern.FilenamePatternSignal.cost_tier"><code class="name">var <span class="ident">cost_tier</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.signals.filename_pattern.FilenamePatternSignal.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.signals.filename_pattern.FilenamePatternSignal.weight"><code class="name">var <span class="ident">weight</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="src.scoring.signals.filename_pattern.FilenamePatternSignal.applies_to"><code class="name flex">
+<span>def <span class="ident">applies_to</span></span>(<span>self, ctx: FileContext) ‑> bool</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def applies_to(self, ctx: FileContext) -&gt; bool:
+    return True</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="src.scoring.signals.filename_pattern.FilenamePatternSignal.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self, ctx: FileContext) ‑> List[CategoryScore]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self, ctx: FileContext) -&gt; List[CategoryScore]:
+    # Local state dict replaces the organizer&#39;s per-file side channel;
+    # provenance lands in evidence instead (§4 row 2).
+    state: Dict[str, object] = {}
+    path = ctx.pattern_path
+    result = classify_by_filename_patterns(
+        path,
+        game_sprite_keywords=self._game_sprite_keywords,
+        last_file_state=state,
+    )
+    if result is None:
+        return []
+    category, subcategory, company_name, people_names = result
+
+    evidence: Dict[str, object] = {}
+    if company_name:
+        evidence[EVIDENCE_COMPANY] = company_name
+    if people_names:
+        evidence[EVIDENCE_PEOPLE] = list(people_names)
+    if category == RESEARCH_CATEGORY:
+        evidence[EVIDENCE_SCHEMA_TYPE] = SCHOLARLY_ARTICLE_SCHEMA_TYPE
+        evidence[EVIDENCE_RESEARCH] = state.get(RESEARCH_STATE_KEY)
+
+    stem_lower = path.stem.lower()
+    confidence = graduated_filename_confidence(
+        stem_lower, category, subcategory, path.suffix.lower()
+    )
+
+    # Person-name stems on images: the shared rule files images named after
+    # known people as personal/contacts at full strength, but contact records
+    # are vCards/resumes — not photographs. Graduate to weak confidence for
+    # ImageObject files so content signals (PhotoCompositionSignal,
+    # MediaHeuristicSignal, CLIP) can outscore and decide the real bucket.
+    # Document-typed resumes (&#34;Alyshia_Ledlie_Resume.pdf&#34;) keep full confidence.
+    if (category, subcategory) == CONTACTS_RESULT and ctx.is_image:
+        confidence = FILENAME_WEAK_CONFIDENCE
+
+    # Stock-asset stems (&#34;stock-vector-*&#34;, &#34;pngtree-*&#34;): the stem explicitly
+    # asserts vector illustration / graphic template format. The shared rule
+    # fires &#34;Hyphenated asset&#34; → game_assets/sprites (already downgraded to
+    # weak confidence by the sprite trap graduation). Promote to
+    # media/graphics_other to match the explicit format claim; confidence
+    # stays at FILENAME_WEAK_CONFIDENCE so CLIP/GraphicDetectionSignal can
+    # confirm or override.
+    if (category, subcategory) == GAME_SPRITES_RESULT and _is_stock_asset_stem(stem_lower):
+        category, subcategory = &#34;media&#34;, &#34;graphics_other&#34;
+
+    return [
+        CategoryScore(
+            category=category,
+            subcategory=subcategory,
+            confidence=confidence,
+            signal_name=self.name,
+            evidence=evidence,
+        )
+    ]</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="src.scoring.signals" href="index.html">src.scoring.signals</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="src.scoring.signals.filename_pattern.graduated_filename_confidence" href="#src.scoring.signals.filename_pattern.graduated_filename_confidence">graduated_filename_confidence</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="src.scoring.signals.filename_pattern.FilenamePatternSignal" href="#src.scoring.signals.filename_pattern.FilenamePatternSignal">FilenamePatternSignal</a></code></h4>
+<ul class="">
+<li><code><a title="src.scoring.signals.filename_pattern.FilenamePatternSignal.applies_to" href="#src.scoring.signals.filename_pattern.FilenamePatternSignal.applies_to">applies_to</a></code></li>
+<li><code><a title="src.scoring.signals.filename_pattern.FilenamePatternSignal.cost_tier" href="#src.scoring.signals.filename_pattern.FilenamePatternSignal.cost_tier">cost_tier</a></code></li>
+<li><code><a title="src.scoring.signals.filename_pattern.FilenamePatternSignal.name" href="#src.scoring.signals.filename_pattern.FilenamePatternSignal.name">name</a></code></li>
+<li><code><a title="src.scoring.signals.filename_pattern.FilenamePatternSignal.run" href="#src.scoring.signals.filename_pattern.FilenamePatternSignal.run">run</a></code></li>
+<li><code><a title="src.scoring.signals.filename_pattern.FilenamePatternSignal.weight" href="#src.scoring.signals.filename_pattern.FilenamePatternSignal.weight">weight</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

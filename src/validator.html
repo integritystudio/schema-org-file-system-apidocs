@@ -50,6 +50,57 @@ comprehensive validation reports.</p>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="src.validator.ReportDict"><code class="flex name class">
+<span>class <span class="ident">ReportDict</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ReportDict(TypedDict):
+    &#34;&#34;&#34;``ValidationReport.to_dict()`` shape.&#34;&#34;&#34;
+    schema_type: str
+    valid: bool
+    statistics: Dict[str, int]
+    duration: float
+    messages: List[Dict[str, str]]
+    timestamp: str</code></pre>
+</details>
+<div class="desc"><p><code><a title="src.validator.ValidationReport.to_dict" href="#src.validator.ValidationReport.to_dict">ValidationReport.to_dict()</a></code> shape.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.validator.ReportDict.duration"><code class="name">var <span class="ident">duration</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.validator.ReportDict.messages"><code class="name">var <span class="ident">messages</span> : List[Dict[str, str]]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.validator.ReportDict.schema_type"><code class="name">var <span class="ident">schema_type</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.validator.ReportDict.statistics"><code class="name">var <span class="ident">statistics</span> : Dict[str, int]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.validator.ReportDict.timestamp"><code class="name">var <span class="ident">timestamp</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.validator.ReportDict.valid"><code class="name">var <span class="ident">valid</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
 <dt id="src.validator.SchemaValidator"><code class="flex name class">
 <span>class <span class="ident">SchemaValidator</span></span>
 </code></dt>
@@ -325,7 +376,7 @@ comprehensive validation reports.</p>
         &#34;&#34;&#34;
         return [self.validate(schema) for schema in schemas]
 
-    def generate_summary_report(self, reports: List[ValidationReport]) -&gt; Dict[str, Any]:
+    def generate_summary_report(self, reports: List[ValidationReport]) -&gt; SummaryReport:
         &#34;&#34;&#34;
         Generate summary report for batch validation.
 
@@ -362,24 +413,24 @@ comprehensive validation reports.</p>
 <dl>
 <dt id="src.validator.SchemaValidator.PROPERTY_TYPES"><code class="name">var <span class="ident">PROPERTY_TYPES</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.validator.SchemaValidator.SCHEMA_TYPES"><code class="name">var <span class="ident">SCHEMA_TYPES</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
 <dt id="src.validator.SchemaValidator.generate_summary_report"><code class="name flex">
-<span>def <span class="ident">generate_summary_report</span></span>(<span>self,<br>reports: List[<a title="src.validator.ValidationReport" href="#src.validator.ValidationReport">ValidationReport</a>]) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">generate_summary_report</span></span>(<span>self,<br>reports: List[<a title="src.validator.ValidationReport" href="#src.validator.ValidationReport">ValidationReport</a>]) ‑> <a title="src.validator.SummaryReport" href="#src.validator.SummaryReport">SummaryReport</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def generate_summary_report(self, reports: List[ValidationReport]) -&gt; Dict[str, Any]:
+<pre><code class="python">def generate_summary_report(self, reports: List[ValidationReport]) -&gt; SummaryReport:
     &#34;&#34;&#34;
     Generate summary report for batch validation.
 
@@ -405,13 +456,15 @@ comprehensive validation reports.</p>
     }</code></pre>
 </details>
 <div class="desc"><p>Generate summary report for batch validation.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>reports</code></strong></dt>
 <dd>List of validation reports</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Summary dictionary</p></div>
+<p>Returns
+-----=
+Summary dictionary</p></div>
 </dd>
 <dt id="src.validator.SchemaValidator.validate"><code class="name flex">
 <span>def <span class="ident">validate</span></span>(<span>self, schema_data: Dict[str, Any]) ‑> <a title="src.validator.ValidationReport" href="#src.validator.ValidationReport">ValidationReport</a></span>
@@ -459,13 +512,15 @@ comprehensive validation reports.</p>
     return report</code></pre>
 </details>
 <div class="desc"><p>Validate Schema.org structured data.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema_data</code></strong></dt>
 <dd>Schema.org data dictionary</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Validation report</p></div>
+<p>Returns
+-----=
+Validation report</p></div>
 </dd>
 <dt id="src.validator.SchemaValidator.validate_batch"><code class="name flex">
 <span>def <span class="ident">validate_batch</span></span>(<span>self, schemas: List[Dict[str, Any]]) ‑> List[<a title="src.validator.ValidationReport" href="#src.validator.ValidationReport">ValidationReport</a>]</span>
@@ -488,19 +543,77 @@ comprehensive validation reports.</p>
     return [self.validate(schema) for schema in schemas]</code></pre>
 </details>
 <div class="desc"><p>Validate multiple schemas.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schemas</code></strong></dt>
 <dd>List of schema dictionaries</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>List of validation reports</p></div>
+<p>Returns
+-----=
+List of validation reports</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.validator.SummaryReport"><code class="flex name class">
+<span>class <span class="ident">SummaryReport</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SummaryReport(TypedDict):
+    &#34;&#34;&#34;``SchemaValidator.generate_summary_report()`` shape.&#34;&#34;&#34;
+    total_schemas: int
+    valid_schemas: int
+    invalid_schemas: int
+    success_rate: float
+    total_errors: int
+    total_warnings: int
+    reports: List[ReportDict]</code></pre>
+</details>
+<div class="desc"><p><code><a title="src.validator.SchemaValidator.generate_summary_report" href="#src.validator.SchemaValidator.generate_summary_report">SchemaValidator.generate_summary_report()</a></code> shape.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.validator.SummaryReport.invalid_schemas"><code class="name">var <span class="ident">invalid_schemas</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.validator.SummaryReport.reports"><code class="name">var <span class="ident">reports</span> : List[<a title="src.validator.ReportDict" href="#src.validator.ReportDict">ReportDict</a>]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.validator.SummaryReport.success_rate"><code class="name">var <span class="ident">success_rate</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.validator.SummaryReport.total_errors"><code class="name">var <span class="ident">total_errors</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.validator.SummaryReport.total_schemas"><code class="name">var <span class="ident">total_schemas</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.validator.SummaryReport.total_warnings"><code class="name">var <span class="ident">total_warnings</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.validator.SummaryReport.valid_schemas"><code class="name">var <span class="ident">valid_schemas</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 </dd>
 <dt id="src.validator.ValidationLevel"><code class="flex name class">
 <span>class <span class="ident">ValidationLevel</span></span>
-<span>(</span><span>*args, **kwds)</span>
+<span>(</span><span>*values)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -523,19 +636,19 @@ comprehensive validation reports.</p>
 <dl>
 <dt id="src.validator.ValidationLevel.ERROR"><code class="name">var <span class="ident">ERROR</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.validator.ValidationLevel.INFO"><code class="name">var <span class="ident">INFO</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.validator.ValidationLevel.SUCCESS"><code class="name">var <span class="ident">SUCCESS</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.validator.ValidationLevel.WARNING"><code class="name">var <span class="ident">WARNING</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 </dd>
@@ -569,7 +682,7 @@ comprehensive validation reports.</p>
         self.suggestion = suggestion
         self.timestamp = datetime.now()
 
-    def to_dict(self) -&gt; Dict[str, Any]:
+    def to_dict(self) -&gt; Dict[str, str]:
         &#34;&#34;&#34;Convert to dictionary.&#34;&#34;&#34;
         result = {
             &#34;level&#34;: self.level.value,
@@ -590,8 +703,9 @@ comprehensive validation reports.</p>
 </details>
 <div class="desc"><p>Represents a validation message.</p>
 <p>Initialize validation message.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>level</code></strong></dt>
 <dd>Message level</dd>
 <dt><strong><code>message</code></strong></dt>
@@ -604,14 +718,14 @@ comprehensive validation reports.</p>
 <h3>Methods</h3>
 <dl>
 <dt id="src.validator.ValidationMessage.to_dict"><code class="name flex">
-<span>def <span class="ident">to_dict</span></span>(<span>self) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">to_dict</span></span>(<span>self) ‑> Dict[str, str]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_dict(self) -&gt; Dict[str, Any]:
+<pre><code class="python">def to_dict(self) -&gt; Dict[str, str]:
     &#34;&#34;&#34;Convert to dictionary.&#34;&#34;&#34;
     result = {
         &#34;level&#34;: self.level.value,
@@ -728,7 +842,7 @@ comprehensive validation reports.</p>
             return (self.end_time - self.start_time).total_seconds()
         return (datetime.now() - self.start_time).total_seconds()
 
-    def to_dict(self) -&gt; Dict[str, Any]:
+    def to_dict(self) -&gt; ReportDict:
         &#34;&#34;&#34;Convert to dictionary.&#34;&#34;&#34;
         return {
             &#34;schema_type&#34;: self.schema_type,
@@ -745,8 +859,6 @@ comprehensive validation reports.</p>
 
     def print_summary(self) -&gt; None:
         &#34;&#34;&#34;Print validation summary.&#34;&#34;&#34;
-        stats = self.get_statistics()
-
         if self.messages:
             for msg in self.messages:
                 print(f&#34;  {msg}&#34;)
@@ -760,8 +872,9 @@ comprehensive validation reports.</p>
 <p>Tracks validation messages, statistics, and provides
 detailed reporting capabilities.</p>
 <p>Initialize validation report.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema_type</code></strong></dt>
 <dd>Schema.org type being validated</dd>
 </dl></div>
@@ -822,8 +935,9 @@ detailed reporting capabilities.</p>
     )</code></pre>
 </details>
 <div class="desc"><p>Add validation message.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>level</code></strong></dt>
 <dd>Message level</dd>
 <dt><strong><code>message</code></strong></dt>
@@ -979,8 +1093,6 @@ detailed reporting capabilities.</p>
 </summary>
 <pre><code class="python">def print_summary(self) -&gt; None:
     &#34;&#34;&#34;Print validation summary.&#34;&#34;&#34;
-    stats = self.get_statistics()
-
     if self.messages:
         for msg in self.messages:
             print(f&#34;  {msg}&#34;)</code></pre>
@@ -988,14 +1100,14 @@ detailed reporting capabilities.</p>
 <div class="desc"><p>Print validation summary.</p></div>
 </dd>
 <dt id="src.validator.ValidationReport.to_dict"><code class="name flex">
-<span>def <span class="ident">to_dict</span></span>(<span>self) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">to_dict</span></span>(<span>self) ‑> <a title="src.validator.ReportDict" href="#src.validator.ReportDict">ReportDict</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_dict(self) -&gt; Dict[str, Any]:
+<pre><code class="python">def to_dict(self) -&gt; ReportDict:
     &#34;&#34;&#34;Convert to dictionary.&#34;&#34;&#34;
     return {
         &#34;schema_type&#34;: self.schema_type,
@@ -1040,6 +1152,17 @@ detailed reporting capabilities.</p>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
+<h4><code><a title="src.validator.ReportDict" href="#src.validator.ReportDict">ReportDict</a></code></h4>
+<ul class="two-column">
+<li><code><a title="src.validator.ReportDict.duration" href="#src.validator.ReportDict.duration">duration</a></code></li>
+<li><code><a title="src.validator.ReportDict.messages" href="#src.validator.ReportDict.messages">messages</a></code></li>
+<li><code><a title="src.validator.ReportDict.schema_type" href="#src.validator.ReportDict.schema_type">schema_type</a></code></li>
+<li><code><a title="src.validator.ReportDict.statistics" href="#src.validator.ReportDict.statistics">statistics</a></code></li>
+<li><code><a title="src.validator.ReportDict.timestamp" href="#src.validator.ReportDict.timestamp">timestamp</a></code></li>
+<li><code><a title="src.validator.ReportDict.valid" href="#src.validator.ReportDict.valid">valid</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="src.validator.SchemaValidator" href="#src.validator.SchemaValidator">SchemaValidator</a></code></h4>
 <ul class="">
 <li><code><a title="src.validator.SchemaValidator.PROPERTY_TYPES" href="#src.validator.SchemaValidator.PROPERTY_TYPES">PROPERTY_TYPES</a></code></li>
@@ -1047,6 +1170,18 @@ detailed reporting capabilities.</p>
 <li><code><a title="src.validator.SchemaValidator.generate_summary_report" href="#src.validator.SchemaValidator.generate_summary_report">generate_summary_report</a></code></li>
 <li><code><a title="src.validator.SchemaValidator.validate" href="#src.validator.SchemaValidator.validate">validate</a></code></li>
 <li><code><a title="src.validator.SchemaValidator.validate_batch" href="#src.validator.SchemaValidator.validate_batch">validate_batch</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.validator.SummaryReport" href="#src.validator.SummaryReport">SummaryReport</a></code></h4>
+<ul class="two-column">
+<li><code><a title="src.validator.SummaryReport.invalid_schemas" href="#src.validator.SummaryReport.invalid_schemas">invalid_schemas</a></code></li>
+<li><code><a title="src.validator.SummaryReport.reports" href="#src.validator.SummaryReport.reports">reports</a></code></li>
+<li><code><a title="src.validator.SummaryReport.success_rate" href="#src.validator.SummaryReport.success_rate">success_rate</a></code></li>
+<li><code><a title="src.validator.SummaryReport.total_errors" href="#src.validator.SummaryReport.total_errors">total_errors</a></code></li>
+<li><code><a title="src.validator.SummaryReport.total_schemas" href="#src.validator.SummaryReport.total_schemas">total_schemas</a></code></li>
+<li><code><a title="src.validator.SummaryReport.total_warnings" href="#src.validator.SummaryReport.total_warnings">total_warnings</a></code></li>
+<li><code><a title="src.validator.SummaryReport.valid_schemas" href="#src.validator.SummaryReport.valid_schemas">valid_schemas</a></code></li>
 </ul>
 </li>
 <li>

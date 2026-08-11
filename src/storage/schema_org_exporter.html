@@ -182,7 +182,7 @@ el.replaceWith(d);
     def get_graph_document(
         self,
         entity_classes: Optional[List[Type[SchemaOrgSerializable]]] = None,
-    ) -&gt; Dict[str, Any]:
+    ) -&gt; GraphDocument:
         &#34;&#34;&#34;Return a JSON-LD @graph document as a Python dict (no I/O).
 
         Useful for in-memory use, REST API responses, etc.
@@ -194,7 +194,9 @@ el.replaceWith(d);
             Dict with &#34;@context&#34; and &#34;@graph&#34; keys.
         &#34;&#34;&#34;
         records = self._collect_records(entity_classes)
-        graph_nodes = [{k: v for k, v in rec.items() if k != &#34;@context&#34;} for rec in records]
+        graph_nodes: List[SchemaMapping] = [
+            {k: v for k, v in rec.items() if k != &#34;@context&#34;} for rec in records
+        ]
         return {
             &#34;@context&#34;: SCHEMA_ORG_CONTEXT,
             &#34;@graph&#34;: graph_nodes,
@@ -208,7 +210,7 @@ el.replaceWith(d);
         self,
         output_path: Union[str, Path],
         entity_class: Type[SchemaOrgSerializable],
-        entity_ids: Sequence[Any],
+        entity_ids: Sequence[Union[str, int]],
         pretty: bool = True,
     ) -&gt; int:
         &#34;&#34;&#34;Export a filtered subset of entities by primary key.
@@ -329,7 +331,9 @@ el.replaceWith(d);
         &#34;&#34;&#34;
         from . import models as m
 
-        iterators = {
+        iterators: Dict[
+            Type[SchemaOrgSerializable], Callable[[], Iterator[Dict[str, Any]]]
+        ] = {
             m.File: lambda: self._iter_core_file_records(),
             m.Category: lambda: self._iter_core_category_records(),
             m.Company: lambda: self._iter_core_simple_records(m.Company, m.build_company_jsonld),
@@ -347,7 +351,7 @@ el.replaceWith(d);
     def _iter_filtered_records(
         self,
         entity_class: Type[SchemaOrgSerializable],
-        entity_ids: Sequence[Any],
+        entity_ids: Sequence[Union[str, int]],
     ) -&gt; Iterator[Dict[str, Any]]:
         &#34;&#34;&#34;Yield records for a subset of one entity class, by primary key.
 
@@ -368,12 +372,12 @@ el.replaceWith(d);
                 m.Location, m.build_location_jsonld, entity_ids
             )
         else:
-            pk = entity_class.__mapper__.primary_key[0]
+            pk = cast(Any, entity_class).__mapper__.primary_key[0]
             for row in self._session.query(entity_class).filter(pk.in_(entity_ids)).all():
                 yield row.to_schema_org()
 
     def _iter_core_simple_records(
-        self, cls, build_fn, pk_ids: Optional[Sequence[Any]] = None
+        self, cls, build_fn, pk_ids: Optional[Sequence[Union[str, int]]] = None
     ) -&gt; Iterator[Dict[str, Any]]:
         &#34;&#34;&#34;Yield records for an entity whose serialization reads no relationships.
 
@@ -440,7 +444,7 @@ el.replaceWith(d);
         ).scalars())
         ref = {r.id: _EntityRef(f&#34;urn:uuid:{r.canonical_id}&#34;, r.name) for r in rows}
 
-        children: Dict[Any, list] = {}
+        children: Dict[int, List[_EntityRef]] = {}
         for r in rows:
             if r.parent_id is not None:
                 children.setdefault(r.parent_id, []).append(ref[r.id])
@@ -451,7 +455,7 @@ el.replaceWith(d);
 
     def _load_file_refs(
         self, target_id_col, target_cls, file_ids: Optional[set] = None
-    ) -&gt; Dict[Any, list]:
+    ) -&gt; Dict[str, List[_EntityRef]]:
         &#34;&#34;&#34;Map file_id -&gt; ordered list of _EntityRef for one association table.
 
         Association rows are read in natural (insertion) order to match the order
@@ -479,7 +483,7 @@ el.replaceWith(d);
             tid: _EntityRef(f&#34;urn:uuid:{canon}&#34;, name)
             for tid, canon, name in self._session.execute(ref_stmt)
         }
-        result: Dict[Any, list] = {}
+        result: Dict[str, List[_EntityRef]] = {}
         for file_id, target_id in pairs:
             result.setdefault(file_id, []).append(refs[target_id])
         return result
@@ -488,7 +492,7 @@ el.replaceWith(d);
     # Context document helpers (S8)
     # ------------------------------------------------------------------
 
-    def get_context_document(self) -&gt; Dict[str, Any]:
+    def get_context_document(self) -&gt; Dict[str, Dict[str, str]]:
         &#34;&#34;&#34;Return the JSON-LD @context document as a Python dict.
 
         Delegates to :mod:`storage.schema_org_context`.
@@ -556,7 +560,7 @@ Pass <code>use_core=False</code> to force the ORM path.</p></div>
 <h3>Methods</h3>
 <dl>
 <dt id="src.storage.schema_org_exporter.SchemaOrgExporter.export_context"><code class="name flex">
-<span>def <span class="ident">export_context</span></span>(<span>self, output_path: pathlib.Path | str, pretty: bool = True) ‑> None</span>
+<span>def <span class="ident">export_context</span></span>(<span>self, output_path: str | pathlib.Path, pretty: bool = True) ‑> None</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -578,8 +582,9 @@ Pass <code>use_core=False</code> to force the ORM path.</p></div>
     export_context(output_path, pretty=pretty)</code></pre>
 </details>
 <div class="desc"><p>Save the JSON-LD @context document to a file.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>output_path</code></strong></dt>
 <dd>Destination file path.</dd>
 <dt><strong><code>pretty</code></strong></dt>
@@ -587,7 +592,7 @@ Pass <code>use_core=False</code> to force the ORM path.</p></div>
 </dl></div>
 </dd>
 <dt id="src.storage.schema_org_exporter.SchemaOrgExporter.export_entities_filtered"><code class="name flex">
-<span>def <span class="ident">export_entities_filtered</span></span>(<span>self,<br>output_path: pathlib.Path | str,<br>entity_class: Type[<a title="src.storage.schema_org_base.SchemaOrgSerializable" href="schema_org_base.html#src.storage.schema_org_base.SchemaOrgSerializable">SchemaOrgSerializable</a>],<br>entity_ids: Sequence[Any],<br>pretty: bool = True) ‑> int</span>
+<span>def <span class="ident">export_entities_filtered</span></span>(<span>self,<br>output_path: str | pathlib.Path,<br>entity_class: Type[<a title="src.storage.schema_org_base.SchemaOrgSerializable" href="schema_org_base.html#src.storage.schema_org_base.SchemaOrgSerializable">SchemaOrgSerializable</a>],<br>entity_ids: Sequence[str | int],<br>pretty: bool = True) ‑> int</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -598,7 +603,7 @@ Pass <code>use_core=False</code> to force the ORM path.</p></div>
     self,
     output_path: Union[str, Path],
     entity_class: Type[SchemaOrgSerializable],
-    entity_ids: Sequence[Any],
+    entity_ids: Sequence[Union[str, int]],
     pretty: bool = True,
 ) -&gt; int:
     &#34;&#34;&#34;Export a filtered subset of entities by primary key.
@@ -619,8 +624,9 @@ Pass <code>use_core=False</code> to force the ORM path.</p></div>
         )</code></pre>
 </details>
 <div class="desc"><p>Export a filtered subset of entities by primary key.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>output_path</code></strong></dt>
 <dd>Destination file path.</dd>
 <dt><strong><code>entity_class</code></strong></dt>
@@ -630,11 +636,12 @@ Pass <code>use_core=False</code> to force the ORM path.</p></div>
 <dt><strong><code>pretty</code></strong></dt>
 <dd>Whether to pretty-print.</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Number of entities written.</p></div>
+<p>Returns
+-----=
+Number of entities written.</p></div>
 </dd>
 <dt id="src.storage.schema_org_exporter.SchemaOrgExporter.export_to_file"><code class="name flex">
-<span>def <span class="ident">export_to_file</span></span>(<span>self,<br>output_path: pathlib.Path | str,<br>entity_classes: List[Type[<a title="src.storage.schema_org_base.SchemaOrgSerializable" href="schema_org_base.html#src.storage.schema_org_base.SchemaOrgSerializable">SchemaOrgSerializable</a>]] | None = None,<br>pretty: bool = True) ‑> int</span>
+<span>def <span class="ident">export_to_file</span></span>(<span>self,<br>output_path: str | pathlib.Path,<br>entity_classes: List[Type[<a title="src.storage.schema_org_base.SchemaOrgSerializable" href="schema_org_base.html#src.storage.schema_org_base.SchemaOrgSerializable">SchemaOrgSerializable</a>]] | None = None,<br>pretty: bool = True) ‑> int</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -664,8 +671,9 @@ Pass <code>use_core=False</code> to force the ORM path.</p></div>
         )</code></pre>
 </details>
 <div class="desc"><p>Export entities to a JSON file (array of JSON-LD objects).</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>output_path</code></strong></dt>
 <dd>Destination file path.</dd>
 <dt><strong><code>entity_classes</code></strong></dt>
@@ -674,11 +682,12 @@ Defaults to all registered entity types when None.</dd>
 <dt><strong><code>pretty</code></strong></dt>
 <dd>Whether to pretty-print (indent=2).</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Total number of entities written.</p></div>
+<p>Returns
+-----=
+Total number of entities written.</p></div>
 </dd>
 <dt id="src.storage.schema_org_exporter.SchemaOrgExporter.export_to_ndjson"><code class="name flex">
-<span>def <span class="ident">export_to_ndjson</span></span>(<span>self,<br>output_path: pathlib.Path | str,<br>entity_classes: List[Type[<a title="src.storage.schema_org_base.SchemaOrgSerializable" href="schema_org_base.html#src.storage.schema_org_base.SchemaOrgSerializable">SchemaOrgSerializable</a>]] | None = None) ‑> int</span>
+<span>def <span class="ident">export_to_ndjson</span></span>(<span>self,<br>output_path: str | pathlib.Path,<br>entity_classes: List[Type[<a title="src.storage.schema_org_base.SchemaOrgSerializable" href="schema_org_base.html#src.storage.schema_org_base.SchemaOrgSerializable">SchemaOrgSerializable</a>]] | None = None) ‑> int</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -715,18 +724,20 @@ Defaults to all registered entity types when None.</dd>
 <p>Each entity is serialized to a single line and written as it is produced,
 so memory stays flat regardless of export size. Suitable for streaming
 and large-scale processing.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>output_path</code></strong></dt>
 <dd>Destination file path.</dd>
 <dt><strong><code>entity_classes</code></strong></dt>
 <dd>List of SQLAlchemy model classes to export.</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Total number of entities written.</p></div>
+<p>Returns
+-----=
+Total number of entities written.</p></div>
 </dd>
 <dt id="src.storage.schema_org_exporter.SchemaOrgExporter.export_with_graph"><code class="name flex">
-<span>def <span class="ident">export_with_graph</span></span>(<span>self,<br>output_path: pathlib.Path | str,<br>entity_classes: List[Type[<a title="src.storage.schema_org_base.SchemaOrgSerializable" href="schema_org_base.html#src.storage.schema_org_base.SchemaOrgSerializable">SchemaOrgSerializable</a>]] | None = None,<br>pretty: bool = True) ‑> int</span>
+<span>def <span class="ident">export_with_graph</span></span>(<span>self,<br>output_path: str | pathlib.Path,<br>entity_classes: List[Type[<a title="src.storage.schema_org_base.SchemaOrgSerializable" href="schema_org_base.html#src.storage.schema_org_base.SchemaOrgSerializable">SchemaOrgSerializable</a>]] | None = None,<br>pretty: bool = True) ‑> int</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -786,8 +797,9 @@ and large-scale processing.</p>
 </code></pre>
 <p>Each entity in @graph omits its own @context (it is hoisted to the
 document root).</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>output_path</code></strong></dt>
 <dd>Destination file path.</dd>
 <dt><strong><code>entity_classes</code></strong></dt>
@@ -795,18 +807,19 @@ document root).</p>
 <dt><strong><code>pretty</code></strong></dt>
 <dd>Whether to pretty-print (indent=2).</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Total number of entities written.</p></div>
+<p>Returns
+-----=
+Total number of entities written.</p></div>
 </dd>
 <dt id="src.storage.schema_org_exporter.SchemaOrgExporter.get_context_document"><code class="name flex">
-<span>def <span class="ident">get_context_document</span></span>(<span>self) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">get_context_document</span></span>(<span>self) ‑> Dict[str, Dict[str, str]]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_context_document(self) -&gt; Dict[str, Any]:
+<pre><code class="python">def get_context_document(self) -&gt; Dict[str, Dict[str, str]]:
     &#34;&#34;&#34;Return the JSON-LD @context document as a Python dict.
 
     Delegates to :mod:`storage.schema_org_context`.
@@ -819,11 +832,12 @@ document root).</p>
 </details>
 <div class="desc"><p>Return the JSON-LD @context document as a Python dict.</p>
 <p>Delegates to :mod:<code>storage.schema_org_context</code>.</p>
-<h2 id="returns">Returns</h2>
-<p>Dict containing the standalone @context document.</p></div>
+<p>Returns
+-----=
+Dict containing the standalone @context document.</p></div>
 </dd>
 <dt id="src.storage.schema_org_exporter.SchemaOrgExporter.get_graph_document"><code class="name flex">
-<span>def <span class="ident">get_graph_document</span></span>(<span>self,<br>entity_classes: List[Type[<a title="src.storage.schema_org_base.SchemaOrgSerializable" href="schema_org_base.html#src.storage.schema_org_base.SchemaOrgSerializable">SchemaOrgSerializable</a>]] | None = None) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">get_graph_document</span></span>(<span>self,<br>entity_classes: List[Type[<a title="src.storage.schema_org_base.SchemaOrgSerializable" href="schema_org_base.html#src.storage.schema_org_base.SchemaOrgSerializable">SchemaOrgSerializable</a>]] | None = None) ‑> <a title="src.schema_types.GraphDocument" href="../schema_types.html#src.schema_types.GraphDocument">GraphDocument</a></span>
 </code></dt>
 <dd>
 <details class="source">
@@ -833,7 +847,7 @@ document root).</p>
 <pre><code class="python">def get_graph_document(
     self,
     entity_classes: Optional[List[Type[SchemaOrgSerializable]]] = None,
-) -&gt; Dict[str, Any]:
+) -&gt; GraphDocument:
     &#34;&#34;&#34;Return a JSON-LD @graph document as a Python dict (no I/O).
 
     Useful for in-memory use, REST API responses, etc.
@@ -845,7 +859,9 @@ document root).</p>
         Dict with &#34;@context&#34; and &#34;@graph&#34; keys.
     &#34;&#34;&#34;
     records = self._collect_records(entity_classes)
-    graph_nodes = [{k: v for k, v in rec.items() if k != &#34;@context&#34;} for rec in records]
+    graph_nodes: List[SchemaMapping] = [
+        {k: v for k, v in rec.items() if k != &#34;@context&#34;} for rec in records
+    ]
     return {
         &#34;@context&#34;: SCHEMA_ORG_CONTEXT,
         &#34;@graph&#34;: graph_nodes,
@@ -853,13 +869,15 @@ document root).</p>
 </details>
 <div class="desc"><p>Return a JSON-LD @graph document as a Python dict (no I/O).</p>
 <p>Useful for in-memory use, REST API responses, etc.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>entity_classes</code></strong></dt>
 <dd>List of SQLAlchemy model classes to export.</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Dict with "@context" and "@graph" keys.</p></div>
+<p>Returns
+-----=
+Dict with "@context" and "@graph" keys.</p></div>
 </dd>
 </dl>
 </dd>

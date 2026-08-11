@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>src.classifiers.person_name_validator API documentation</title>
+<meta name="description" content="Layered, local-only person-name confidence gate …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>src.classifiers.person_name_validator</code></h1>
+</header>
+<section id="section-intro">
+<p>Layered, local-only person-name confidence gate.</p>
+<p>Replaces the leaky substring denylist with a composite score from several weak
+signals, routed three ways (auto_accept / review / reject). Designed per
+<code>docs/plans/PERSON_NAME_VALIDATION_PLAN.md</code>.</p>
+<p>Layers (each optional; an unavailable layer scores <code>None</code> and is dropped from
+the composite so the gate degrades gracefully):</p>
+<pre><code>L0 denylist     fast-path reject (absorbs graph_store._PERSON_NAME_DENYLIST)
+L1 nameparser   shape: non-empty first AND last
+L2 probablepeople  CRF tag type must be 'Person'
+L3 gazetteer    Census given-name + surname membership
+</code></pre>
+<p>The composite is a weighted mean over available layers; <code>&gt;= AUTO_ACCEPT</code> →
+auto_accept, <code>&lt;= REJECT</code> → reject, else review. Two hard rules bias ambiguity
+toward review (never auto_accept): a failed shape (L1) caps routing at review,
+and a zero gazetteer (L3) alone never forces reject when L1+L2 both pass
+(non-Anglo-name bias guard).</p>
+<p>No network calls. All external libraries are imported lazily inside try/except
+so <code>src/classifiers</code> works without the <code>names</code> extra installed.</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="src.classifiers.person_name_validator.available_layers"><code class="name flex">
+<span>def <span class="ident">available_layers</span></span>(<span>) ‑> Dict[str, bool]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def available_layers() -&gt; Dict[str, bool]:
+    &#34;&#34;&#34;Report which optional layers are usable (for ``organize-files health``).&#34;&#34;&#34;
+    return {
+        &#34;denylist&#34;: True,
+        &#34;shape&#34;: _nameparser_available(),
+        &#34;probablepeople&#34;: _probablepeople_available(),
+        &#34;gazetteer&#34;: _load_gazetteer() is not None,
+    }</code></pre>
+</details>
+<div class="desc"><p>Report which optional layers are usable (for <code>organize-files health</code>).</p></div>
+</dd>
+<dt id="src.classifiers.person_name_validator.is_denylisted"><code class="name flex">
+<span>def <span class="ident">is_denylisted</span></span>(<span>name: str) ‑> bool</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_denylisted(name: str) -&gt; bool:
+    &#34;&#34;&#34;L0-only check: ``name`` contains a whole-word denylist term.
+
+    Cheap enough for extraction-time filtering (no optional scoring layers),
+    so document-heading bigrams like &#34;Insurance Policy&#34; never enter the
+    people-name stream at all.
+    &#34;&#34;&#34;
+    return _DENYLIST_RE.search(_normalize(name).lower()) is not None</code></pre>
+</details>
+<div class="desc"><p>L0-only check: <code>name</code> contains a whole-word denylist term.</p>
+<p>Cheap enough for extraction-time filtering (no optional scoring layers),
+so document-heading bigrams like "Insurance Policy" never enter the
+people-name stream at all.</p></div>
+</dd>
+<dt id="src.classifiers.person_name_validator.validate_person_name"><code class="name flex">
+<span>def <span class="ident">validate_person_name</span></span>(<span>name: str) ‑> <a title="src.classifiers.person_name_validator.PersonNameValidation" href="#src.classifiers.person_name_validator.PersonNameValidation">PersonNameValidation</a></span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def validate_person_name(name: str) -&gt; PersonNameValidation:
+    &#34;&#34;&#34;Score ``name`` across all available layers and route it three ways.&#34;&#34;&#34;
+    clean = _normalize(name)
+    reasons: List[str] = []
+    layer_scores: Dict[str, Optional[float]] = {
+        &#34;denylist&#34;: None,
+        &#34;shape&#34;: None,
+        &#34;probablepeople&#34;: None,
+        &#34;gazetteer&#34;: None,
+    }
+
+    # L0 denylist — immediate reject, short-circuit (whole-word match).
+    match = _DENYLIST_RE.search(clean.lower())
+    if match is not None:
+        layer_scores[&#34;denylist&#34;] = 0.0
+        reasons.append(f&#34;denylist: contains {match.group(0)!r}&#34;)
+        return PersonNameValidation(clean, &#34;reject&#34;, 0.0, layer_scores, reasons)
+    layer_scores[&#34;denylist&#34;] = 1.0
+
+    shape = _score_shape(clean)
+    pp_score = _score_probablepeople(clean)
+    gaz = _score_gazetteer(clean)
+    layer_scores.update(shape=shape, probablepeople=pp_score, gazetteer=gaz)
+
+    weighted: List[Tuple[float, float]] = []  # (weight, score)
+    if shape is not None:
+        weighted.append((_WEIGHT_SHAPE, shape))
+        reasons.append(f&#34;shape={shape:.0%}&#34;)
+    if pp_score is not None:
+        weighted.append((_WEIGHT_PROBABLEPEOPLE, pp_score))
+        reasons.append(f&#34;probablepeople={pp_score:.0%}&#34;)
+    if gaz is not None:
+        weighted.append((_WEIGHT_GAZETTEER, gaz))
+        reasons.append(f&#34;gazetteer={gaz:.0%}&#34;)
+
+    if weighted:
+        total_w = sum(w for w, _ in weighted)
+        composite = sum(w * s for w, s in weighted) / total_w
+    else:
+        # No optional layers installed: only the denylist ran. Never
+        # auto_accept on nothing — route to review.
+        composite = 0.5
+        reasons.append(&#34;no optional layers available → review&#34;)
+
+    # Hard rules (bias ambiguity toward review, never toward auto_accept).
+    shape_failed = shape == 0.0
+    # Partial gazetteer corroboration: only ONE of first/last is a known
+    # Census name. Common for event/org names that end in a word coinciding
+    # with a surname (&#34;Morning Train&#34;) — probablepeople still tags these
+    # &#39;Person&#39;, so without this guard they auto_accept and spawn a spurious
+    # Person/{Name}/ folder. Requiring BOTH names known for auto_accept keeps
+    # precision high; unknown/non-Anglo names route to the review queue.
+    gazetteer_partial = gaz is not None and gaz &lt; 1.0
+    # Ambiguous given name: first token is a common English word (season, month,
+    # virtue, natural phenomenon) that also appears in Census given-name lists.
+    # When gaz=1.0 with such a first token, the gazetteer cannot distinguish a
+    # person (&#34;Summer Hill&#34;) from a location/event (&#34;Summer Hill Festival&#34;) —
+    # both score identically. Cap at review so a human can confirm.
+    # Derivation: see _AMBIGUOUS_GIVEN_NAMES constant above.
+    tokens_lower = clean.lower().split()
+    ambiguous_given = (
+        gaz is not None
+        and gaz &gt;= 1.0  # would otherwise satisfy the gazetteer guard
+        and bool(tokens_lower)
+        and tokens_lower[0] in _AMBIGUOUS_GIVEN_NAMES
+    )
+
+    if composite &gt;= AUTO_ACCEPT_THRESHOLD:
+        decision: RouteDecision = &#34;auto_accept&#34;
+    elif composite &lt;= REJECT_THRESHOLD:
+        decision = &#34;reject&#34;
+    else:
+        decision = &#34;review&#34;
+
+    if decision == &#34;auto_accept&#34; and shape_failed:
+        decision = &#34;review&#34;
+        reasons.append(&#34;shape failed → capped at review&#34;)
+    if decision == &#34;auto_accept&#34; and gazetteer_partial:
+        decision = &#34;review&#34;
+        reasons.append(&#34;gazetteer not fully corroborated → capped at review&#34;)
+    if decision == &#34;auto_accept&#34; and ambiguous_given:
+        decision = &#34;review&#34;
+        reasons.append(f&#34;ambiguous given name {tokens_lower[0]!r} → capped at review&#34;)
+
+    return PersonNameValidation(clean, decision, round(composite, 4), layer_scores, reasons)</code></pre>
+</details>
+<div class="desc"><p>Score <code>name</code> across all available layers and route it three ways.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="src.classifiers.person_name_validator.PersonNameValidation"><code class="flex name class">
+<span>class <span class="ident">PersonNameValidation</span></span>
+<span>(</span><span>name: str,<br>decision: RouteDecision,<br>score: float,<br>layer_scores: Dict[str, Optional[float]],<br>reasons: List[str])</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass(frozen=True)
+class PersonNameValidation:
+    &#34;&#34;&#34;Outcome of :func:`validate_person_name`.&#34;&#34;&#34;
+
+    name: str
+    decision: RouteDecision
+    score: float
+    layer_scores: Dict[str, Optional[float]]
+    reasons: List[str]</code></pre>
+</details>
+<div class="desc"><p>Outcome of :func:<code><a title="src.classifiers.person_name_validator.validate_person_name" href="#src.classifiers.person_name_validator.validate_person_name">validate_person_name()</a></code>.</p></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="src.classifiers.person_name_validator.PersonNameValidation.decision"><code class="name">var <span class="ident">decision</span> : Literal['auto_accept', 'review', 'reject']</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.classifiers.person_name_validator.PersonNameValidation.layer_scores"><code class="name">var <span class="ident">layer_scores</span> : Dict[str, float | None]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.classifiers.person_name_validator.PersonNameValidation.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.classifiers.person_name_validator.PersonNameValidation.reasons"><code class="name">var <span class="ident">reasons</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.classifiers.person_name_validator.PersonNameValidation.score"><code class="name">var <span class="ident">score</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="src.classifiers" href="index.html">src.classifiers</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="src.classifiers.person_name_validator.available_layers" href="#src.classifiers.person_name_validator.available_layers">available_layers</a></code></li>
+<li><code><a title="src.classifiers.person_name_validator.is_denylisted" href="#src.classifiers.person_name_validator.is_denylisted">is_denylisted</a></code></li>
+<li><code><a title="src.classifiers.person_name_validator.validate_person_name" href="#src.classifiers.person_name_validator.validate_person_name">validate_person_name</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="src.classifiers.person_name_validator.PersonNameValidation" href="#src.classifiers.person_name_validator.PersonNameValidation">PersonNameValidation</a></code></h4>
+<ul class="">
+<li><code><a title="src.classifiers.person_name_validator.PersonNameValidation.decision" href="#src.classifiers.person_name_validator.PersonNameValidation.decision">decision</a></code></li>
+<li><code><a title="src.classifiers.person_name_validator.PersonNameValidation.layer_scores" href="#src.classifiers.person_name_validator.PersonNameValidation.layer_scores">layer_scores</a></code></li>
+<li><code><a title="src.classifiers.person_name_validator.PersonNameValidation.name" href="#src.classifiers.person_name_validator.PersonNameValidation.name">name</a></code></li>
+<li><code><a title="src.classifiers.person_name_validator.PersonNameValidation.reasons" href="#src.classifiers.person_name_validator.PersonNameValidation.reasons">reasons</a></code></li>
+<li><code><a title="src.classifiers.person_name_validator.PersonNameValidation.score" href="#src.classifiers.person_name_validator.PersonNameValidation.score">score</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

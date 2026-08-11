@@ -239,8 +239,9 @@ def to_defined_term(
     return result</code></pre>
 </details>
 <div class="desc"><p>Serialize a category as a schema.org DefinedTerm (primary representation).</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>canonical_id</code></strong></dt>
 <dd>Canonical UUID used to build the @id IRI.</dd>
 <dt><strong><code>name</code></strong></dt>
@@ -260,8 +261,9 @@ def to_defined_term(
 <dt><strong><code>color</code></strong></dt>
 <dd>Optional hex color string.</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>JSON-LD dict with @context, @type DefinedTerm.</p></div>
+<p>Returns
+-----=
+JSON-LD dict with @context, @type DefinedTerm.</p></div>
 </dd>
 <dt id="src.storage.schema_org_variants.CategoryVariants.to_intangible"><code class="name flex">
 <span>def <span class="ident">to_intangible</span></span>(<span>canonical_id: str, name: str, description: str | None = None) ‑> Dict[str, Any]</span>
@@ -303,8 +305,9 @@ def to_intangible(
 </details>
 <div class="desc"><p>Serialize a category as a simplified schema.org Intangible.</p>
 <p>Useful for lightweight consumers that do not need full taxonomy context.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>canonical_id</code></strong></dt>
 <dd>Canonical UUID used to build the @id IRI.</dd>
 <dt><strong><code>name</code></strong></dt>
@@ -312,8 +315,9 @@ def to_intangible(
 <dt><strong><code>description</code></strong></dt>
 <dd>Optional description.</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>JSON-LD dict with @context, @type Intangible.</p></div>
+<p>Returns
+-----=
+JSON-LD dict with @context, @type Intangible.</p></div>
 </dd>
 </dl>
 </dd>
@@ -535,8 +539,9 @@ def to_creative_work(
     return result</code></pre>
 </details>
 <div class="desc"><p>Serialize a file as a generic schema.org CreativeWork.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>iri</code></strong></dt>
 <dd>@id IRI for this file.</dd>
 <dt><strong><code>name</code></strong></dt>
@@ -558,8 +563,9 @@ def to_creative_work(
 <dt><strong><code>mentions</code></strong></dt>
 <dd>List of {"@type", "@id", "name"} dicts for entity mentions.</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>JSON-LD dict with @context, @type CreativeWork.</p></div>
+<p>Returns
+-----=
+JSON-LD dict with @context, @type CreativeWork.</p></div>
 </dd>
 <dt id="src.storage.schema_org_variants.FileVariants.to_media_object"><code class="name flex">
 <span>def <span class="ident">to_media_object</span></span>(<span>iri: str,<br>name: str,<br>schema_type: str,<br>encoding_format: str | None = None,<br>content_size: int | None = None,<br>width: int | None = None,<br>height: int | None = None,<br>duration: str | None = None,<br>date_created: str | None = None,<br>url: str | None = None,<br>content_location: Dict[str, Any] | None = None) ‑> Dict[str, Any]</span>
@@ -635,8 +641,9 @@ def to_media_object(
     return result</code></pre>
 </details>
 <div class="desc"><p>Serialize a file as a media-specific schema.org MediaObject subtype.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>iri</code></strong></dt>
 <dd>@id IRI for this file.</dd>
 <dt><strong><code>name</code></strong></dt>
@@ -660,8 +667,9 @@ def to_media_object(
 <dt><strong><code>content_location</code></strong></dt>
 <dd>Nested Place dict with geo coordinates.</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>JSON-LD dict with @context, @type set to schema_type.</p></div>
+<p>Returns
+-----=
+JSON-LD dict with @context, @type set to schema_type.</p></div>
 </dd>
 </dl>
 </dd>
@@ -719,7 +727,7 @@ def to_media_object(
             result[&#34;jobTitle&#34;] = job_title
 
         if works_for_iri or works_for_name:
-            works_for: Dict[str, Any] = {&#34;@type&#34;: &#34;Organization&#34;}
+            works_for: Dict[str, str] = {&#34;@type&#34;: &#34;Organization&#34;}
             if works_for_iri:
                 works_for[&#34;@id&#34;] = works_for_iri
             if works_for_name:
@@ -727,7 +735,7 @@ def to_media_object(
             result[&#34;worksFor&#34;] = works_for
 
         if work_location_iri or work_location_name:
-            work_location: Dict[str, Any] = {&#34;@type&#34;: &#34;Place&#34;}
+            work_location: Dict[str, str] = {&#34;@type&#34;: &#34;Place&#34;}
             if work_location_iri:
                 work_location[&#34;@id&#34;] = work_location_iri
             if work_location_name:
@@ -790,7 +798,7 @@ def to_person_with_context(
         result[&#34;jobTitle&#34;] = job_title
 
     if works_for_iri or works_for_name:
-        works_for: Dict[str, Any] = {&#34;@type&#34;: &#34;Organization&#34;}
+        works_for: Dict[str, str] = {&#34;@type&#34;: &#34;Organization&#34;}
         if works_for_iri:
             works_for[&#34;@id&#34;] = works_for_iri
         if works_for_name:
@@ -798,7 +806,7 @@ def to_person_with_context(
         result[&#34;worksFor&#34;] = works_for
 
     if work_location_iri or work_location_name:
-        work_location: Dict[str, Any] = {&#34;@type&#34;: &#34;Place&#34;}
+        work_location: Dict[str, str] = {&#34;@type&#34;: &#34;Place&#34;}
         if work_location_iri:
             work_location[&#34;@id&#34;] = work_location_iri
         if work_location_name:
@@ -808,8 +816,9 @@ def to_person_with_context(
     return result</code></pre>
 </details>
 <div class="desc"><p>Serialize a person with optional organizational relationships.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>canonical_id</code></strong></dt>
 <dd>Canonical UUID used to build the @id IRI.</dd>
 <dt><strong><code>name</code></strong></dt>
@@ -829,8 +838,9 @@ def to_person_with_context(
 <dt><strong><code>mention_count</code></strong></dt>
 <dd>Number of file mentions.</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>JSON-LD dict with @context, @type Person.</p></div>
+<p>Returns
+-----=
+JSON-LD dict with @context, @type Person.</p></div>
 </dd>
 </dl>
 </dd>

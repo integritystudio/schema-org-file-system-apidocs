@@ -41,6 +41,10 @@ el.replaceWith(d);
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
+<dt><code class="name"><a title="src.analyzers.address_extractor" href="address_extractor.html">src.analyzers.address_extractor</a></code></dt>
+<dd>
+<div class="desc"><p>Extract a US postal address from document text (library-driven) …</p></div>
+</dd>
 <dt><code class="name"><a title="src.analyzers.image_analyzer" href="image_analyzer.html">src.analyzers.image_analyzer</a></code></dt>
 <dd>
 <div class="desc"><p>Image content analysis using CLIP zero-shot classification and OpenCV face detection …</p></div>
@@ -53,6 +57,10 @@ el.replaceWith(d);
 <dd>
 <div class="desc"><p>Text extraction from images, PDFs, Word documents, and Excel spreadsheets.</p></div>
 </dd>
+<dt><code class="name"><a title="src.analyzers.text_redaction" href="text_redaction.html">src.analyzers.text_redaction</a></code></dt>
+<dd>
+<div class="desc"><p>PII redaction for persisted extracted text (medical and identity files) …</p></div>
+</dd>
 </dl>
 </section>
 <section>
@@ -64,7 +72,7 @@ el.replaceWith(d);
 <dl>
 <dt id="src.analyzers.ImageContentAnalyzer"><code class="flex name class">
 <span>class <span class="ident">ImageContentAnalyzer</span></span>
-<span>(</span><span>cost_calculator: Any = None)</span>
+<span>(</span><span>cost_calculator: CostROICalculator | None = None)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -74,14 +82,14 @@ el.replaceWith(d);
 <pre><code class="python">class ImageContentAnalyzer:
     &#34;&#34;&#34;Analyzes image content using computer vision.&#34;&#34;&#34;
 
-    def __init__(self, cost_calculator: Any = None) -&gt; None:
+    def __init__(self, cost_calculator: Optional[&#34;CostROICalculator&#34;] = None) -&gt; None:
         self.vision_available = _CV2_AVAILABLE and (CLIP_AVAILABLE or CLIP_CACHE_AVAILABLE)
         self.face_cascade = None
         self.cost_calculator = cost_calculator
 
         if _CV2_AVAILABLE:
             try:
-                cascade_path = cv2.data.haarcascades + &#34;haarcascade_frontalface_default.xml&#34;
+                cascade_path = cv2.data.haarcascades + &#34;haarcascade_frontalface_default.xml&#34;  # type: ignore[attr-defined]
                 self.face_cascade = cv2.CascadeClassifier(cascade_path)
             except Exception as e:
                 print(f&#34;Warning: Could not load face cascade: {e}&#34;)
@@ -192,14 +200,13 @@ el.replaceWith(d);
 
         interior_score = max(scores.get(cat, 0) for cat in _INTERIOR_CATEGORIES)
         people_score = scores.get(&#34;a photo of people&#34;, 0)
-        screenshot_score = scores.get(&#34;a screenshot&#34;, 0)
+        screenshot_score = scores.get(_SCREENSHOT_LABEL, 0)
 
         is_interior = interior_score &gt; _INTERIOR_SCORE_THRESHOLD
-        clip_has_people = people_score &gt; _PEOPLE_SCORE_THRESHOLD
         has_people = (people_score &gt; _PEOPLE_SCORE_LOW_THRESHOLD or has_faces) and not (
             screenshot_score &gt; _SCREENSHOT_SCORE_THRESHOLD
         )
-        is_home_interior_no_people = is_interior and not (clip_has_people or has_faces)
+        is_home_interior_no_people = is_interior and not has_people
 
         return (has_people, is_home_interior_no_people, scores)
 
@@ -220,7 +227,7 @@ el.replaceWith(d);
 
         people_score = scores.get(&#34;a photo of people&#34;, 0)
         has_faces = self.detect_people(image_path)
-        screenshot_score = scores.get(&#34;a screenshot&#34;, 0)
+        screenshot_score = scores.get(_SCREENSHOT_LABEL, 0)
         is_screenshot = screenshot_score &gt; _SCREENSHOT_SCORE_THRESHOLD
 
         has_people = (people_score &gt; _PEOPLE_SCORE_LOW_THRESHOLD or has_faces) and not is_screenshot
@@ -258,20 +265,20 @@ el.replaceWith(d);
 
     interior_score = max(scores.get(cat, 0) for cat in _INTERIOR_CATEGORIES)
     people_score = scores.get(&#34;a photo of people&#34;, 0)
-    screenshot_score = scores.get(&#34;a screenshot&#34;, 0)
+    screenshot_score = scores.get(_SCREENSHOT_LABEL, 0)
 
     is_interior = interior_score &gt; _INTERIOR_SCORE_THRESHOLD
-    clip_has_people = people_score &gt; _PEOPLE_SCORE_THRESHOLD
     has_people = (people_score &gt; _PEOPLE_SCORE_LOW_THRESHOLD or has_faces) and not (
         screenshot_score &gt; _SCREENSHOT_SCORE_THRESHOLD
     )
-    is_home_interior_no_people = is_interior and not (clip_has_people or has_faces)
+    is_home_interior_no_people = is_interior and not has_people
 
     return (has_people, is_home_interior_no_people, scores)</code></pre>
 </details>
 <div class="desc"><p>Run CLIP inference once and return both organization-relevant flags.</p>
-<h2 id="returns">Returns</h2>
-<p>Tuple of (has_people, is_home_interior_no_people, scores)</p></div>
+<p>Returns
+-----=
+Tuple of (has_people, is_home_interior_no_people, scores)</p></div>
 </dd>
 <dt id="src.analyzers.ImageContentAnalyzer.classify_image_content"><code class="name flex">
 <span>def <span class="ident">classify_image_content</span></span>(<span>self, image_path: pathlib.Path) ‑> Dict[str, float]</span>
@@ -306,8 +313,9 @@ el.replaceWith(d);
         return {}</code></pre>
 </details>
 <div class="desc"><p>Classify image content using CLIP zero-shot classification.</p>
-<h2 id="returns">Returns</h2>
-<p>Dictionary of category -&gt; confidence score</p></div>
+<p>Returns
+-----=
+Dictionary of category -&gt; confidence score</p></div>
 </dd>
 <dt id="src.analyzers.ImageContentAnalyzer.detect_people"><code class="name flex">
 <span>def <span class="ident">detect_people</span></span>(<span>self, image_path: pathlib.Path) ‑> bool</span>
@@ -348,8 +356,9 @@ el.replaceWith(d);
             return False</code></pre>
 </details>
 <div class="desc"><p>Detect if there are people in the image using face detection.</p>
-<h2 id="returns">Returns</h2>
-<p>True if people detected, False otherwise</p></div>
+<p>Returns
+-----=
+True if people detected, False otherwise</p></div>
 </dd>
 <dt id="src.analyzers.ImageContentAnalyzer.has_people_in_photo"><code class="name flex">
 <span>def <span class="ident">has_people_in_photo</span></span>(<span>self, image_path: pathlib.Path) ‑> Tuple[bool, Dict[str, float]]</span>
@@ -376,7 +385,7 @@ el.replaceWith(d);
 
     people_score = scores.get(&#34;a photo of people&#34;, 0)
     has_faces = self.detect_people(image_path)
-    screenshot_score = scores.get(&#34;a screenshot&#34;, 0)
+    screenshot_score = scores.get(_SCREENSHOT_LABEL, 0)
     is_screenshot = screenshot_score &gt; _SCREENSHOT_SCORE_THRESHOLD
 
     has_people = (people_score &gt; _PEOPLE_SCORE_LOW_THRESHOLD or has_faces) and not is_screenshot
@@ -384,8 +393,9 @@ el.replaceWith(d);
     return (has_people, scores)</code></pre>
 </details>
 <div class="desc"><p>Check if image contains people (for social photos).</p>
-<h2 id="returns">Returns</h2>
-<p>Tuple of (has_people, classification_scores)</p></div>
+<p>Returns
+-----=
+Tuple of (has_people, classification_scores)</p></div>
 </dd>
 <dt id="src.analyzers.ImageContentAnalyzer.is_home_interior_no_people"><code class="name flex">
 <span>def <span class="ident">is_home_interior_no_people</span></span>(<span>self, image_path: pathlib.Path) ‑> Tuple[bool, Dict[str, float]]</span>
@@ -420,14 +430,15 @@ el.replaceWith(d);
     return (is_interior and not has_people, scores)</code></pre>
 </details>
 <div class="desc"><p>Check if image is a home interior without people.</p>
-<h2 id="returns">Returns</h2>
-<p>Tuple of (is_interior_no_people, classification_scores)</p></div>
+<p>Returns
+-----=
+Tuple of (is_interior_no_people, classification_scores)</p></div>
 </dd>
 </dl>
 </dd>
 <dt id="src.analyzers.ImageMetadataParser"><code class="flex name class">
 <span>class <span class="ident">ImageMetadataParser</span></span>
-<span>(</span><span>cost_calculator: Any = None)</span>
+<span>(</span><span>cost_calculator: CostROICalculator | None = None)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -437,7 +448,7 @@ el.replaceWith(d);
 <pre><code class="python">class ImageMetadataParser:
     &#34;&#34;&#34;Parses image metadata including EXIF, GPS, and timestamps.&#34;&#34;&#34;
 
-    def __init__(self, cost_calculator: Any = None) -&gt; None:
+    def __init__(self, cost_calculator: Optional[&#34;CostROICalculator&#34;] = None) -&gt; None:
         &#34;&#34;&#34;
         Initialize the metadata parser.
 
@@ -447,13 +458,26 @@ el.replaceWith(d);
         self.metadata_available = METADATA_AVAILABLE
         self.geocoder = None
         self.cost_calculator = cost_calculator
+        # Rate-limited forward-geocode callable (Nominatim policy: &lt;=1 req/s).
+        # Set alongside self.geocoder; None when geocoding is unavailable.
+        self._forward_geocode = None
 
         if self.metadata_available:
             try:
                 self.geocoder = Nominatim(user_agent=&#34;file_organizer_v1.0&#34;, timeout=5)
+                # 1 req/s honors OSM Nominatim usage policy; combined with the
+                # on-disk cache this keeps large batches from hammering the
+                # public endpoint (the reverse path has no such guard).
+                self._forward_geocode = RateLimiter(
+                    self.geocoder.geocode,
+                    min_delay_seconds=GEOCODE_MIN_DELAY_SEC,
+                    max_retries=GEOCODE_MAX_RETRIES,
+                    swallow_exceptions=False,
+                )
             except Exception as e:
                 print(f&#34;Warning: Could not initialize geocoder: {e}&#34;)
                 self.geocoder = None
+                self._forward_geocode = None
 
     def extract_exif_data(self, image_path: Path) -&gt; Dict[str, Any]:
         &#34;&#34;&#34;
@@ -487,9 +511,7 @@ el.replaceWith(d);
         #    left the GPS IFD undecoded; recover just that from piexif.
         # A missing GPSInfo key means the file carries no GPS, so piexif is
         # skipped entirely for non-GPS images.
-        gps_is_bare_offset = &#34;GPSInfo&#34; in exif_data and not isinstance(
-            exif_data[&#34;GPSInfo&#34;], dict
-        )
+        gps_is_bare_offset = &#34;GPSInfo&#34; in exif_data and not isinstance(exif_data[&#34;GPSInfo&#34;], dict)
         if not exif_data or gps_is_bare_offset:
             piexif_data = self._extract_exif_via_piexif(image_path)
             if not exif_data:
@@ -565,7 +587,7 @@ el.replaceWith(d);
         return text_metadata
 
     @staticmethod
-    def _normalize_text_value(value: Any) -&gt; Optional[str]:
+    def _normalize_text_value(value: object) -&gt; Optional[str]:
         &#34;&#34;&#34;Coerce a PNG/GIF metadata value to a non-empty stripped str, or None.&#34;&#34;&#34;
         if isinstance(value, bytes):
             try:
@@ -655,7 +677,7 @@ el.replaceWith(d);
                 return None
 
             gps_info: Dict[str, Any] = {
-                GPSTAGS.get(tag_id, tag_id): value
+                str(GPSTAGS.get(tag_id, tag_id)): value
                 for tag_id, value in raw_gps.items()
             }
 
@@ -679,7 +701,7 @@ el.replaceWith(d);
             print(f&#34;  GPS extraction error: {e}&#34;)
             return None
 
-    def _convert_to_degrees(self, value: Any) -&gt; Optional[float]:
+    def _convert_to_degrees(self, value: Optional[Sequence[Any]]) -&gt; Optional[float]:
         &#34;&#34;&#34;
         Convert GPS coordinates to decimal degrees.
 
@@ -719,33 +741,19 @@ el.replaceWith(d);
         if not self.geocoder:
             return None
 
-        ctx = CostTracker(self.cost_calculator, &#34;nominatim_geocoding&#34;) if self.cost_calculator else nullcontext()
+        ctx = (
+            CostTracker(self.cost_calculator, &#34;nominatim_geocoding&#34;)
+            if self.cost_calculator
+            else nullcontext()
+        )
         with ctx:
             try:
                 lat, lon = coordinates
                 location = self.geocoder.reverse(f&#34;{lat}, {lon}&#34;, exactly_one=True)
 
                 if location and location.raw.get(&#34;address&#34;):
-                    address = location.raw[&#34;address&#34;]
-                    parts = []
-
-                    city = (
-                        address.get(&#34;city&#34;)
-                        or address.get(&#34;town&#34;)
-                        or address.get(&#34;village&#34;)
-                        or address.get(&#34;county&#34;)
-                    )
-                    if city:
-                        parts.append(city)
-
-                    state = address.get(&#34;state&#34;) or address.get(&#34;region&#34;)
-                    if state:
-                        parts.append(state)
-
-                    country = address.get(&#34;country&#34;)
-                    if country:
-                        parts.append(country)
-
+                    city, state, country = self._parse_place(location.raw[&#34;address&#34;])
+                    parts = [p for p in (city, state, country) if p]
                     if parts:
                         return &#34;, &#34;.join(parts)
 
@@ -755,6 +763,118 @@ el.replaceWith(d);
                 print(f&#34;  Location lookup error: {e}&#34;)
 
             return None
+
+    @staticmethod
+    def _parse_place(
+        raw_address: Dict[str, Any],
+    ) -&gt; Tuple[Optional[str], Optional[str], Optional[str]]:
+        &#34;&#34;&#34;Pull (city, state, country) from a Nominatim ``raw[&#39;address&#39;]`` dict.
+
+        Shared by reverse (``get_location_name``) and forward
+        (``geocode_address``) geocoding so the field-preference order
+        (city→town→village→county; state→region) lives in one place.
+        &#34;&#34;&#34;
+        city = (
+            raw_address.get(&#34;city&#34;)
+            or raw_address.get(&#34;town&#34;)
+            or raw_address.get(&#34;village&#34;)
+            or raw_address.get(&#34;county&#34;)
+        )
+        state = raw_address.get(&#34;state&#34;) or raw_address.get(&#34;region&#34;)
+        country = raw_address.get(&#34;country&#34;)
+        return city, state, country
+
+    def geocode_address(self, address: str) -&gt; Optional[GeocodedLocation]:
+        &#34;&#34;&#34;Forward-geocode a text address to a structured location dict.
+
+        Rate-limited (&lt;=1 req/s) and cached on disk (keyed by normalized
+        address, including negative results) so repeated/batch lookups do not
+        re-hit the public Nominatim endpoint. Returns ``None`` when geocoding
+        is unavailable or the address can&#39;t be resolved.
+
+        Returns: ``{display_name, latitude, longitude, city, state, country}``.
+        &#34;&#34;&#34;
+        if not self._forward_geocode or not address:
+            return None
+
+        key = &#34; &#34;.join(address.split()).lower()
+        cached = self._geocode_cache_get(key)
+        if cached is not None:
+            return cached or None  # {} is a cached negative result
+
+        result: Optional[GeocodedLocation] = None
+        ctx = (
+            CostTracker(self.cost_calculator, &#34;nominatim_geocoding&#34;)
+            if self.cost_calculator
+            else nullcontext()
+        )
+        with ctx:
+            try:
+                location = self._forward_geocode(address, exactly_one=True, addressdetails=True)
+                if location:
+                    raw = (location.raw or {}).get(&#34;address&#34;, {})
+                    city, state, country = self._parse_place(raw)
+                    display = &#34;, &#34;.join(p for p in (city, state, country) if p)
+                    result = {
+                        &#34;display_name&#34;: display or location.address,
+                        &#34;latitude&#34;: location.latitude,
+                        &#34;longitude&#34;: location.longitude,
+                        &#34;city&#34;: city,
+                        &#34;state&#34;: state,
+                        &#34;country&#34;: country,
+                    }
+            except (GeocoderTimedOut, GeocoderServiceError) as e:
+                print(f&#34;  Forward-geocoding error: {e}&#34;)
+                return None  # transient — do not cache a miss
+            except Exception as e:
+                print(f&#34;  Address lookup error: {e}&#34;)
+                return None
+
+        self._geocode_cache_put(key, result or {})
+        return result
+
+    @staticmethod
+    def _geocode_cache_conn() -&gt; Optional[sqlite3.Connection]:
+        try:
+            GEOCODE_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+            conn = sqlite3.connect(str(GEOCODE_CACHE_PATH))
+            conn.execute(
+                &#34;CREATE TABLE IF NOT EXISTS geocode_cache &#34;
+                &#34;(address TEXT PRIMARY KEY, result TEXT NOT NULL)&#34;
+            )
+            return conn
+        except sqlite3.Error:
+            return None  # cache is best-effort; never block geocoding
+
+    def _geocode_cache_get(self, key: str) -&gt; Optional[GeocodedLocation]:
+        conn = self._geocode_cache_conn()
+        if conn is None:
+            return None
+        try:
+            row = conn.execute(
+                &#34;SELECT result FROM geocode_cache WHERE address = ?&#34;, (key,)
+            ).fetchone()
+            # Safe: _geocode_cache_put is the sole writer of this table.
+            return cast(GeocodedLocation, json.loads(row[0])) if row else None
+        except (sqlite3.Error, ValueError):
+            return None
+        finally:
+            conn.close()
+
+    def _geocode_cache_put(self, key: str, value: Mapping[str, object]) -&gt; None:
+        conn = self._geocode_cache_conn()
+        if conn is None:
+            return
+        try:
+            conn.execute(
+                &#34;INSERT OR REPLACE INTO geocode_cache (address, result) VALUES (?, ?)&#34;,
+                (key, json.dumps(value)),
+            )
+            conn.commit()
+        except (sqlite3.Error, ValueError):
+            pass
+        finally:
+            conn.close()
 
     def get_metadata_summary(self, image_path: Path) -&gt; Dict[str, Any]:
         &#34;&#34;&#34;
@@ -799,8 +919,9 @@ el.replaceWith(d);
 </details>
 <div class="desc"><p>Parses image metadata including EXIF, GPS, and timestamps.</p>
 <p>Initialize the metadata parser.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>cost_calculator</code></strong></dt>
 <dd>Optional cost calculator for tracking usage costs</dd>
 </dl></div>
@@ -832,15 +953,17 @@ el.replaceWith(d);
     return self._extract_datetime_from_exif(exif_data)</code></pre>
 </details>
 <div class="desc"><p>Extract the datetime when the photo was taken.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>image_path</code></strong></dt>
 <dd>Path to the image file</dd>
 <dt><strong><code>exif_data</code></strong></dt>
 <dd>Pre-extracted EXIF data to avoid redundant Image.open() calls</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>datetime object or None</p></div>
+<p>Returns
+-----=
+datetime object or None</p></div>
 </dd>
 <dt id="src.analyzers.ImageMetadataParser.extract_exif_data"><code class="name flex">
 <span>def <span class="ident">extract_exif_data</span></span>(<span>self, image_path: pathlib.Path) ‑> Dict[str, Any]</span>
@@ -882,9 +1005,7 @@ el.replaceWith(d);
     #    left the GPS IFD undecoded; recover just that from piexif.
     # A missing GPSInfo key means the file carries no GPS, so piexif is
     # skipped entirely for non-GPS images.
-    gps_is_bare_offset = &#34;GPSInfo&#34; in exif_data and not isinstance(
-        exif_data[&#34;GPSInfo&#34;], dict
-    )
+    gps_is_bare_offset = &#34;GPSInfo&#34; in exif_data and not isinstance(exif_data[&#34;GPSInfo&#34;], dict)
     if not exif_data or gps_is_bare_offset:
         piexif_data = self._extract_exif_via_piexif(image_path)
         if not exif_data:
@@ -895,8 +1016,9 @@ el.replaceWith(d);
     return exif_data</code></pre>
 </details>
 <div class="desc"><p>Extract EXIF data from an image.</p>
-<h2 id="returns">Returns</h2>
-<p>Dictionary with EXIF data</p></div>
+<p>Returns
+-----=
+Dictionary with EXIF data</p></div>
 </dd>
 <dt id="src.analyzers.ImageMetadataParser.extract_gps_coordinates"><code class="name flex">
 <span>def <span class="ident">extract_gps_coordinates</span></span>(<span>self, image_path: pathlib.Path, exif_data: Dict[str, Any] | None = None) ‑> Tuple[float, float] | None</span>
@@ -928,15 +1050,17 @@ el.replaceWith(d);
     return self._extract_gps_from_exif(exif_data)</code></pre>
 </details>
 <div class="desc"><p>Extract GPS coordinates from image EXIF data.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>image_path</code></strong></dt>
 <dd>Path to the image file</dd>
 <dt><strong><code>exif_data</code></strong></dt>
 <dd>Pre-extracted EXIF data to avoid redundant Image.open() calls</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Tuple of (latitude, longitude) or None</p></div>
+<p>Returns
+-----=
+Tuple of (latitude, longitude) or None</p></div>
 </dd>
 <dt id="src.analyzers.ImageMetadataParser.extract_text_metadata"><code class="name flex">
 <span>def <span class="ident">extract_text_metadata</span></span>(<span>self, image_path: pathlib.Path) ‑> Dict[str, str]</span>
@@ -984,6 +1108,70 @@ el.replaceWith(d);
 <code>PngImageFile.text</code>. Only keys in <code>_TEXT_METADATA_KEYS</code> are returned,
 each normalized to a non-empty stripped <code>str</code>.</p></div>
 </dd>
+<dt id="src.analyzers.ImageMetadataParser.geocode_address"><code class="name flex">
+<span>def <span class="ident">geocode_address</span></span>(<span>self, address: str) ‑> <a title="src.analyzers.image_metadata.GeocodedLocation" href="image_metadata.html#src.analyzers.image_metadata.GeocodedLocation">GeocodedLocation</a> | None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def geocode_address(self, address: str) -&gt; Optional[GeocodedLocation]:
+    &#34;&#34;&#34;Forward-geocode a text address to a structured location dict.
+
+    Rate-limited (&lt;=1 req/s) and cached on disk (keyed by normalized
+    address, including negative results) so repeated/batch lookups do not
+    re-hit the public Nominatim endpoint. Returns ``None`` when geocoding
+    is unavailable or the address can&#39;t be resolved.
+
+    Returns: ``{display_name, latitude, longitude, city, state, country}``.
+    &#34;&#34;&#34;
+    if not self._forward_geocode or not address:
+        return None
+
+    key = &#34; &#34;.join(address.split()).lower()
+    cached = self._geocode_cache_get(key)
+    if cached is not None:
+        return cached or None  # {} is a cached negative result
+
+    result: Optional[GeocodedLocation] = None
+    ctx = (
+        CostTracker(self.cost_calculator, &#34;nominatim_geocoding&#34;)
+        if self.cost_calculator
+        else nullcontext()
+    )
+    with ctx:
+        try:
+            location = self._forward_geocode(address, exactly_one=True, addressdetails=True)
+            if location:
+                raw = (location.raw or {}).get(&#34;address&#34;, {})
+                city, state, country = self._parse_place(raw)
+                display = &#34;, &#34;.join(p for p in (city, state, country) if p)
+                result = {
+                    &#34;display_name&#34;: display or location.address,
+                    &#34;latitude&#34;: location.latitude,
+                    &#34;longitude&#34;: location.longitude,
+                    &#34;city&#34;: city,
+                    &#34;state&#34;: state,
+                    &#34;country&#34;: country,
+                }
+        except (GeocoderTimedOut, GeocoderServiceError) as e:
+            print(f&#34;  Forward-geocoding error: {e}&#34;)
+            return None  # transient — do not cache a miss
+        except Exception as e:
+            print(f&#34;  Address lookup error: {e}&#34;)
+            return None
+
+    self._geocode_cache_put(key, result or {})
+    return result</code></pre>
+</details>
+<div class="desc"><p>Forward-geocode a text address to a structured location dict.</p>
+<p>Rate-limited (&lt;=1 req/s) and cached on disk (keyed by normalized
+address, including negative results) so repeated/batch lookups do not
+re-hit the public Nominatim endpoint. Returns <code>None</code> when geocoding
+is unavailable or the address can't be resolved.</p>
+<p>Returns: <code>{display_name, latitude, longitude, city, state, country}</code>.</p></div>
+</dd>
 <dt id="src.analyzers.ImageMetadataParser.get_location_name"><code class="name flex">
 <span>def <span class="ident">get_location_name</span></span>(<span>self, coordinates: Tuple[float, float]) ‑> str | None</span>
 </code></dt>
@@ -1005,33 +1193,19 @@ each normalized to a non-empty stripped <code>str</code>.</p></div>
     if not self.geocoder:
         return None
 
-    ctx = CostTracker(self.cost_calculator, &#34;nominatim_geocoding&#34;) if self.cost_calculator else nullcontext()
+    ctx = (
+        CostTracker(self.cost_calculator, &#34;nominatim_geocoding&#34;)
+        if self.cost_calculator
+        else nullcontext()
+    )
     with ctx:
         try:
             lat, lon = coordinates
             location = self.geocoder.reverse(f&#34;{lat}, {lon}&#34;, exactly_one=True)
 
             if location and location.raw.get(&#34;address&#34;):
-                address = location.raw[&#34;address&#34;]
-                parts = []
-
-                city = (
-                    address.get(&#34;city&#34;)
-                    or address.get(&#34;town&#34;)
-                    or address.get(&#34;village&#34;)
-                    or address.get(&#34;county&#34;)
-                )
-                if city:
-                    parts.append(city)
-
-                state = address.get(&#34;state&#34;) or address.get(&#34;region&#34;)
-                if state:
-                    parts.append(state)
-
-                country = address.get(&#34;country&#34;)
-                if country:
-                    parts.append(country)
-
+                city, state, country = self._parse_place(location.raw[&#34;address&#34;])
+                parts = [p for p in (city, state, country) if p]
                 if parts:
                     return &#34;, &#34;.join(parts)
 
@@ -1043,13 +1217,15 @@ each normalized to a non-empty stripped <code>str</code>.</p></div>
         return None</code></pre>
 </details>
 <div class="desc"><p>Get location name from GPS coordinates using reverse geocoding.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>coordinates</code></strong></dt>
 <dd>Tuple of (latitude, longitude)</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Location name (city, state, country) or None</p></div>
+<p>Returns
+-----=
+Location name (city, state, country) or None</p></div>
 </dd>
 <dt id="src.analyzers.ImageMetadataParser.get_metadata_summary"><code class="name flex">
 <span>def <span class="ident">get_metadata_summary</span></span>(<span>self, image_path: pathlib.Path) ‑> Dict[str, Any]</span>
@@ -1101,8 +1277,9 @@ each normalized to a non-empty stripped <code>str</code>.</p></div>
     return summary</code></pre>
 </details>
 <div class="desc"><p>Get a summary of image metadata.</p>
-<h2 id="returns">Returns</h2>
-<p>Dictionary with datetime, GPS coordinates, and location</p></div>
+<p>Returns
+-----=
+Dictionary with datetime, GPS coordinates, and location</p></div>
 </dd>
 </dl>
 </dd>
@@ -1121,9 +1298,11 @@ each normalized to a non-empty stripped <code>str</code>.</p></div>
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
+<li><code><a title="src.analyzers.address_extractor" href="address_extractor.html">src.analyzers.address_extractor</a></code></li>
 <li><code><a title="src.analyzers.image_analyzer" href="image_analyzer.html">src.analyzers.image_analyzer</a></code></li>
 <li><code><a title="src.analyzers.image_metadata" href="image_metadata.html">src.analyzers.image_metadata</a></code></li>
 <li><code><a title="src.analyzers.text_extractor" href="text_extractor.html">src.analyzers.text_extractor</a></code></li>
+<li><code><a title="src.analyzers.text_redaction" href="text_redaction.html">src.analyzers.text_redaction</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
@@ -1145,6 +1324,7 @@ each normalized to a non-empty stripped <code>str</code>.</p></div>
 <li><code><a title="src.analyzers.ImageMetadataParser.extract_exif_data" href="#src.analyzers.ImageMetadataParser.extract_exif_data">extract_exif_data</a></code></li>
 <li><code><a title="src.analyzers.ImageMetadataParser.extract_gps_coordinates" href="#src.analyzers.ImageMetadataParser.extract_gps_coordinates">extract_gps_coordinates</a></code></li>
 <li><code><a title="src.analyzers.ImageMetadataParser.extract_text_metadata" href="#src.analyzers.ImageMetadataParser.extract_text_metadata">extract_text_metadata</a></code></li>
+<li><code><a title="src.analyzers.ImageMetadataParser.geocode_address" href="#src.analyzers.ImageMetadataParser.geocode_address">geocode_address</a></code></li>
 <li><code><a title="src.analyzers.ImageMetadataParser.get_location_name" href="#src.analyzers.ImageMetadataParser.get_location_name">get_location_name</a></code></li>
 <li><code><a title="src.analyzers.ImageMetadataParser.get_metadata_summary" href="#src.analyzers.ImageMetadataParser.get_metadata_summary">get_metadata_summary</a></code></li>
 </ul>

@@ -48,7 +48,7 @@ file organization system with minimal code changes required.</p>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="src.cost_integration.estimate_processing_cost"><code class="name flex">
-<span>def <span class="ident">estimate_processing_cost</span></span>(<span>file_count: int, features: list | None = None) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">estimate_processing_cost</span></span>(<span>file_count: int, features: List[str] | None = None) ‑> CostEstimate</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -57,8 +57,8 @@ file organization system with minimal code changes required.</p>
 </summary>
 <pre><code class="python">def estimate_processing_cost(
     file_count: int,
-    features: Optional[list] = None
-) -&gt; Dict[str, Any]:
+    features: Optional[List[str]] = None
+) -&gt; &#34;CostEstimate&#34;:
     &#34;&#34;&#34;
     Estimate cost for processing a number of files.
 
@@ -69,18 +69,22 @@ file organization system with minimal code changes required.</p>
     Returns:
         Cost estimate dictionary
     &#34;&#34;&#34;
-    return get_calculator().estimate_cost_for_files(file_count, features)</code></pre>
+    return cast(
+        &#34;CostEstimate&#34;, get_calculator().estimate_cost_for_files(file_count, features)
+    )</code></pre>
 </details>
 <div class="desc"><p>Estimate cost for processing a number of files.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_count</code></strong></dt>
 <dd>Number of files to estimate</dd>
 <dt><strong><code>features</code></strong></dt>
 <dd>List of features to use (None for all)</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Cost estimate dictionary</p></div>
+<p>Returns
+-----=
+Cost estimate dictionary</p></div>
 </dd>
 <dt id="src.cost_integration.get_calculator"><code class="name flex">
 <span>def <span class="ident">get_calculator</span></span>(<span>) ‑> cost_roi_calculator.CostROICalculator</span>
@@ -100,16 +104,16 @@ file organization system with minimal code changes required.</p>
 <div class="desc"><p>Get or create the global cost calculator instance.</p></div>
 </dd>
 <dt id="src.cost_integration.get_cost_report"><code class="name flex">
-<span>def <span class="ident">get_cost_report</span></span>(<span>) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">get_cost_report</span></span>(<span>) ‑> CostReport</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_cost_report() -&gt; Dict[str, Any]:
+<pre><code class="python">def get_cost_report() -&gt; &#34;CostReport&#34;:
     &#34;&#34;&#34;Get the current cost report.&#34;&#34;&#34;
-    return get_calculator().generate_report()</code></pre>
+    return cast(&#34;CostReport&#34;, get_calculator().generate_report())</code></pre>
 </details>
 <div class="desc"><p>Get the current cost report.</p></div>
 </dd>
@@ -261,8 +265,9 @@ print(f&#34;Estimated ROI: {estimate[&#39;estimated_roi&#39;]:.0f}%&#34;)
 </details>
 <div class="desc"><p>Manually record feature usage.</p>
 <p>Use this when the context manager or decorator approach isn't suitable.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>feature_name</code></strong></dt>
 <dd>Name of the feature</dd>
 <dt><strong><code>processing_time_sec</code></strong></dt>
@@ -305,14 +310,16 @@ print(f&#34;Estimated ROI: {estimate[&#39;estimated_roi&#39;]:.0f}%&#34;)
 <div class="desc"><p>Save the cost report to a file.</p></div>
 </dd>
 <dt id="src.cost_integration.track_cost"><code class="name flex">
-<span>def <span class="ident">track_cost</span></span>(<span>feature_name: str, files_processed: int = 1) ‑> Callable</span>
+<span>def <span class="ident">track_cost</span></span>(<span>feature_name: str, files_processed: int = 1) ‑> Callable[[Callable[~P, ~R]], Callable[~P, ~R]]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def track_cost(feature_name: str, files_processed: int = 1) -&gt; Callable:
+<pre><code class="python">def track_cost(
+    feature_name: str, files_processed: int = 1
+) -&gt; Callable[[Callable[P, R]], Callable[P, R]]:
     &#34;&#34;&#34;
     Decorator to track costs for a function.
 
@@ -326,9 +333,9 @@ print(f&#34;Estimated ROI: {estimate[&#39;estimated_roi&#39;]:.0f}%&#34;)
         feature_name: Name of the feature being tracked
         files_processed: Number of files processed per call
     &#34;&#34;&#34;
-    def decorator(func: Callable) -&gt; Callable:
+    def decorator(func: Callable[P, R]) -&gt; Callable[P, R]:
         @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -&gt; Any:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -&gt; R:
             calculator = get_calculator()
             with CostTracker(calculator, feature_name, files_processed):
                 return func(*args, **kwargs)
@@ -336,13 +343,15 @@ print(f&#34;Estimated ROI: {estimate[&#39;estimated_roi&#39;]:.0f}%&#34;)
     return decorator</code></pre>
 </details>
 <div class="desc"><p>Decorator to track costs for a function.</p>
-<h2 id="usage">Usage</h2>
-<p>@track_cost('clip_vision')
+<p>Usage
+-----=
+@track_cost('clip_vision')
 def analyze_image(image_path):
 # &hellip; do analysis &hellip;
 return result</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>feature_name</code></strong></dt>
 <dd>Name of the feature being tracked</dd>
 <dt><strong><code>files_processed</code></strong></dt>
@@ -389,11 +398,13 @@ def track_feature(
         yield</code></pre>
 </details>
 <div class="desc"><p>Context manager for tracking feature costs.</p>
-<h2 id="usage">Usage</h2>
-<p>with track_feature('tesseract_ocr', file_path=image_path):
+<p>Usage
+-----=
+with track_feature('tesseract_ocr', file_path=image_path):
 text = pytesseract.image_to_string(image)</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>feature_name</code></strong></dt>
 <dd>Name of the feature</dd>
 <dt><strong><code>files_processed</code></strong></dt>
@@ -434,10 +445,10 @@ text = pytesseract.image_to_string(image)</p>
         print(tracker.summary())
     &#34;&#34;&#34;
 
-    def __init__(self):
-        self.timings = {}
-        self.successes = {}
-        self.errors = {}
+    def __init__(self) -&gt; None:
+        self.timings: Dict[str, float] = {}
+        self.successes: Dict[str, int] = {}
+        self.errors: Dict[str, str] = {}
 
     @contextmanager
     def track(self, feature_name: str, files: int = 1) -&gt; Generator[None, None, None]:
@@ -468,7 +479,7 @@ text = pytesseract.image_to_string(image)</p>
                 error_message=error_msg
             )
 
-    def summary(self) -&gt; Dict[str, Any]:
+    def summary(self) -&gt; TrackerSummary:
         &#34;&#34;&#34;Get tracking summary.&#34;&#34;&#34;
         return {
             &#39;timings&#39;: self.timings,
@@ -478,8 +489,9 @@ text = pytesseract.image_to_string(image)</p>
         }</code></pre>
 </details>
 <div class="desc"><p>Helper class for tracking multiple features in a processing pipeline.</p>
-<h2 id="usage">Usage</h2>
-<p>tracker = FeatureTracker()</p>
+<p>Usage
+-----=
+tracker = FeatureTracker()</p>
 <h1 id="track-clip-analysis">Track CLIP analysis</h1>
 <p>with tracker.track('clip_vision'):
 scores = model.classify(image)</p>
@@ -491,14 +503,14 @@ text = pytesseract.image_to_string(image)</p>
 <h3>Methods</h3>
 <dl>
 <dt id="src.cost_integration.FeatureTracker.summary"><code class="name flex">
-<span>def <span class="ident">summary</span></span>(<span>self) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">summary</span></span>(<span>self) ‑> <a title="src.cost_integration.TrackerSummary" href="#src.cost_integration.TrackerSummary">TrackerSummary</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def summary(self) -&gt; Dict[str, Any]:
+<pre><code class="python">def summary(self) -&gt; TrackerSummary:
     &#34;&#34;&#34;Get tracking summary.&#34;&#34;&#34;
     return {
         &#39;timings&#39;: self.timings,
@@ -550,6 +562,47 @@ def track(self, feature_name: str, files: int = 1) -&gt; Generator[None, None, N
 </dd>
 </dl>
 </dd>
+<dt id="src.cost_integration.TrackerSummary"><code class="flex name class">
+<span>class <span class="ident">TrackerSummary</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TrackerSummary(TypedDict):
+    &#34;&#34;&#34;``FeatureTracker.summary()`` shape.&#34;&#34;&#34;
+    timings: Dict[str, float]
+    successes: Dict[str, int]
+    errors: Dict[str, str]
+    total_time: float</code></pre>
+</details>
+<div class="desc"><p><code><a title="src.cost_integration.FeatureTracker.summary" href="#src.cost_integration.FeatureTracker.summary">FeatureTracker.summary()</a></code> shape.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.cost_integration.TrackerSummary.errors"><code class="name">var <span class="ident">errors</span> : Dict[str, str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_integration.TrackerSummary.successes"><code class="name">var <span class="ident">successes</span> : Dict[str, int]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_integration.TrackerSummary.timings"><code class="name">var <span class="ident">timings</span> : Dict[str, float]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_integration.TrackerSummary.total_time"><code class="name">var <span class="ident">total_time</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
 </dl>
 </section>
 </article>
@@ -584,6 +637,15 @@ def track(self, feature_name: str, files: int = 1) -&gt; Generator[None, None, N
 <ul class="">
 <li><code><a title="src.cost_integration.FeatureTracker.summary" href="#src.cost_integration.FeatureTracker.summary">summary</a></code></li>
 <li><code><a title="src.cost_integration.FeatureTracker.track" href="#src.cost_integration.FeatureTracker.track">track</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.cost_integration.TrackerSummary" href="#src.cost_integration.TrackerSummary">TrackerSummary</a></code></h4>
+<ul class="">
+<li><code><a title="src.cost_integration.TrackerSummary.errors" href="#src.cost_integration.TrackerSummary.errors">errors</a></code></li>
+<li><code><a title="src.cost_integration.TrackerSummary.successes" href="#src.cost_integration.TrackerSummary.successes">successes</a></code></li>
+<li><code><a title="src.cost_integration.TrackerSummary.timings" href="#src.cost_integration.TrackerSummary.timings">timings</a></code></li>
+<li><code><a title="src.cost_integration.TrackerSummary.total_time" href="#src.cost_integration.TrackerSummary.total_time">total_time</a></code></li>
 </ul>
 </li>
 </ul>

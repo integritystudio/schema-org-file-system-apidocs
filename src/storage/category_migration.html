@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>src.storage.category_migration API documentation</title>
+<meta name="description" content="Category identity migration: ``full_path`` replaces ``name`` as the key …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>src.storage.category_migration</code></h1>
+</header>
+<section id="section-intro">
+<p>Category identity migration: <code>full_path</code> replaces <code>name</code> as the key.</p>
+<p><code>categories.name</code> used to carry a UNIQUE index while the taxonomy reuses leaf
+names across parents (<code>other</code> under 15 categories, <code>records</code> under 3, plus
+<code>events</code>/<code>insurance</code>/<code>photos</code>/<code>clients</code>/<code>audio</code>/<code>web</code>/
+<code>meeting_notes</code>). Only the first claimant of a leaf name could exist; every
+later <code>(category, subcategory)</code> sharing it hit an <code>IntegrityError</code> that
+<code>GraphStore.get_or_create_category</code> swallowed into <code>None</code>, so
+<code>add_file_to_category</code> created no edge and the file persisted <strong>with no
+category at all</strong> — 26% of rows on the 2026-07-26 audit.</p>
+<p>This migration swaps the indexes to match the fixed model
+(:mod:<code><a title="src.storage.models" href="models.html">src.storage.models</a></code>): <code>name</code> becomes a plain index, <code>full_path</code>
+becomes UNIQUE. It also realigns <code>canonical_id</code> with
+<code>Category.generate_canonical_id(full_path)</code> for any row whose id was derived
+from the bare name, and reports (without changing) files left with no category
+edge — repair those with <code>organize-files reconcile --backfill-categories</code>.</p>
+<p>Fresh databases get the correct indexes from <code>Base.metadata.create_all</code>.
+Follows the hand-rolled migration pattern of :mod:<code><a title="src.storage.migration" href="migration.html">src.storage.migration</a></code>
+(dry-run support, banner/summary output). Surfaced via
+<code>organize-files migrate-category-identity</code>.</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="src.storage.category_migration.canonical_id_for"><code class="name flex">
+<span>def <span class="ident">canonical_id_for</span></span>(<span>full_path: str) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def canonical_id_for(full_path: str) -&gt; str:
+    &#34;&#34;&#34;UUID v5 from ``full_path`` — mirrors ``Category.generate_canonical_id``.&#34;&#34;&#34;
+    return str(uuid.uuid5(CATEGORY_NAMESPACE, full_path.lower().strip()))</code></pre>
+</details>
+<div class="desc"><p>UUID v5 from <code>full_path</code> — mirrors <code>Category.generate_canonical_id</code>.</p></div>
+</dd>
+<dt id="src.storage.category_migration.run_category_migration"><code class="name flex">
+<span>def <span class="ident">run_category_migration</span></span>(<span>db_path: str | pathlib.Path = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'),<br>dry_run: bool = False) ‑> Dict[str, Any]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run_category_migration(
+    db_path: Union[str, Path] = DEFAULT_DB_PATH, dry_run: bool = False
+) -&gt; Dict[str, Any]:
+    &#34;&#34;&#34;Make ``categories.full_path`` the unique identity; drop UNIQUE on ``name``.
+
+    Idempotent: indexes are only rebuilt when they do not already match the
+    target shape, and canonical ids are only rewritten when they differ from
+    ``canonical_id_for(full_path)``. Aborts the index swap (leaving the database
+    untouched) if duplicate ``full_path`` values exist, since UNIQUE could not
+    be enforced — the duplicates are reported for manual merge.
+
+    Args:
+        db_path: Path to SQLite database
+        dry_run: If True, show what would be done without making changes
+
+    Returns:
+        Migration statistics: ``indexes_rebuilt``, ``canonical_ids_realigned``,
+        ``duplicate_full_paths``, ``files_without_category``.
+    &#34;&#34;&#34;
+    db_file = Path(db_path)
+    if not db_file.exists():
+        print(f&#34;Error: Database not found at {db_path}&#34;)
+        return {&#34;error&#34;: &#34;Database not found&#34;}
+
+    stats: Dict[str, int] = defaultdict(int)
+    conn = sqlite3.connect(str(db_path))
+
+    try:
+        print(&#34;Phase 1: Index Identity Swap&#34;)
+        print(&#34;-&#34; * SEPARATOR_WIDTH_SMALL)
+
+        if not _table_exists(conn, CATEGORIES_TABLE):
+            print(f&#34;  Table {CATEGORIES_TABLE} does not exist, skipping&#34;)
+            return dict(stats)
+
+        duplicates = _duplicate_full_paths(conn)
+        stats[&#34;duplicate_full_paths&#34;] = len(duplicates)
+        if duplicates:
+            print(&#34;  ABORT: duplicate full_path values block a UNIQUE index:&#34;)
+            for full_path, count in duplicates:
+                print(f&#34;    {full_path!r} x{count}&#34;)
+            print(&#34;  Merge these rows, then re-run.&#34;)
+            return dict(stats)
+
+        name_unique = _is_unique(conn, NAME_INDEX)
+        path_unique = _is_unique(conn, FULL_PATH_INDEX)
+
+        if not name_unique and path_unique:
+            print(&#34;  Indexes already match the target shape (name plain, full_path UNIQUE)&#34;)
+        else:
+            if dry_run:
+                if name_unique:
+                    print(f&#34;  [DRY RUN] Would drop UNIQUE {NAME_INDEX}, recreate as plain index&#34;)
+                if not path_unique:
+                    print(f&#34;  [DRY RUN] Would recreate {FULL_PATH_INDEX} as UNIQUE&#34;)
+            else:
+                if name_unique:
+                    conn.execute(f&#34;DROP INDEX IF EXISTS {NAME_INDEX}&#34;)
+                    conn.execute(f&#34;CREATE INDEX {NAME_INDEX} ON {CATEGORIES_TABLE} (name)&#34;)
+                    print(f&#34;  {NAME_INDEX}: UNIQUE -&gt; plain index&#34;)
+                if not path_unique:
+                    conn.execute(f&#34;DROP INDEX IF EXISTS {FULL_PATH_INDEX}&#34;)
+                    conn.execute(
+                        f&#34;CREATE UNIQUE INDEX {FULL_PATH_INDEX} &#34;
+                        f&#34;ON {CATEGORIES_TABLE} (full_path)&#34;
+                    )
+                    print(f&#34;  {FULL_PATH_INDEX}: plain -&gt; UNIQUE index&#34;)
+            stats[&#34;indexes_rebuilt&#34;] += 1
+
+        print(&#34;\nPhase 2: Canonical ID Realignment (uuid5 over full_path)&#34;)
+        print(&#34;-&#34; * SEPARATOR_WIDTH_SMALL)
+        rows = conn.execute(
+            f&#34;SELECT id, full_path, canonical_id FROM {CATEGORIES_TABLE} &#34;
+            &#34;WHERE full_path IS NOT NULL&#34;
+        ).fetchall()
+        for cat_id, full_path, canonical_id in rows:
+            expected = canonical_id_for(full_path)
+            if canonical_id == expected:
+                continue
+            if dry_run:
+                print(f&#34;  [DRY RUN] Would realign {full_path!r}: {canonical_id} -&gt; {expected}&#34;)
+            else:
+                conn.execute(
+                    f&#34;UPDATE {CATEGORIES_TABLE} SET canonical_id=? WHERE id=?&#34;,
+                    (expected, cat_id),
+                )
+                print(f&#34;  Realigned {full_path!r} -&gt; {expected}&#34;)
+            stats[&#34;canonical_ids_realigned&#34;] += 1
+        if not stats.get(&#34;canonical_ids_realigned&#34;):
+            print(&#34;  All canonical ids already derived from full_path&#34;)
+
+        print(&#34;\nPhase 3: Orphaned File Rows (report only)&#34;)
+        print(&#34;-&#34; * SEPARATOR_WIDTH_SMALL)
+        orphaned = conn.execute(
+            &#34;SELECT COUNT(*) FROM files f LEFT JOIN file_categories fc &#34;
+            &#34;ON fc.file_id = f.id WHERE fc.file_id IS NULL&#34;
+        ).fetchone()[0]
+        stats[&#34;files_without_category&#34;] = orphaned
+        if orphaned:
+            print(f&#34;  {orphaned} file row(s) have no category edge (dropped by the old bug).&#34;)
+            print(&#34;  Repair with: organize-files reconcile --backfill-categories --apply&#34;)
+            print(
+                &#34;  (A plain `organize-files content` re-run cannot: a correctly-placed &#34;
+                &#34;file short-circuits at already_organized before persistence.)&#34;
+            )
+        else:
+            print(&#34;  Every file row has at least one category edge&#34;)
+
+        if not dry_run:
+            conn.commit()
+
+        print(&#34;\n&#34; + &#34;=&#34; * SEPARATOR_WIDTH_SMALL)
+        print(&#34;Migration Summary&#34;)
+        print(&#34;=&#34; * SEPARATOR_WIDTH_SMALL)
+        print(f&#34;  Index sets rebuilt:      {stats.get(&#39;indexes_rebuilt&#39;, 0)}&#34;)
+        print(f&#34;  Canonical ids realigned: {stats.get(&#39;canonical_ids_realigned&#39;, 0)}&#34;)
+        print(f&#34;  Files without category:  {stats.get(&#39;files_without_category&#39;, 0)}&#34;)
+        if dry_run:
+            print(&#34;\n  [DRY RUN] No changes were made&#34;)
+
+    finally:
+        conn.close()
+
+    return dict(stats)</code></pre>
+</details>
+<div class="desc"><p>Make <code>categories.full_path</code> the unique identity; drop UNIQUE on <code>name</code>.</p>
+<p>Idempotent: indexes are only rebuilt when they do not already match the
+target shape, and canonical ids are only rewritten when they differ from
+<code><a title="src.storage.category_migration.canonical_id_for" href="#src.storage.category_migration.canonical_id_for">canonical_id_for()</a>(full_path)</code>. Aborts the index swap (leaving the database
+untouched) if duplicate <code>full_path</code> values exist, since UNIQUE could not
+be enforced — the duplicates are reported for manual merge.</p>
+<dl>
+<dt>Args</dt>
+<dt>-----=</dt>
+<dt><strong><code>db_path</code></strong></dt>
+<dd>Path to SQLite database</dd>
+<dt><strong><code>dry_run</code></strong></dt>
+<dd>If True, show what would be done without making changes</dd>
+<dt>Returns</dt>
+<dt>-----=</dt>
+<dt><code>Migration statistics</code></dt>
+<dd><code>indexes_rebuilt</code>, <code>canonical_ids_realigned</code>,</dd>
+</dl>
+<p><code>duplicate_full_paths</code>, <code>files_without_category</code>.</p></div>
+</dd>
+<dt id="src.storage.category_migration.run_category_migration_with_banner"><code class="name flex">
+<span>def <span class="ident">run_category_migration_with_banner</span></span>(<span>db_path: str | pathlib.Path = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'),<br>dry_run: bool = False) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run_category_migration_with_banner(
+    db_path: Union[str, Path] = DEFAULT_DB_PATH,
+    dry_run: bool = False,
+) -&gt; None:
+    &#34;&#34;&#34;Print the banner, run the category-identity migration, print the closer.
+
+    Single-sources the banner text for ``organize-files migrate-category-identity``,
+    mirroring :func:`src.storage.migration.run_migration_with_banner`.
+
+    :param db_path: Path to the SQLite database.
+    :param dry_run: If True, passes ``dry_run=True`` and prints a dry-run notice.
+    &#34;&#34;&#34;
+    separator = &#34;=&#34; * SEPARATOR_WIDTH_MEDIUM
+    print(f&#34;\n{separator}&#34;)
+    print(&#34;Running Category Identity Migration (full_path)&#34;)
+    print(f&#34;{separator}\n&#34;)
+    run_category_migration(db_path, dry_run=dry_run)
+    if dry_run:
+        print(&#34;\n[DRY RUN] No changes were made.&#34;)
+    else:
+        print(
+            &#34;\nMigration complete. categories.full_path is the unique identity; &#34;
+            &#34;repeated leaf names no longer drop category edges.&#34;
+        )</code></pre>
+</details>
+<div class="desc"><p>Print the banner, run the category-identity migration, print the closer.</p>
+<p>Single-sources the banner text for <code>organize-files migrate-category-identity</code>,
+mirroring :func:<code><a title="src.storage.migration.run_migration_with_banner" href="migration.html#src.storage.migration.run_migration_with_banner">run_migration_with_banner()</a></code>.</p>
+<p>:param db_path: Path to the SQLite database.
+:param dry_run: If True, passes <code>dry_run=True</code> and prints a dry-run notice.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="src.storage" href="index.html">src.storage</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="src.storage.category_migration.canonical_id_for" href="#src.storage.category_migration.canonical_id_for">canonical_id_for</a></code></li>
+<li><code><a title="src.storage.category_migration.run_category_migration" href="#src.storage.category_migration.run_category_migration">run_category_migration</a></code></li>
+<li><code><a title="src.storage.category_migration.run_category_migration_with_banner" href="#src.storage.category_migration.run_category_migration_with_banner">run_category_migration_with_banner</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

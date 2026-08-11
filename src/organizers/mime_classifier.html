@@ -172,6 +172,9 @@ schema_type)</code> triple whose category/subcategory key into
     elif file_ext in [&#39;.js&#39;, &#39;.jsx&#39;, &#39;.mjs&#39;]:
         return (&#39;code&#39;, &#39;javascript&#39;, &#39;SoftwareSourceCode&#39;)
 
+    elif file_ext == &#39;.dart&#39;:
+        return (&#39;code&#39;, &#39;dart&#39;, &#39;SoftwareSourceCode&#39;)
+
     elif file_ext in [&#39;.sh&#39;, &#39;.bash&#39;, &#39;.zsh&#39;]:
         return (&#39;code&#39;, &#39;shell&#39;, &#39;SoftwareSourceCode&#39;)
 
@@ -226,8 +229,9 @@ pre-check the filename (as the type organizer does).</p></div>
     return FONT_EXTENSIONS.get(file_ext.lower())</code></pre>
 </details>
 <div class="desc"><p>Classify font files based on extension.</p>
-<h2 id="returns">Returns</h2>
-<p>Classification triple or None if not a font extension.</p></div>
+<p>Returns
+-----=
+Classification triple or None if not a font extension.</p></div>
 </dd>
 </dl>
 </section>

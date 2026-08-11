@@ -39,8 +39,9 @@ el.replaceWith(d);
 <p>Sentry Error Tracking Module</p>
 <p>Provides comprehensive error tracking and performance monitoring
 for the Schema.org File Organization System using Sentry SDK v2.</p>
-<h2 id="usage">Usage</h2>
-<p>from error_tracking import init_sentry, capture_error, track_operation</p>
+<p>Usage
+-----=
+from error_tracking import init_sentry, capture_error, track_operation</p>
 <h1 id="initialize-at-app-startup">Initialize at app startup</h1>
 <p>init_sentry()</p>
 <h1 id="capture-errors">Capture errors</h1>
@@ -116,8 +117,9 @@ result = classifier.classify(image)</p>
         return event_id</code></pre>
 </details>
 <div class="desc"><p>Capture an error to Sentry with full context.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>error</code></strong></dt>
 <dd>The exception to capture</dd>
 <dt><strong><code>level</code></strong></dt>
@@ -129,8 +131,9 @@ result = classifier.classify(image)</p>
 <dt><strong><code>user_id</code></strong></dt>
 <dd>User identifier if available</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Sentry event ID if captured, None otherwise</p></div>
+<p>Returns
+-----=
+Sentry event ID if captured, None otherwise</p></div>
 </dd>
 <dt id="src.error_tracking.capture_warning"><code class="name flex">
 <span>def <span class="ident">capture_warning</span></span>(<span>message: str,<br>context: Dict[str, Any] | None = None,<br>tags: Dict[str, str] | None = None) ‑> str | None</span>
@@ -232,7 +235,7 @@ result = classifier.classify(image)</p>
 
         # Set default tags
         set_tag(&#39;service&#39;, &#39;schema-org-file-system&#39;)
-        set_tag(&#39;python_version&#39;, os.sys.version.split()[0])
+        set_tag(&#39;python_version&#39;, sys.version.split()[0])
 
         print(f&#34;Sentry initialized for environment: {environment}&#34;)
         return True
@@ -242,8 +245,9 @@ result = classifier.classify(image)</p>
         return False</code></pre>
 </details>
 <div class="desc"><p>Initialize Sentry error tracking.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>dsn</code></strong></dt>
 <dd>Sentry DSN (defaults to SENTRY_DSN env var)</dd>
 <dt><strong><code>environment</code></strong></dt>
@@ -255,8 +259,9 @@ result = classifier.classify(image)</p>
 <dt><strong><code>enable_logs</code></strong></dt>
 <dd>Whether to enable Sentry logs</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>True if Sentry initialized successfully, False otherwise</p></div>
+<p>Returns
+-----=
+True if Sentry initialized successfully, False otherwise</p></div>
 </dd>
 <dt id="src.error_tracking.reset_file_tracker"><code class="name flex">
 <span>def <span class="ident">reset_file_tracker</span></span>(<span>) ‑> <a title="src.error_tracking.FileProcessingErrorTracker" href="#src.error_tracking.FileProcessingErrorTracker">FileProcessingErrorTracker</a></span>
@@ -305,11 +310,12 @@ result = classifier.classify(image)</p>
         return False</code></pre>
 </details>
 <div class="desc"><p>Test Sentry connection by sending a test message.</p>
-<h2 id="returns">Returns</h2>
-<p>True if message sent successfully</p></div>
+<p>Returns
+-----=
+True if message sent successfully</p></div>
 </dd>
 <dt id="src.error_tracking.track_error"><code class="name flex">
-<span>def <span class="ident">track_error</span></span>(<span>operation: str = None, level: str = 'error', reraise: bool = True) ‑> Callable</span>
+<span>def <span class="ident">track_error</span></span>(<span>operation: str | None = None, level: str = 'error', reraise: bool = True) ‑> Callable[[Callable[~P, ~R]], Callable[~P, ~R | None]]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -317,10 +323,10 @@ result = classifier.classify(image)</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def track_error(
-    operation: str = None,
+    operation: Optional[str] = None,
     level: str = ErrorLevel.ERROR,
     reraise: bool = True
-) -&gt; Callable:
+) -&gt; Callable[[Callable[P, R]], Callable[P, Optional[R]]]:
     &#34;&#34;&#34;
     Decorator for automatic error tracking.
 
@@ -333,9 +339,9 @@ result = classifier.classify(image)</p>
         def classify(image):
             # Errors are captured but not re-raised
     &#34;&#34;&#34;
-    def decorator(func: Callable) -&gt; Callable:
+    def decorator(func: Callable[P, R]) -&gt; Callable[P, Optional[R]]:
         @functools.wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -&gt; Any:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -&gt; Optional[R]:
             op_name = operation or func.__name__
             try:
                 with track_operation(op_name, op_type=&#39;function&#39;):
@@ -357,8 +363,9 @@ result = classifier.classify(image)</p>
     return decorator</code></pre>
 </details>
 <div class="desc"><p>Decorator for automatic error tracking.</p>
-<h2 id="usage">Usage</h2>
-<p>@track_error('process_file')
+<p>Usage
+-----=
+@track_error('process_file')
 def process_file(path):
 # &hellip; your code</p>
 <p>@track_error('classify', reraise=False)
@@ -366,7 +373,7 @@ def classify(image):
 # Errors are captured but not re-raised</p></div>
 </dd>
 <dt id="src.error_tracking.track_operation"><code class="name flex">
-<span>def <span class="ident">track_operation</span></span>(<span>operation_name: str, op_type: str = 'task', **attributes: Any) ‑> Generator[Any, None, None]</span>
+<span>def <span class="ident">track_operation</span></span>(<span>operation_name: str, op_type: str = 'task', **attributes: Any) ‑> Generator[Span | None, None, None]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -378,7 +385,7 @@ def track_operation(
     operation_name: str,
     op_type: str = &#39;task&#39;,
     **attributes: Any
-) -&gt; Generator[Any, None, None]:
+) -&gt; Generator[Optional[&#34;Span&#34;], None, None]:
     &#34;&#34;&#34;
     Context manager for tracking operation performance.
 
@@ -392,7 +399,7 @@ def track_operation(
         **attributes: Additional attributes to attach
     &#34;&#34;&#34;
     if not SENTRY_AVAILABLE:
-        yield
+        yield None
         return
 
     with sentry_sdk.start_span(op=op_type, name=operation_name) as span:
@@ -406,11 +413,13 @@ def track_operation(
             raise</code></pre>
 </details>
 <div class="desc"><p>Context manager for tracking operation performance.</p>
-<h2 id="usage">Usage</h2>
-<p>with track_operation('classify_image', file_path='/path/to/file.jpg'):
+<p>Usage
+-----=
+with track_operation('classify_image', file_path='/path/to/file.jpg'):
 result = classifier.classify(image)</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>operation_name</code></strong></dt>
 <dd>Name of the operation</dd>
 <dt><strong><code>op_type</code></strong></dt>
@@ -444,23 +453,64 @@ result = classifier.classify(image)</p>
 <dl>
 <dt id="src.error_tracking.ErrorLevel.DEBUG"><code class="name">var <span class="ident">DEBUG</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.error_tracking.ErrorLevel.ERROR"><code class="name">var <span class="ident">ERROR</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.error_tracking.ErrorLevel.FATAL"><code class="name">var <span class="ident">FATAL</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.error_tracking.ErrorLevel.INFO"><code class="name">var <span class="ident">INFO</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.error_tracking.ErrorLevel.WARNING"><code class="name">var <span class="ident">WARNING</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.error_tracking.FileErrorInfo"><code class="flex name class">
+<span>class <span class="ident">FileErrorInfo</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FileErrorInfo(TypedDict):
+    &#34;&#34;&#34;One failed file&#39;s error record (mirrored in src/utils/tracking.py).&#34;&#34;&#34;
+    file_path: str
+    error_type: str
+    error_message: str
+    category: Optional[str]</code></pre>
+</details>
+<div class="desc"><p>One failed file's error record (mirrored in src/utils/tracking.py).</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.error_tracking.FileErrorInfo.category"><code class="name">var <span class="ident">category</span> : str | None</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.error_tracking.FileErrorInfo.error_message"><code class="name">var <span class="ident">error_message</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.error_tracking.FileErrorInfo.error_type"><code class="name">var <span class="ident">error_type</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.error_tracking.FileErrorInfo.file_path"><code class="name">var <span class="ident">file_path</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 </dd>
@@ -486,11 +536,11 @@ result = classifier.classify(image)</p>
         tracker.print_summary()
     &#34;&#34;&#34;
 
-    def __init__(self):
+    def __init__(self) -&gt; None:
         self.processed = 0
         self.succeeded = 0
         self.failed = 0
-        self.errors: list[Dict[str, Any]] = []
+        self.errors: list[FileErrorInfo] = []
 
     @contextmanager
     def track_file(self, file_path: str, category: Optional[str] = None) -&gt; Generator[None, None, None]:
@@ -508,7 +558,7 @@ result = classifier.classify(image)</p>
             self.succeeded += 1
         except Exception as e:
             self.failed += 1
-            error_info = {
+            error_info: FileErrorInfo = {
                 &#39;file_path&#39;: file_path,
                 &#39;error_type&#39;: type(e).__name__,
                 &#39;error_message&#39;: str(e),
@@ -526,7 +576,7 @@ result = classifier.classify(image)</p>
 
     def print_summary(self) -&gt; None:
         &#34;&#34;&#34;Print processing summary.&#34;&#34;&#34;
-        print(f&#34;\nFile Processing Summary:&#34;)
+        print(&#34;\nFile Processing Summary:&#34;)
         print(f&#34;  Processed: {self.processed}&#34;)
         print(f&#34;  Succeeded: {self.succeeded} ({self.succeeded/max(self.processed,1)*100:.1f}%)&#34;)
         print(f&#34;  Failed: {self.failed}&#34;)
@@ -538,11 +588,11 @@ result = classifier.classify(image)</p>
                 error_type = error[&#39;error_type&#39;]
                 error_types[error_type] = error_types.get(error_type, 0) + 1
 
-            print(f&#34;\nError breakdown:&#34;)
+            print(&#34;\nError breakdown:&#34;)
             for error_type, count in sorted(error_types.items(), key=lambda x: -x[1]):
                 print(f&#34;  {error_type}: {count}&#34;)
 
-    def get_stats(self) -&gt; Dict[str, Any]:
+    def get_stats(self) -&gt; ProcessingStats:
         &#34;&#34;&#34;Get processing statistics as dict.&#34;&#34;&#34;
         return {
             &#39;processed&#39;: self.processed,
@@ -553,8 +603,9 @@ result = classifier.classify(image)</p>
         }</code></pre>
 </details>
 <div class="desc"><p>Specialized error tracker for file processing operations.</p>
-<h2 id="usage">Usage</h2>
-<p>tracker = FileProcessingErrorTracker()</p>
+<p>Usage
+-----=
+tracker = FileProcessingErrorTracker()</p>
 <p>for file in files:
 with tracker.track_file(file.path):
 process_file(file)</p>
@@ -562,14 +613,14 @@ process_file(file)</p>
 <h3>Methods</h3>
 <dl>
 <dt id="src.error_tracking.FileProcessingErrorTracker.get_stats"><code class="name flex">
-<span>def <span class="ident">get_stats</span></span>(<span>self) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">get_stats</span></span>(<span>self) ‑> <a title="src.error_tracking.ProcessingStats" href="#src.error_tracking.ProcessingStats">ProcessingStats</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_stats(self) -&gt; Dict[str, Any]:
+<pre><code class="python">def get_stats(self) -&gt; ProcessingStats:
     &#34;&#34;&#34;Get processing statistics as dict.&#34;&#34;&#34;
     return {
         &#39;processed&#39;: self.processed,
@@ -591,7 +642,7 @@ process_file(file)</p>
 </summary>
 <pre><code class="python">def print_summary(self) -&gt; None:
     &#34;&#34;&#34;Print processing summary.&#34;&#34;&#34;
-    print(f&#34;\nFile Processing Summary:&#34;)
+    print(&#34;\nFile Processing Summary:&#34;)
     print(f&#34;  Processed: {self.processed}&#34;)
     print(f&#34;  Succeeded: {self.succeeded} ({self.succeeded/max(self.processed,1)*100:.1f}%)&#34;)
     print(f&#34;  Failed: {self.failed}&#34;)
@@ -603,7 +654,7 @@ process_file(file)</p>
             error_type = error[&#39;error_type&#39;]
             error_types[error_type] = error_types.get(error_type, 0) + 1
 
-        print(f&#34;\nError breakdown:&#34;)
+        print(&#34;\nError breakdown:&#34;)
         for error_type, count in sorted(error_types.items(), key=lambda x: -x[1]):
             print(f&#34;  {error_type}: {count}&#34;)</code></pre>
 </details>
@@ -633,7 +684,7 @@ def track_file(self, file_path: str, category: Optional[str] = None) -&gt; Gener
         self.succeeded += 1
     except Exception as e:
         self.failed += 1
-        error_info = {
+        error_info: FileErrorInfo = {
             &#39;file_path&#39;: file_path,
             &#39;error_type&#39;: type(e).__name__,
             &#39;error_message&#39;: str(e),
@@ -650,6 +701,52 @@ def track_file(self, file_path: str, category: Optional[str] = None) -&gt; Gener
         # Don&#39;t re-raise - continue processing other files</code></pre>
 </details>
 <div class="desc"><p>Track processing of a single file.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.error_tracking.ProcessingStats"><code class="flex name class">
+<span>class <span class="ident">ProcessingStats</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ProcessingStats(TypedDict):
+    &#34;&#34;&#34;Aggregate counters for a file-processing run.&#34;&#34;&#34;
+    processed: int
+    succeeded: int
+    failed: int
+    success_rate: float
+    errors: List[FileErrorInfo]</code></pre>
+</details>
+<div class="desc"><p>Aggregate counters for a file-processing run.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.error_tracking.ProcessingStats.errors"><code class="name">var <span class="ident">errors</span> : List[<a title="src.error_tracking.FileErrorInfo" href="#src.error_tracking.FileErrorInfo">FileErrorInfo</a>]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.error_tracking.ProcessingStats.failed"><code class="name">var <span class="ident">failed</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.error_tracking.ProcessingStats.processed"><code class="name">var <span class="ident">processed</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.error_tracking.ProcessingStats.succeeded"><code class="name">var <span class="ident">succeeded</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.error_tracking.ProcessingStats.success_rate"><code class="name">var <span class="ident">success_rate</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 </dd>
@@ -691,11 +788,30 @@ def track_file(self, file_path: str, category: Optional[str] = None) -&gt; Gener
 </ul>
 </li>
 <li>
+<h4><code><a title="src.error_tracking.FileErrorInfo" href="#src.error_tracking.FileErrorInfo">FileErrorInfo</a></code></h4>
+<ul class="">
+<li><code><a title="src.error_tracking.FileErrorInfo.category" href="#src.error_tracking.FileErrorInfo.category">category</a></code></li>
+<li><code><a title="src.error_tracking.FileErrorInfo.error_message" href="#src.error_tracking.FileErrorInfo.error_message">error_message</a></code></li>
+<li><code><a title="src.error_tracking.FileErrorInfo.error_type" href="#src.error_tracking.FileErrorInfo.error_type">error_type</a></code></li>
+<li><code><a title="src.error_tracking.FileErrorInfo.file_path" href="#src.error_tracking.FileErrorInfo.file_path">file_path</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="src.error_tracking.FileProcessingErrorTracker" href="#src.error_tracking.FileProcessingErrorTracker">FileProcessingErrorTracker</a></code></h4>
 <ul class="">
 <li><code><a title="src.error_tracking.FileProcessingErrorTracker.get_stats" href="#src.error_tracking.FileProcessingErrorTracker.get_stats">get_stats</a></code></li>
 <li><code><a title="src.error_tracking.FileProcessingErrorTracker.print_summary" href="#src.error_tracking.FileProcessingErrorTracker.print_summary">print_summary</a></code></li>
 <li><code><a title="src.error_tracking.FileProcessingErrorTracker.track_file" href="#src.error_tracking.FileProcessingErrorTracker.track_file">track_file</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.error_tracking.ProcessingStats" href="#src.error_tracking.ProcessingStats">ProcessingStats</a></code></h4>
+<ul class="">
+<li><code><a title="src.error_tracking.ProcessingStats.errors" href="#src.error_tracking.ProcessingStats.errors">errors</a></code></li>
+<li><code><a title="src.error_tracking.ProcessingStats.failed" href="#src.error_tracking.ProcessingStats.failed">failed</a></code></li>
+<li><code><a title="src.error_tracking.ProcessingStats.processed" href="#src.error_tracking.ProcessingStats.processed">processed</a></code></li>
+<li><code><a title="src.error_tracking.ProcessingStats.succeeded" href="#src.error_tracking.ProcessingStats.succeeded">succeeded</a></code></li>
+<li><code><a title="src.error_tracking.ProcessingStats.success_rate" href="#src.error_tracking.ProcessingStats.success_rate">success_rate</a></code></li>
 </ul>
 </li>
 </ul>

@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>src.scoring.signals.legal_content API documentation</title>
+<meta name="description" content="LegalContentSignal — legal-document detection by competition (§4 row 7) …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>src.scoring.signals.legal_content</code></h1>
+</header>
+<section id="section-intro">
+<p>LegalContentSignal — legal-document detection by competition (§4 row 7).</p>
+<p>NEW signal (no 1:1 legacy tier): it replaces the person-tier hard veto at
+<code>ContentOrganizer.classify_by_person</code> with competition (§3.3). The
+<code>LEGAL_DOCUMENT_SIGNALS</code> / <code>LEGAL_SIGNAL_MIN_HITS</code> constants moved here
+from <code>content_organizer.py</code> (which keeps <code>_LEGAL_DOCUMENT_SIGNALS</code> /
+<code>_LEGAL_SIGNAL_MIN_HITS</code> aliases so the legacy veto and its importers keep
+working unchanged).</p>
+<p>On court documents this signal is DESIGNED to outscore <code>PersonalDocSignal</code>
+in aggregate: <code>W_LEGAL (0.85) × confidence</code> plus text-signal reinforcement
+beats <code>W_PERSON (0.9) × confidence</code> — court notices rarely pass the human
+name gate, so the person emission is usually the ungated 0.4. Golden tests
+in a later wave pin that competition (§8.3 "legal-outscores-personal").</p>
+<p>SSRN/research false positives ("agreement" in paper abstracts) are
+suppressed by the filename research rules and by co-occurrence with org and
+person evidence, not by this signal.</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="src.scoring.signals.legal_content.count_legal_signals"><code class="name flex">
+<span>def <span class="ident">count_legal_signals</span></span>(<span>text_lower: str) ‑> Tuple[int, List[str]]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def count_legal_signals(text_lower: str) -&gt; Tuple[int, List[str]]:
+    &#34;&#34;&#34;Distinct LEGAL_DOCUMENT_SIGNALS present in the text (count, sorted).&#34;&#34;&#34;
+    matched = sorted(kw for kw in LEGAL_DOCUMENT_SIGNALS if kw in text_lower)
+    return len(matched), matched</code></pre>
+</details>
+<div class="desc"><p>Distinct LEGAL_DOCUMENT_SIGNALS present in the text (count, sorted).</p></div>
+</dd>
+<dt id="src.scoring.signals.legal_content.legal_confidence"><code class="name flex">
+<span>def <span class="ident">legal_confidence</span></span>(<span>hit_count: int) ‑> float</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def legal_confidence(hit_count: int) -&gt; float:
+    &#34;&#34;&#34;Hit-scaled confidence: base at the minimum hits, +PER_HIT per extra.&#34;&#34;&#34;
+    extra_hits = max(hit_count - LEGAL_SIGNAL_MIN_HITS, 0)
+    return min(LEGAL_CONFIDENCE_BASE + LEGAL_CONFIDENCE_PER_HIT * extra_hits, LEGAL_CONFIDENCE_MAX)</code></pre>
+</details>
+<div class="desc"><p>Hit-scaled confidence: base at the minimum hits, +PER_HIT per extra.</p></div>
+</dd>
+<dt id="src.scoring.signals.legal_content.match_personal_legal_cues"><code class="name flex">
+<span>def <span class="ident">match_personal_legal_cues</span></span>(<span>text_lower: str, cues: Iterable[str]) ‑> List[str]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def match_personal_legal_cues(text_lower: str, cues: Iterable[str]) -&gt; List[str]:
+    &#34;&#34;&#34;Personal-legal cue keywords present in the text (cue-list order).&#34;&#34;&#34;
+    return [cue for cue in cues if cue.lower() in text_lower]</code></pre>
+</details>
+<div class="desc"><p>Personal-legal cue keywords present in the text (cue-list order).</p></div>
+</dd>
+<dt id="src.scoring.signals.legal_content.score_legal_subcategory"><code class="name flex">
+<span>def <span class="ident">score_legal_subcategory</span></span>(<span>text_lower: str, subcategories: Mapping[str, Iterable[str]]) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def score_legal_subcategory(
+    text_lower: str, subcategories: Mapping[str, Iterable[str]]
+) -&gt; str:
+    &#34;&#34;&#34;Best legal subcategory by keyword occurrence counts.
+
+    Mirrors ``ContentClassifier.classify_content`` subcategory scoring
+    (sum of ``text.count(keyword)`` per subcategory, first maximum wins);
+    defaults to ``LEGAL_DEFAULT_SUBCATEGORY`` when nothing matches.
+    &#34;&#34;&#34;
+    best_subcategory = LEGAL_DEFAULT_SUBCATEGORY
+    best_count = 0
+    for subcategory, keywords in subcategories.items():
+        count = sum(text_lower.count(kw.lower()) for kw in keywords)
+        if count &gt; best_count:
+            best_count = count
+            best_subcategory = subcategory
+    return best_subcategory</code></pre>
+</details>
+<div class="desc"><p>Best legal subcategory by keyword occurrence counts.</p>
+<p>Mirrors <code>ContentClassifier.classify_content</code> subcategory scoring
+(sum of <code>text.count(keyword)</code> per subcategory, first maximum wins);
+defaults to <code>LEGAL_DEFAULT_SUBCATEGORY</code> when nothing matches.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="src.scoring.signals.legal_content.LegalContentSignal"><code class="flex name class">
+<span>class <span class="ident">LegalContentSignal</span></span>
+<span>(</span><span>classifier: _LegalClassifier)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class LegalContentSignal:
+    &#34;&#34;&#34;Legal document signals → ``legal/{subcat}`` (+ ``personal/legal``).&#34;&#34;&#34;
+
+    name = &#34;legal_content&#34;
+    weight = W_LEGAL
+    cost_tier = &#34;mid&#34;
+
+    def __init__(self, classifier: _LegalClassifier) -&gt; None:
+        # ContentClassifier: patterns dict for subcategory vocabularies and
+        # extract_people_names for Option C graph-edge evidence.
+        self._classifier = classifier
+
+    def applies_to(self, ctx: FileContext) -&gt; bool:
+        return bool(ctx.text_length &gt;= LEGAL_MIN_TEXT_CHARS)
+
+    def run(self, ctx: FileContext) -&gt; List[CategoryScore]:
+        text = ctx.ensure_text()
+        text_lower = text.lower()
+
+        hits, matched_signals = count_legal_signals(text_lower)
+        if hits &lt; LEGAL_SIGNAL_MIN_HITS:
+            return []
+
+        people = list(self._classifier.extract_people_names(text) or [])
+        base_evidence = {
+            EVIDENCE_PEOPLE: people,
+            EVIDENCE_LEGAL_HITS: hits,
+            EVIDENCE_MATCHED_SIGNALS: matched_signals,
+        }
+
+        legal_subcategories = self._classifier.patterns[PATTERNS_LEGAL_KEY][
+            PATTERNS_SUBCATEGORIES_KEY
+        ]
+        subcategory = score_legal_subcategory(text_lower, legal_subcategories)
+        scores = [
+            CategoryScore(
+                category=LEGAL_CATEGORY,
+                subcategory=subcategory,
+                confidence=legal_confidence(hits),
+                signal_name=self.name,
+                evidence=dict(base_evidence),
+            )
+        ]
+
+        personal_cues = self._classifier.patterns[PATTERNS_PERSONAL_KEY][
+            PATTERNS_SUBCATEGORIES_KEY
+        ].get(PERSONAL_LEGAL_SUBCATEGORY, [])
+        matched_cues = match_personal_legal_cues(text_lower, personal_cues)
+        if matched_cues:
+            personal_evidence = dict(base_evidence)
+            personal_evidence[EVIDENCE_PERSONAL_LEGAL_CUES] = matched_cues
+            scores.append(
+                CategoryScore(
+                    category=PERSONAL_CATEGORY,
+                    subcategory=PERSONAL_LEGAL_SUBCATEGORY,
+                    confidence=LEGAL_PERSONAL_CONFIDENCE,
+                    signal_name=self.name,
+                    evidence=personal_evidence,
+                )
+            )
+        return scores</code></pre>
+</details>
+<div class="desc"><p>Legal document signals → <code>legal/{subcat}</code> (+ <code>personal/legal</code>).</p></div>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.scoring.signals.legal_content.LegalContentSignal.cost_tier"><code class="name">var <span class="ident">cost_tier</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.signals.legal_content.LegalContentSignal.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.signals.legal_content.LegalContentSignal.weight"><code class="name">var <span class="ident">weight</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="src.scoring.signals.legal_content.LegalContentSignal.applies_to"><code class="name flex">
+<span>def <span class="ident">applies_to</span></span>(<span>self, ctx: FileContext) ‑> bool</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def applies_to(self, ctx: FileContext) -&gt; bool:
+    return bool(ctx.text_length &gt;= LEGAL_MIN_TEXT_CHARS)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="src.scoring.signals.legal_content.LegalContentSignal.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self, ctx: FileContext) ‑> List[CategoryScore]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self, ctx: FileContext) -&gt; List[CategoryScore]:
+    text = ctx.ensure_text()
+    text_lower = text.lower()
+
+    hits, matched_signals = count_legal_signals(text_lower)
+    if hits &lt; LEGAL_SIGNAL_MIN_HITS:
+        return []
+
+    people = list(self._classifier.extract_people_names(text) or [])
+    base_evidence = {
+        EVIDENCE_PEOPLE: people,
+        EVIDENCE_LEGAL_HITS: hits,
+        EVIDENCE_MATCHED_SIGNALS: matched_signals,
+    }
+
+    legal_subcategories = self._classifier.patterns[PATTERNS_LEGAL_KEY][
+        PATTERNS_SUBCATEGORIES_KEY
+    ]
+    subcategory = score_legal_subcategory(text_lower, legal_subcategories)
+    scores = [
+        CategoryScore(
+            category=LEGAL_CATEGORY,
+            subcategory=subcategory,
+            confidence=legal_confidence(hits),
+            signal_name=self.name,
+            evidence=dict(base_evidence),
+        )
+    ]
+
+    personal_cues = self._classifier.patterns[PATTERNS_PERSONAL_KEY][
+        PATTERNS_SUBCATEGORIES_KEY
+    ].get(PERSONAL_LEGAL_SUBCATEGORY, [])
+    matched_cues = match_personal_legal_cues(text_lower, personal_cues)
+    if matched_cues:
+        personal_evidence = dict(base_evidence)
+        personal_evidence[EVIDENCE_PERSONAL_LEGAL_CUES] = matched_cues
+        scores.append(
+            CategoryScore(
+                category=PERSONAL_CATEGORY,
+                subcategory=PERSONAL_LEGAL_SUBCATEGORY,
+                confidence=LEGAL_PERSONAL_CONFIDENCE,
+                signal_name=self.name,
+                evidence=personal_evidence,
+            )
+        )
+    return scores</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="src.scoring.signals" href="index.html">src.scoring.signals</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="src.scoring.signals.legal_content.count_legal_signals" href="#src.scoring.signals.legal_content.count_legal_signals">count_legal_signals</a></code></li>
+<li><code><a title="src.scoring.signals.legal_content.legal_confidence" href="#src.scoring.signals.legal_content.legal_confidence">legal_confidence</a></code></li>
+<li><code><a title="src.scoring.signals.legal_content.match_personal_legal_cues" href="#src.scoring.signals.legal_content.match_personal_legal_cues">match_personal_legal_cues</a></code></li>
+<li><code><a title="src.scoring.signals.legal_content.score_legal_subcategory" href="#src.scoring.signals.legal_content.score_legal_subcategory">score_legal_subcategory</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="src.scoring.signals.legal_content.LegalContentSignal" href="#src.scoring.signals.legal_content.LegalContentSignal">LegalContentSignal</a></code></h4>
+<ul class="">
+<li><code><a title="src.scoring.signals.legal_content.LegalContentSignal.applies_to" href="#src.scoring.signals.legal_content.LegalContentSignal.applies_to">applies_to</a></code></li>
+<li><code><a title="src.scoring.signals.legal_content.LegalContentSignal.cost_tier" href="#src.scoring.signals.legal_content.LegalContentSignal.cost_tier">cost_tier</a></code></li>
+<li><code><a title="src.scoring.signals.legal_content.LegalContentSignal.name" href="#src.scoring.signals.legal_content.LegalContentSignal.name">name</a></code></li>
+<li><code><a title="src.scoring.signals.legal_content.LegalContentSignal.run" href="#src.scoring.signals.legal_content.LegalContentSignal.run">run</a></code></li>
+<li><code><a title="src.scoring.signals.legal_content.LegalContentSignal.weight" href="#src.scoring.signals.legal_content.LegalContentSignal.weight">weight</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

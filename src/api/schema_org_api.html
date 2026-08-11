@@ -48,7 +48,7 @@ Supports single entity retrieval and bulk export with filtering.</p>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="src.api.schema_org_api.export_all_entities_schema_org"><code class="name flex">
-<span>async def <span class="ident">export_all_entities_schema_org</span></span>(<span>params: api.schema_org_models.BulkExportParams = Depends(dependency=None, use_cache=True, scope=None),<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">export_all_entities_schema_org</span></span>(<span>params: api.schema_org_models.BulkExportParams = Depends(dependency=None, use_cache=True, scope=None),<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> <a title="src.schema_types.GraphDocument" href="../schema_types.html#src.schema_types.GraphDocument">GraphDocument</a></span>
 </code></dt>
 <dd>
 <details class="source">
@@ -59,7 +59,7 @@ Supports single entity retrieval and bulk export with filtering.</p>
 async def export_all_entities_schema_org(
     params: BulkExportParams = Depends(),
     db: Session = Depends(get_db)
-) -&gt; Dict[str, Any]:
+) -&gt; GraphDocument:
     &#34;&#34;&#34;
     Export all entities as schema.org JSON-LD @graph document.
 
@@ -84,19 +84,21 @@ async def export_all_entities_schema_org(
         entity_classes.append(Location)
 
     exporter = SchemaOrgExporter(db)
-    return exporter.get_graph_document(entity_classes=entity_classes or None)</code></pre>
+    return cast(GraphDocument, exporter.get_graph_document(entity_classes=entity_classes or None))</code></pre>
 </details>
 <div class="desc"><p>Export all entities as schema.org JSON-LD @graph document.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>params</code></strong></dt>
 <dd>Export parameters (entity_types)</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>JSON-LD document with @context and @graph keys containing all matching entities</p></div>
+<p>Returns
+-----=
+JSON-LD document with @context and @graph keys containing all matching entities</p></div>
 </dd>
 <dt id="src.api.schema_org_api.get_categories_schema_org_bulk"><code class="name flex">
-<span>async def <span class="ident">get_categories_schema_org_bulk</span></span>(<span>params: api.schema_org_models.CategoryFilterParams = Depends(dependency=None, use_cache=True, scope=None),<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_categories_schema_org_bulk</span></span>(<span>params: api.schema_org_models.CategoryFilterParams = Depends(dependency=None, use_cache=True, scope=None),<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> <a title="src.schema_types.GraphDocument" href="../schema_types.html#src.schema_types.GraphDocument">GraphDocument</a></span>
 </code></dt>
 <dd>
 <details class="source">
@@ -107,7 +109,7 @@ async def export_all_entities_schema_org(
 async def get_categories_schema_org_bulk(
     params: CategoryFilterParams = Depends(),
     db: Session = Depends(get_db)
-) -&gt; Dict[str, Any]:
+) -&gt; GraphDocument:
     &#34;&#34;&#34;
     Get multiple Categories as schema.org JSON-LD.
 
@@ -133,16 +135,18 @@ async def get_categories_schema_org_bulk(
     }</code></pre>
 </details>
 <div class="desc"><p>Get multiple Categories as schema.org JSON-LD.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>params</code></strong></dt>
 <dd>Pagination and filter parameters</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>JSON-LD document with @context and @graph containing matching Category entities</p></div>
+<p>Returns
+-----=
+JSON-LD document with @context and @graph containing matching Category entities</p></div>
 </dd>
 <dt id="src.api.schema_org_api.get_category_schema_org"><code class="name flex">
-<span>async def <span class="ident">get_category_schema_org</span></span>(<span>category_id: int,<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_category_schema_org</span></span>(<span>category_id: int,<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Mapping[str, JsonValue | SchemaMapping | Sequence[SchemaValue]]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -153,7 +157,7 @@ async def get_categories_schema_org_bulk(
 async def get_category_schema_org(
     category_id: int,
     db: Session = Depends(get_db)
-) -&gt; Dict[str, Any]:
+) -&gt; SchemaMapping:
     &#34;&#34;&#34;
     Get Category as schema.org JSON-LD (DefinedTerm).
 
@@ -164,14 +168,15 @@ async def get_category_schema_org(
     if not category:
         raise HTTPException(status_code=404, detail=f&#34;Category {category_id} not found&#34;)
 
-    return category.to_schema_org()</code></pre>
+    return cast(SchemaMapping, category.to_schema_org())</code></pre>
 </details>
 <div class="desc"><p>Get Category as schema.org JSON-LD (DefinedTerm).</p>
-<h2 id="returns">Returns</h2>
-<p>Category entity as schema.org JSON-LD</p></div>
+<p>Returns
+-----=
+Category entity as schema.org JSON-LD</p></div>
 </dd>
 <dt id="src.api.schema_org_api.get_companies_schema_org_bulk"><code class="name flex">
-<span>async def <span class="ident">get_companies_schema_org_bulk</span></span>(<span>params: api.schema_org_models.CompanyFilterParams = Depends(dependency=None, use_cache=True, scope=None),<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_companies_schema_org_bulk</span></span>(<span>params: api.schema_org_models.CompanyFilterParams = Depends(dependency=None, use_cache=True, scope=None),<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> <a title="src.schema_types.GraphDocument" href="../schema_types.html#src.schema_types.GraphDocument">GraphDocument</a></span>
 </code></dt>
 <dd>
 <details class="source">
@@ -182,7 +187,7 @@ async def get_category_schema_org(
 async def get_companies_schema_org_bulk(
     params: CompanyFilterParams = Depends(),
     db: Session = Depends(get_db)
-) -&gt; Dict[str, Any]:
+) -&gt; GraphDocument:
     &#34;&#34;&#34;
     Get multiple Companies as schema.org JSON-LD.
 
@@ -206,16 +211,18 @@ async def get_companies_schema_org_bulk(
     }</code></pre>
 </details>
 <div class="desc"><p>Get multiple Companies as schema.org JSON-LD.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>params</code></strong></dt>
 <dd>Pagination and filter parameters</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>JSON-LD document with @context and @graph containing matching Company entities</p></div>
+<p>Returns
+-----=
+JSON-LD document with @context and @graph containing matching Company entities</p></div>
 </dd>
 <dt id="src.api.schema_org_api.get_company_by_name_schema_org"><code class="name flex">
-<span>async def <span class="ident">get_company_by_name_schema_org</span></span>(<span>name: str,<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_company_by_name_schema_org</span></span>(<span>name: str,<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Mapping[str, JsonValue | SchemaMapping | Sequence[SchemaValue]]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -226,7 +233,7 @@ async def get_companies_schema_org_bulk(
 async def get_company_by_name_schema_org(
     name: str,
     db: Session = Depends(get_db)
-) -&gt; Dict[str, Any]:
+) -&gt; SchemaMapping:
     &#34;&#34;&#34;
     Get Company by name as schema.org JSON-LD.
 
@@ -240,19 +247,21 @@ async def get_company_by_name_schema_org(
     if not company:
         raise HTTPException(status_code=404, detail=f&#34;Company &#39;{name}&#39; not found&#34;)
 
-    return company.to_schema_org()</code></pre>
+    return cast(SchemaMapping, company.to_schema_org())</code></pre>
 </details>
 <div class="desc"><p>Get Company by name as schema.org JSON-LD.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>name</code></strong></dt>
 <dd>Company name</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Company entity as schema.org JSON-LD</p></div>
+<p>Returns
+-----=
+Company entity as schema.org JSON-LD</p></div>
 </dd>
 <dt id="src.api.schema_org_api.get_company_schema_org"><code class="name flex">
-<span>async def <span class="ident">get_company_schema_org</span></span>(<span>company_id: int,<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_company_schema_org</span></span>(<span>company_id: int,<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Mapping[str, JsonValue | SchemaMapping | Sequence[SchemaValue]]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -263,7 +272,7 @@ async def get_company_by_name_schema_org(
 async def get_company_schema_org(
     company_id: int,
     db: Session = Depends(get_db)
-) -&gt; Dict[str, Any]:
+) -&gt; SchemaMapping:
     &#34;&#34;&#34;
     Get Company as schema.org JSON-LD (Organization).
 
@@ -274,21 +283,22 @@ async def get_company_schema_org(
     if not company:
         raise HTTPException(status_code=404, detail=f&#34;Company {company_id} not found&#34;)
 
-    return company.to_schema_org()</code></pre>
+    return cast(SchemaMapping, company.to_schema_org())</code></pre>
 </details>
 <div class="desc"><p>Get Company as schema.org JSON-LD (Organization).</p>
-<h2 id="returns">Returns</h2>
-<p>Company entity as schema.org JSON-LD</p></div>
+<p>Returns
+-----=
+Company entity as schema.org JSON-LD</p></div>
 </dd>
 <dt id="src.api.schema_org_api.get_db"><code class="name flex">
-<span>def <span class="ident">get_db</span></span>(<span>) ‑> sqlalchemy.orm.session.Session</span>
+<span>def <span class="ident">get_db</span></span>(<span>) ‑> Iterator[sqlalchemy.orm.session.Session]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_db() -&gt; Session:
+<pre><code class="python">def get_db() -&gt; Iterator[Session]:
     &#34;&#34;&#34;Get database session.&#34;&#34;&#34;
     session = get_session()
     try:
@@ -299,7 +309,7 @@ async def get_company_schema_org(
 <div class="desc"><p>Get database session.</p></div>
 </dd>
 <dt id="src.api.schema_org_api.get_file_schema_org"><code class="name flex">
-<span>async def <span class="ident">get_file_schema_org</span></span>(<span>file_id: str,<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_file_schema_org</span></span>(<span>file_id: str,<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Mapping[str, JsonValue | SchemaMapping | Sequence[SchemaValue]]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -310,7 +320,7 @@ async def get_company_schema_org(
 async def get_file_schema_org(
     file_id: str,
     db: Session = Depends(get_db)
-) -&gt; Dict[str, Any]:
+) -&gt; SchemaMapping:
     &#34;&#34;&#34;
     Get File as schema.org JSON-LD.
 
@@ -321,14 +331,15 @@ async def get_file_schema_org(
     if not file:
         raise HTTPException(status_code=404, detail=f&#34;File {file_id} not found&#34;)
 
-    return file.to_schema_org()</code></pre>
+    return cast(SchemaMapping, file.to_schema_org())</code></pre>
 </details>
 <div class="desc"><p>Get File as schema.org JSON-LD.</p>
-<h2 id="returns">Returns</h2>
-<p>File entity as schema.org JSON-LD with @context, @type, @id</p></div>
+<p>Returns
+-----=
+File entity as schema.org JSON-LD with @context, @type, @id</p></div>
 </dd>
 <dt id="src.api.schema_org_api.get_files_schema_org_bulk"><code class="name flex">
-<span>async def <span class="ident">get_files_schema_org_bulk</span></span>(<span>params: api.schema_org_models.FileFilterParams = Depends(dependency=None, use_cache=True, scope=None),<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_files_schema_org_bulk</span></span>(<span>params: api.schema_org_models.FileFilterParams = Depends(dependency=None, use_cache=True, scope=None),<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> <a title="src.schema_types.GraphDocument" href="../schema_types.html#src.schema_types.GraphDocument">GraphDocument</a></span>
 </code></dt>
 <dd>
 <details class="source">
@@ -339,7 +350,7 @@ async def get_file_schema_org(
 async def get_files_schema_org_bulk(
     params: FileFilterParams = Depends(),
     db: Session = Depends(get_db)
-) -&gt; Dict[str, Any]:
+) -&gt; GraphDocument:
     &#34;&#34;&#34;
     Get multiple Files as schema.org JSON-LD.
 
@@ -366,16 +377,18 @@ async def get_files_schema_org_bulk(
     }</code></pre>
 </details>
 <div class="desc"><p>Get multiple Files as schema.org JSON-LD.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>params</code></strong></dt>
 <dd>Pagination and filter parameters</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>JSON-LD document with @context and @graph containing matching File entities</p></div>
+<p>Returns
+-----=
+JSON-LD document with @context and @graph containing matching File entities</p></div>
 </dd>
 <dt id="src.api.schema_org_api.get_full_graph_document"><code class="name flex">
-<span>async def <span class="ident">get_full_graph_document</span></span>(<span>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_full_graph_document</span></span>(<span>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> <a title="src.schema_types.GraphDocument" href="../schema_types.html#src.schema_types.GraphDocument">GraphDocument</a></span>
 </code></dt>
 <dd>
 <details class="source">
@@ -385,7 +398,7 @@ async def get_files_schema_org_bulk(
 <pre><code class="python">@app.get(&#34;/api/schema-org/graph&#34;, response_model=Dict[str, Any])
 async def get_full_graph_document(
     db: Session = Depends(get_db)
-) -&gt; Dict[str, Any]:
+) -&gt; GraphDocument:
     &#34;&#34;&#34;
     Return a full JSON-LD @graph document for all entity types.
 
@@ -393,14 +406,15 @@ async def get_full_graph_document(
         JSON-LD document with @context and @graph containing all entities
     &#34;&#34;&#34;
     exporter = SchemaOrgExporter(db)
-    return exporter.get_graph_document()</code></pre>
+    return cast(GraphDocument, exporter.get_graph_document())</code></pre>
 </details>
 <div class="desc"><p>Return a full JSON-LD @graph document for all entity types.</p>
-<h2 id="returns">Returns</h2>
-<p>JSON-LD document with @context and @graph containing all entities</p></div>
+<p>Returns
+-----=
+JSON-LD document with @context and @graph containing all entities</p></div>
 </dd>
 <dt id="src.api.schema_org_api.get_location_by_name_schema_org"><code class="name flex">
-<span>async def <span class="ident">get_location_by_name_schema_org</span></span>(<span>name: str,<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_location_by_name_schema_org</span></span>(<span>name: str,<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Mapping[str, JsonValue | SchemaMapping | Sequence[SchemaValue]]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -411,7 +425,7 @@ async def get_full_graph_document(
 async def get_location_by_name_schema_org(
     name: str,
     db: Session = Depends(get_db)
-) -&gt; Dict[str, Any]:
+) -&gt; SchemaMapping:
     &#34;&#34;&#34;
     Get Location by name as schema.org JSON-LD.
 
@@ -425,19 +439,21 @@ async def get_location_by_name_schema_org(
     if not location:
         raise HTTPException(status_code=404, detail=f&#34;Location &#39;{name}&#39; not found&#34;)
 
-    return location.to_schema_org()</code></pre>
+    return cast(SchemaMapping, location.to_schema_org())</code></pre>
 </details>
 <div class="desc"><p>Get Location by name as schema.org JSON-LD.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>name</code></strong></dt>
 <dd>Location name</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Location entity as schema.org JSON-LD</p></div>
+<p>Returns
+-----=
+Location entity as schema.org JSON-LD</p></div>
 </dd>
 <dt id="src.api.schema_org_api.get_location_schema_org"><code class="name flex">
-<span>async def <span class="ident">get_location_schema_org</span></span>(<span>location_id: int,<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_location_schema_org</span></span>(<span>location_id: int,<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Mapping[str, JsonValue | SchemaMapping | Sequence[SchemaValue]]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -448,7 +464,7 @@ async def get_location_by_name_schema_org(
 async def get_location_schema_org(
     location_id: int,
     db: Session = Depends(get_db)
-) -&gt; Dict[str, Any]:
+) -&gt; SchemaMapping:
     &#34;&#34;&#34;
     Get Location as schema.org JSON-LD (Place).
 
@@ -459,14 +475,15 @@ async def get_location_schema_org(
     if not location:
         raise HTTPException(status_code=404, detail=f&#34;Location {location_id} not found&#34;)
 
-    return location.to_schema_org()</code></pre>
+    return cast(SchemaMapping, location.to_schema_org())</code></pre>
 </details>
 <div class="desc"><p>Get Location as schema.org JSON-LD (Place).</p>
-<h2 id="returns">Returns</h2>
-<p>Location entity as schema.org JSON-LD</p></div>
+<p>Returns
+-----=
+Location entity as schema.org JSON-LD</p></div>
 </dd>
 <dt id="src.api.schema_org_api.get_locations_schema_org_bulk"><code class="name flex">
-<span>async def <span class="ident">get_locations_schema_org_bulk</span></span>(<span>params: api.schema_org_models.LocationFilterParams = Depends(dependency=None, use_cache=True, scope=None),<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_locations_schema_org_bulk</span></span>(<span>params: api.schema_org_models.LocationFilterParams = Depends(dependency=None, use_cache=True, scope=None),<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> <a title="src.schema_types.GraphDocument" href="../schema_types.html#src.schema_types.GraphDocument">GraphDocument</a></span>
 </code></dt>
 <dd>
 <details class="source">
@@ -477,7 +494,7 @@ async def get_location_schema_org(
 async def get_locations_schema_org_bulk(
     params: LocationFilterParams = Depends(),
     db: Session = Depends(get_db)
-) -&gt; Dict[str, Any]:
+) -&gt; GraphDocument:
     &#34;&#34;&#34;
     Get multiple Locations as schema.org JSON-LD.
 
@@ -501,16 +518,18 @@ async def get_locations_schema_org_bulk(
     }</code></pre>
 </details>
 <div class="desc"><p>Get multiple Locations as schema.org JSON-LD.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>params</code></strong></dt>
 <dd>Pagination and filter parameters</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>JSON-LD document with @context and @graph containing matching Location entities</p></div>
+<p>Returns
+-----=
+JSON-LD document with @context and @graph containing matching Location entities</p></div>
 </dd>
 <dt id="src.api.schema_org_api.get_people_schema_org_bulk"><code class="name flex">
-<span>async def <span class="ident">get_people_schema_org_bulk</span></span>(<span>params: api.schema_org_models.PersonFilterParams = Depends(dependency=None, use_cache=True, scope=None),<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_people_schema_org_bulk</span></span>(<span>params: api.schema_org_models.PersonFilterParams = Depends(dependency=None, use_cache=True, scope=None),<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> <a title="src.schema_types.GraphDocument" href="../schema_types.html#src.schema_types.GraphDocument">GraphDocument</a></span>
 </code></dt>
 <dd>
 <details class="source">
@@ -521,7 +540,7 @@ async def get_locations_schema_org_bulk(
 async def get_people_schema_org_bulk(
     params: PersonFilterParams = Depends(),
     db: Session = Depends(get_db)
-) -&gt; Dict[str, Any]:
+) -&gt; GraphDocument:
     &#34;&#34;&#34;
     Get multiple People as schema.org JSON-LD.
 
@@ -545,16 +564,18 @@ async def get_people_schema_org_bulk(
     }</code></pre>
 </details>
 <div class="desc"><p>Get multiple People as schema.org JSON-LD.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>params</code></strong></dt>
 <dd>Pagination and filter parameters</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>JSON-LD document with @context and @graph containing matching Person entities</p></div>
+<p>Returns
+-----=
+JSON-LD document with @context and @graph containing matching Person entities</p></div>
 </dd>
 <dt id="src.api.schema_org_api.get_person_by_name_schema_org"><code class="name flex">
-<span>async def <span class="ident">get_person_by_name_schema_org</span></span>(<span>name: str,<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_person_by_name_schema_org</span></span>(<span>name: str,<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Mapping[str, JsonValue | SchemaMapping | Sequence[SchemaValue]]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -565,7 +586,7 @@ async def get_people_schema_org_bulk(
 async def get_person_by_name_schema_org(
     name: str,
     db: Session = Depends(get_db)
-) -&gt; Dict[str, Any]:
+) -&gt; SchemaMapping:
     &#34;&#34;&#34;
     Get Person by name as schema.org JSON-LD.
 
@@ -579,19 +600,21 @@ async def get_person_by_name_schema_org(
     if not person:
         raise HTTPException(status_code=404, detail=f&#34;Person &#39;{name}&#39; not found&#34;)
 
-    return person.to_schema_org()</code></pre>
+    return cast(SchemaMapping, person.to_schema_org())</code></pre>
 </details>
 <div class="desc"><p>Get Person by name as schema.org JSON-LD.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>name</code></strong></dt>
 <dd>Person name</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Person entity as schema.org JSON-LD</p></div>
+<p>Returns
+-----=
+Person entity as schema.org JSON-LD</p></div>
 </dd>
 <dt id="src.api.schema_org_api.get_person_schema_org"><code class="name flex">
-<span>async def <span class="ident">get_person_schema_org</span></span>(<span>person_id: int,<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_person_schema_org</span></span>(<span>person_id: int,<br>db: sqlalchemy.orm.session.Session = Depends(dependency=&lt;function get_db&gt;, use_cache=True, scope=None)) ‑> Mapping[str, JsonValue | SchemaMapping | Sequence[SchemaValue]]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -602,7 +625,7 @@ async def get_person_by_name_schema_org(
 async def get_person_schema_org(
     person_id: int,
     db: Session = Depends(get_db)
-) -&gt; Dict[str, Any]:
+) -&gt; SchemaMapping:
     &#34;&#34;&#34;
     Get Person as schema.org JSON-LD.
 
@@ -613,14 +636,15 @@ async def get_person_schema_org(
     if not person:
         raise HTTPException(status_code=404, detail=f&#34;Person {person_id} not found&#34;)
 
-    return person.to_schema_org()</code></pre>
+    return cast(SchemaMapping, person.to_schema_org())</code></pre>
 </details>
 <div class="desc"><p>Get Person as schema.org JSON-LD.</p>
-<h2 id="returns">Returns</h2>
-<p>Person entity as schema.org JSON-LD</p></div>
+<p>Returns
+-----=
+Person entity as schema.org JSON-LD</p></div>
 </dd>
 <dt id="src.api.schema_org_api.get_schema_context"><code class="name flex">
-<span>async def <span class="ident">get_schema_context</span></span>(<span>) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_schema_context</span></span>(<span>) ‑> Mapping[str, JsonValue | SchemaMapping | Sequence[SchemaValue]]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -628,18 +652,19 @@ async def get_person_schema_org(
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@app.get(&#34;/schema/context&#34;, response_model=Dict[str, Any])
-async def get_schema_context() -&gt; Dict[str, Any]:
+async def get_schema_context() -&gt; SchemaMapping:
     &#34;&#34;&#34;
     Return the JSON-LD @context document for this API.
 
     Returns:
         Standalone JSON-LD context document mapping all schema.org and custom terms
     &#34;&#34;&#34;
-    return get_context_document()</code></pre>
+    return cast(SchemaMapping, get_context_document())</code></pre>
 </details>
 <div class="desc"><p>Return the JSON-LD @context document for this API.</p>
-<h2 id="returns">Returns</h2>
-<p>Standalone JSON-LD context document mapping all schema.org and custom terms</p></div>
+<p>Returns
+-----=
+Standalone JSON-LD context document mapping all schema.org and custom terms</p></div>
 </dd>
 <dt id="src.api.schema_org_api.health_check"><code class="name flex">
 <span>async def <span class="ident">health_check</span></span>(<span>) ‑> Dict[str, str]</span>

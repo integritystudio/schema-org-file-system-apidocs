@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>src.storage.file_count_migration API documentation</title>
+<meta name="description" content="Drop the denormalized ``file_count`` caches; add the association indexes …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>src.storage.file_count_migration</code></h1>
+</header>
+<section id="section-intro">
+<p>Drop the denormalized <code>file_count</code> caches; add the association indexes.</p>
+<p><code>Category</code>/<code>Company</code>/<code>Person</code>/<code>Location</code> each stored a <code>file_count</code>
+that had to be incremented and decremented by hand at 12 call sites across three
+modules. Any write that bypassed those sites left the number wrong, and the stale
+value was <em>exported</em> as <code>fileCount</code>/<code>mentionCount</code> in the JSON-LD
+(<code>models.build_*_jsonld</code>) and shown on the dashboard. On 2026-07-26 four
+category counts had drifted, all from raw-SQL edge repairs — which no amount of
+call-site discipline can cover.</p>
+<p><code>file_count</code> is now derived: a correlated <code>COUNT</code> over the entity's
+association table, evaluated by the database in the same SELECT that loads the
+entity (<code>models._edge_count_property</code>). Nothing is cached, so nothing can
+drift. This migration brings an existing database to that shape:</p>
+<ol>
+<li><strong>Create the four association indexes.</strong> <code>ix_file_categories_category_id</code>
+and its siblings are declared in the model, but <code>Base.metadata.create_all</code>
+skips tables that already exist — so databases created before those
+declarations never got them. The derived count needs them: with the index each
+count is a covering-index lookup; without it, a table scan per entity row.</li>
+<li><strong>Drop the four <code>file_count</code> columns.</strong> Left in place they would keep
+serving stale numbers to anything reading the tables directly (<code>sqlite3</code>,
+the D1 mirror), which is the failure mode being removed.</li>
+</ol>
+<p>Fresh databases get the correct shape from <code>create_all</code> and need no migration.
+Idempotent: existing indexes are left alone and absent columns are skipped, so
+re-running is a no-op. Requires SQLite 3.35+ for <code>ALTER TABLE DROP COLUMN</code>
+(bundled Python 3.12+ ships 3.37+). Surfaced via
+<code>organize-files migrate-file-counts</code>.</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="src.storage.file_count_migration.index_name"><code class="name flex">
+<span>def <span class="ident">index_name</span></span>(<span>assoc_table: str, fk_column: str) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def index_name(assoc_table: str, fk_column: str) -&gt; str:
+    &#34;&#34;&#34;``ix_file_categories_category_id`` — must match the model declaration.&#34;&#34;&#34;
+    return f&#34;ix_{assoc_table}_{fk_column}&#34;</code></pre>
+</details>
+<div class="desc"><p><code>ix_file_categories_category_id</code> — must match the model declaration.</p></div>
+</dd>
+<dt id="src.storage.file_count_migration.run_file_count_migration"><code class="name flex">
+<span>def <span class="ident">run_file_count_migration</span></span>(<span>db_path: str | pathlib.Path = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'),<br>dry_run: bool = False) ‑> <a title="src.storage.file_count_migration.FileCountMigrationResult" href="#src.storage.file_count_migration.FileCountMigrationResult">FileCountMigrationResult</a></span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run_file_count_migration(
+    db_path: Union[str, Path] = DEFAULT_DB_PATH, dry_run: bool = False
+) -&gt; FileCountMigrationResult:
+    &#34;&#34;&#34;Add the association indexes, then drop the ``file_count`` cache columns.
+
+    Args:
+        db_path: Path to SQLite database
+        dry_run: If True, show what would be done without making changes
+
+    Returns:
+        Migration statistics: ``indexes_created``, ``columns_dropped``,
+        ``drifted_counts`` (how many cached values were already wrong at the
+        moment they were discarded — reported for the record), and
+        ``drop_column_unsupported`` when the SQLite build is too old.
+    &#34;&#34;&#34;
+    db_file = Path(db_path)
+    if not db_file.exists():
+        print(f&#34;Error: Database not found at {db_path}&#34;)
+        return {&#34;error&#34;: &#34;Database not found&#34;}
+
+    # Seeded so the returned keys are stable whether or not anything ran —
+    # callers should not have to know which phases were no-ops.
+    stats: Dict[str, int] = defaultdict(int)
+    stats[&#34;indexes_created&#34;] = 0
+    stats[&#34;columns_dropped&#34;] = 0
+    stats[&#34;drifted_counts&#34;] = 0
+    drifted: List[DriftEntry] = []
+    conn = sqlite3.connect(str(db_path))
+
+    try:
+        print(&#34;Phase 1: Association Indexes&#34;)
+        print(&#34;-&#34; * SEPARATOR_WIDTH_SMALL)
+        for entity_table, assoc_table, fk_column in EDGE_SOURCES:
+            if not _table_exists(conn, assoc_table):
+                print(f&#34;  {assoc_table}: table absent, skipping&#34;)
+                continue
+            index = index_name(assoc_table, fk_column)
+            if _index_exists(conn, index):
+                print(f&#34;  {index}: already present&#34;)
+                continue
+            if dry_run:
+                print(f&#34;  [DRY RUN] Would create {index} on {assoc_table} ({fk_column})&#34;)
+            else:
+                conn.execute(f&#34;CREATE INDEX {index} ON {assoc_table} ({fk_column})&#34;)
+                print(f&#34;  {index}: created&#34;)
+            stats[&#34;indexes_created&#34;] += 1
+
+        print(&#34;\nPhase 2: Drift Census (report only — these values are about to go)&#34;)
+        print(&#34;-&#34; * SEPARATOR_WIDTH_SMALL)
+        for entity_table, assoc_table, fk_column in EDGE_SOURCES:
+            if not _table_exists(conn, entity_table) or not _has_column(
+                conn, entity_table, FILE_COUNT_COLUMN
+            ):
+                continue
+            rows = conn.execute(
+                f&#34;SELECT e.id, e.name, e.{FILE_COUNT_COLUMN}, &#34;
+                f&#34;(SELECT COUNT(*) FROM {assoc_table} a WHERE a.{fk_column} = e.id) &#34;
+                f&#34;FROM {entity_table} e&#34;
+            ).fetchall()
+            for _entity_id, name, stored, actual in rows:
+                if int(stored or 0) == int(actual or 0):
+                    continue
+                drifted.append(
+                    {
+                        &#34;table&#34;: entity_table,
+                        &#34;name&#34;: name,
+                        &#34;stored&#34;: int(stored or 0),
+                        &#34;actual&#34;: int(actual or 0),
+                    }
+                )
+        stats[&#34;drifted_counts&#34;] = len(drifted)
+        if drifted:
+            print(f&#34;  {len(drifted)} cached count(s) already disagreed with their edges:&#34;)
+            for entry in drifted:
+                print(
+                    f&#34;    {entry[&#39;table&#39;]:&lt;12} {str(entry[&#39;name&#39;])[:34]:&lt;36} &#34;
+                    f&#34;{entry[&#39;stored&#39;]} -&gt; {entry[&#39;actual&#39;]}&#34;
+                )
+            print(&#34;  The derived value is correct for all of them; no repair needed.&#34;)
+        else:
+            print(&#34;  Every cached count matched its edges at drop time&#34;)
+
+        print(f&#34;\nPhase 3: Drop {FILE_COUNT_COLUMN} Columns&#34;)
+        print(&#34;-&#34; * SEPARATOR_WIDTH_SMALL)
+        if not _supports_drop_column():
+            required = &#34;.&#34;.join(str(part) for part in MIN_SQLITE_DROP_COLUMN)
+            print(
+                f&#34;  SKIP: SQLite {sqlite3.sqlite_version} lacks ALTER TABLE DROP COLUMN &#34;
+                f&#34;(needs {required}+).&#34;
+            )
+            print(&#34;  The columns are now unmapped and unread, so they are harmless but stale.&#34;)
+            stats[&#34;drop_column_unsupported&#34;] = 1
+        else:
+            for entity_table, _assoc_table, _fk_column in EDGE_SOURCES:
+                if not _table_exists(conn, entity_table):
+                    print(f&#34;  {entity_table}: table absent, skipping&#34;)
+                    continue
+                if not _has_column(conn, entity_table, FILE_COUNT_COLUMN):
+                    print(f&#34;  {entity_table}.{FILE_COUNT_COLUMN}: already dropped&#34;)
+                    continue
+                if dry_run:
+                    print(f&#34;  [DRY RUN] Would drop {entity_table}.{FILE_COUNT_COLUMN}&#34;)
+                else:
+                    conn.execute(f&#34;ALTER TABLE {entity_table} DROP COLUMN {FILE_COUNT_COLUMN}&#34;)
+                    print(f&#34;  {entity_table}.{FILE_COUNT_COLUMN}: dropped&#34;)
+                stats[&#34;columns_dropped&#34;] += 1
+
+        if not dry_run:
+            conn.commit()
+
+        print(&#34;\n&#34; + &#34;=&#34; * SEPARATOR_WIDTH_SMALL)
+        print(&#34;Migration Summary&#34;)
+        print(&#34;=&#34; * SEPARATOR_WIDTH_SMALL)
+        print(f&#34;  Indexes created:       {stats.get(&#39;indexes_created&#39;, 0)}&#34;)
+        print(f&#34;  Columns dropped:       {stats.get(&#39;columns_dropped&#39;, 0)}&#34;)
+        print(f&#34;  Drifted at drop time:  {stats.get(&#39;drifted_counts&#39;, 0)}&#34;)
+        if dry_run:
+            print(&#34;\n  [DRY RUN] No changes were made&#34;)
+
+    finally:
+        conn.close()
+
+    result: FileCountMigrationResult = {
+        &#34;indexes_created&#34;: stats[&#34;indexes_created&#34;],
+        &#34;columns_dropped&#34;: stats[&#34;columns_dropped&#34;],
+        &#34;drifted_counts&#34;: stats[&#34;drifted_counts&#34;],
+        &#34;drifted&#34;: drifted,
+    }
+    if &#34;drop_column_unsupported&#34; in stats:
+        result[&#34;drop_column_unsupported&#34;] = stats[&#34;drop_column_unsupported&#34;]
+    return result</code></pre>
+</details>
+<div class="desc"><p>Add the association indexes, then drop the <code>file_count</code> cache columns.</p>
+<dl>
+<dt>Args</dt>
+<dt>-----=</dt>
+<dt><strong><code>db_path</code></strong></dt>
+<dd>Path to SQLite database</dd>
+<dt><strong><code>dry_run</code></strong></dt>
+<dd>If True, show what would be done without making changes</dd>
+<dt>Returns</dt>
+<dt>-----=</dt>
+<dt><code>Migration statistics</code></dt>
+<dd><code>indexes_created</code>, <code>columns_dropped</code>,</dd>
+</dl>
+<p><code>drifted_counts</code> (how many cached values were already wrong at the
+moment they were discarded — reported for the record), and
+<code>drop_column_unsupported</code> when the SQLite build is too old.</p></div>
+</dd>
+<dt id="src.storage.file_count_migration.run_file_count_migration_with_banner"><code class="name flex">
+<span>def <span class="ident">run_file_count_migration_with_banner</span></span>(<span>db_path: str | pathlib.Path = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'),<br>dry_run: bool = False) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run_file_count_migration_with_banner(
+    db_path: Union[str, Path] = DEFAULT_DB_PATH,
+    dry_run: bool = False,
+) -&gt; None:
+    &#34;&#34;&#34;Print the banner, run the file_count migration, print the closer.
+
+    Single-sources the banner text for ``organize-files migrate-file-counts``,
+    mirroring :func:`src.storage.category_migration.run_category_migration_with_banner`.
+
+    :param db_path: Path to the SQLite database.
+    :param dry_run: If True, passes ``dry_run=True`` and prints a dry-run notice.
+    &#34;&#34;&#34;
+    separator = &#34;=&#34; * SEPARATOR_WIDTH_MEDIUM
+    print(f&#34;\n{separator}&#34;)
+    print(&#34;Running file_count Cache Removal Migration&#34;)
+    print(f&#34;{separator}\n&#34;)
+    run_file_count_migration(db_path, dry_run=dry_run)
+    if dry_run:
+        print(&#34;\n[DRY RUN] No changes were made.&#34;)
+    else:
+        print(
+            &#34;\nMigration complete. file_count is derived from association rows; &#34;
+            &#34;there is no cached value left to drift.&#34;
+        )</code></pre>
+</details>
+<div class="desc"><p>Print the banner, run the file_count migration, print the closer.</p>
+<p>Single-sources the banner text for <code>organize-files migrate-file-counts</code>,
+mirroring :func:<code><a title="src.storage.category_migration.run_category_migration_with_banner" href="category_migration.html#src.storage.category_migration.run_category_migration_with_banner">run_category_migration_with_banner()</a></code>.</p>
+<p>:param db_path: Path to the SQLite database.
+:param dry_run: If True, passes <code>dry_run=True</code> and prints a dry-run notice.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="src.storage.file_count_migration.DriftEntry"><code class="flex name class">
+<span>class <span class="ident">DriftEntry</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DriftEntry(TypedDict):
+    &#34;&#34;&#34;One cached count that disagreed with its edges at drop time.&#34;&#34;&#34;
+    table: str
+    name: Optional[str]
+    stored: int
+    actual: int</code></pre>
+</details>
+<div class="desc"><p>One cached count that disagreed with its edges at drop time.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.storage.file_count_migration.DriftEntry.actual"><code class="name">var <span class="ident">actual</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.file_count_migration.DriftEntry.name"><code class="name">var <span class="ident">name</span> : str | None</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.file_count_migration.DriftEntry.stored"><code class="name">var <span class="ident">stored</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.file_count_migration.DriftEntry.table"><code class="name">var <span class="ident">table</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.storage.file_count_migration.FileCountMigrationResult"><code class="flex name class">
+<span>class <span class="ident">FileCountMigrationResult</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FileCountMigrationResult(TypedDict, total=False):
+    &#34;&#34;&#34;``run_file_count_migration()`` shape: the error short-circuit, or
+    the stats keys (``drop_column_unsupported`` only on old SQLite).&#34;&#34;&#34;
+    error: str
+    indexes_created: int
+    columns_dropped: int
+    drifted_counts: int
+    drop_column_unsupported: int
+    drifted: List[DriftEntry]</code></pre>
+</details>
+<div class="desc"><p><code><a title="src.storage.file_count_migration.run_file_count_migration" href="#src.storage.file_count_migration.run_file_count_migration">run_file_count_migration()</a></code> shape: the error short-circuit, or
+the stats keys (<code>drop_column_unsupported</code> only on old SQLite).</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.storage.file_count_migration.FileCountMigrationResult.columns_dropped"><code class="name">var <span class="ident">columns_dropped</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.file_count_migration.FileCountMigrationResult.drifted"><code class="name">var <span class="ident">drifted</span> : List[<a title="src.storage.file_count_migration.DriftEntry" href="#src.storage.file_count_migration.DriftEntry">DriftEntry</a>]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.file_count_migration.FileCountMigrationResult.drifted_counts"><code class="name">var <span class="ident">drifted_counts</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.file_count_migration.FileCountMigrationResult.drop_column_unsupported"><code class="name">var <span class="ident">drop_column_unsupported</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.file_count_migration.FileCountMigrationResult.error"><code class="name">var <span class="ident">error</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.file_count_migration.FileCountMigrationResult.indexes_created"><code class="name">var <span class="ident">indexes_created</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="src.storage" href="index.html">src.storage</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="src.storage.file_count_migration.index_name" href="#src.storage.file_count_migration.index_name">index_name</a></code></li>
+<li><code><a title="src.storage.file_count_migration.run_file_count_migration" href="#src.storage.file_count_migration.run_file_count_migration">run_file_count_migration</a></code></li>
+<li><code><a title="src.storage.file_count_migration.run_file_count_migration_with_banner" href="#src.storage.file_count_migration.run_file_count_migration_with_banner">run_file_count_migration_with_banner</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="src.storage.file_count_migration.DriftEntry" href="#src.storage.file_count_migration.DriftEntry">DriftEntry</a></code></h4>
+<ul class="">
+<li><code><a title="src.storage.file_count_migration.DriftEntry.actual" href="#src.storage.file_count_migration.DriftEntry.actual">actual</a></code></li>
+<li><code><a title="src.storage.file_count_migration.DriftEntry.name" href="#src.storage.file_count_migration.DriftEntry.name">name</a></code></li>
+<li><code><a title="src.storage.file_count_migration.DriftEntry.stored" href="#src.storage.file_count_migration.DriftEntry.stored">stored</a></code></li>
+<li><code><a title="src.storage.file_count_migration.DriftEntry.table" href="#src.storage.file_count_migration.DriftEntry.table">table</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.storage.file_count_migration.FileCountMigrationResult" href="#src.storage.file_count_migration.FileCountMigrationResult">FileCountMigrationResult</a></code></h4>
+<ul class="">
+<li><code><a title="src.storage.file_count_migration.FileCountMigrationResult.columns_dropped" href="#src.storage.file_count_migration.FileCountMigrationResult.columns_dropped">columns_dropped</a></code></li>
+<li><code><a title="src.storage.file_count_migration.FileCountMigrationResult.drifted" href="#src.storage.file_count_migration.FileCountMigrationResult.drifted">drifted</a></code></li>
+<li><code><a title="src.storage.file_count_migration.FileCountMigrationResult.drifted_counts" href="#src.storage.file_count_migration.FileCountMigrationResult.drifted_counts">drifted_counts</a></code></li>
+<li><code><a title="src.storage.file_count_migration.FileCountMigrationResult.drop_column_unsupported" href="#src.storage.file_count_migration.FileCountMigrationResult.drop_column_unsupported">drop_column_unsupported</a></code></li>
+<li><code><a title="src.storage.file_count_migration.FileCountMigrationResult.error" href="#src.storage.file_count_migration.FileCountMigrationResult.error">error</a></code></li>
+<li><code><a title="src.storage.file_count_migration.FileCountMigrationResult.indexes_created" href="#src.storage.file_count_migration.FileCountMigrationResult.indexes_created">indexes_created</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

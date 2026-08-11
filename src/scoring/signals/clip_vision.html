@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>src.scoring.signals.clip_vision API documentation</title>
+<meta name="description" content="ClipVisionSignal — 20-prompt CLIP label votes for images …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>src.scoring.signals.clip_vision</code></h1>
+</header>
+<section id="section-intro">
+<p>ClipVisionSignal — 20-prompt CLIP label votes for images.</p>
+<p>Extracted from <code>ContentOrganizer._run_clip_signal</code> + <code>_map_clip_label</code>
+(UNIFIED_SCORING_PLAN §4 row 11). <code>GEOGRAPHIC_LABELS</code> moved here from the
+organizer (which keeps <code>_GEOGRAPHIC_LABELS</code> as a class-attribute alias);
+<code><a title="src.scoring.signals.clip_vision.map_clip_label" href="#src.scoring.signals.clip_vision.map_clip_label">map_clip_label()</a></code> is the pure mapping the legacy <code>_map_clip_label</code> now
+delegates to, including the GPS → <code>GPS_TRAVEL_CATEGORY</code> upgrade for
+geographic labels.</p>
+<p>Divergence (by design, §4 row 11): the legacy <code>_run_clip_signal</code> hard-gates
+on <code>CLIP_ENHANCE_THRESHOLD</code> — a top score below it yields no candidate at
+all. Here that threshold becomes a <em>soft floor</em>: the top
+<code>CLIP_TOP_EMISSIONS</code> labels are emitted at their raw CLIP score and weak
+votes simply lose on weight during aggregation. The legacy method keeps its
+hard threshold untouched.</p>
+<p>Evidence per emission carries the raw <code>clip_label</code>/<code>clip_score</code> pair; the
+decision adapter later maps the top one onto the legacy
+<code>_last_file_state["clip_description"]</code> schema.org description state.</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="src.scoring.signals.clip_vision.map_clip_label"><code class="name flex">
+<span>def <span class="ident">map_clip_label</span></span>(<span>label: str,<br>image_metadata: Optional[Mapping[str, object]],<br>label_to_organizer: Mapping[str, Tuple[str, str]],<br>geographic_labels: FrozenSet[str]) ‑> Tuple[str, str] | None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def map_clip_label(
+    label: str,
+    image_metadata: Optional[Mapping[str, object]],
+    label_to_organizer: Mapping[str, Tuple[str, str]],
+    geographic_labels: FrozenSet[str],
+) -&gt; Optional[Tuple[str, str]]:
+    &#34;&#34;&#34;Map a CLIP label to ``(category, subcategory)``, or ``None`` if unmapped.
+
+    Reproduces ``ContentOrganizer._map_clip_label`` exactly: unknown labels
+    return ``None``; geographic labels upgrade to ``GPS_TRAVEL_CATEGORY``
+    when the image metadata carries GPS coordinates.
+    &#34;&#34;&#34;
+    mapping = label_to_organizer.get(label)
+    if not mapping:
+        return None
+    category, subcategory = mapping
+    if image_metadata and image_metadata.get(GPS_COORDINATES_KEY) and label in geographic_labels:
+        category, subcategory = GPS_TRAVEL_CATEGORY
+    return (category, subcategory)</code></pre>
+</details>
+<div class="desc"><p>Map a CLIP label to <code>(category, subcategory)</code>, or <code>None</code> if unmapped.</p>
+<p>Reproduces <code>ContentOrganizer._map_clip_label</code> exactly: unknown labels
+return <code>None</code>; geographic labels upgrade to <code>GPS_TRAVEL_CATEGORY</code>
+when the image metadata carries GPS coordinates.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="src.scoring.signals.clip_vision.ClipVisionSignal"><code class="flex name class">
+<span>class <span class="ident">ClipVisionSignal</span></span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ClipVisionSignal:
+    &#34;&#34;&#34;Votes for the organizer mappings of the top CLIP labels.&#34;&#34;&#34;
+
+    name = &#34;clip_vision&#34;
+    weight = W_CLIP
+    cost_tier = &#34;heavy&#34;
+
+    def applies_to(self, ctx: FileContext) -&gt; bool:
+        return bool(ctx.is_image)
+
+    def run(self, ctx: FileContext) -&gt; List[CategoryScore]:
+        scores = ctx.ensure_clip()
+        if not scores:
+            return []
+        image_metadata = ctx.ensure_image_metadata()
+
+        ranked = sorted(scores.items(), key=lambda item: item[1], reverse=True)
+        emissions: List[CategoryScore] = []
+        for label, score in ranked[:CLIP_TOP_EMISSIONS]:
+            mapped = map_clip_label(
+                label, image_metadata, CLIP_LABEL_TO_ORGANIZER, GEOGRAPHIC_LABELS
+            )
+            if mapped is None:
+                continue
+            category, subcategory = mapped
+            emissions.append(
+                CategoryScore(
+                    category=category,
+                    subcategory=subcategory,
+                    confidence=score,
+                    signal_name=self.name,
+                    evidence={EVIDENCE_CLIP_LABEL: label, EVIDENCE_CLIP_SCORE: score},
+                )
+            )
+        return emissions</code></pre>
+</details>
+<div class="desc"><p>Votes for the organizer mappings of the top CLIP labels.</p></div>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.scoring.signals.clip_vision.ClipVisionSignal.cost_tier"><code class="name">var <span class="ident">cost_tier</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.signals.clip_vision.ClipVisionSignal.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.signals.clip_vision.ClipVisionSignal.weight"><code class="name">var <span class="ident">weight</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="src.scoring.signals.clip_vision.ClipVisionSignal.applies_to"><code class="name flex">
+<span>def <span class="ident">applies_to</span></span>(<span>self, ctx: FileContext) ‑> bool</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def applies_to(self, ctx: FileContext) -&gt; bool:
+    return bool(ctx.is_image)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="src.scoring.signals.clip_vision.ClipVisionSignal.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self, ctx: FileContext) ‑> List[CategoryScore]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self, ctx: FileContext) -&gt; List[CategoryScore]:
+    scores = ctx.ensure_clip()
+    if not scores:
+        return []
+    image_metadata = ctx.ensure_image_metadata()
+
+    ranked = sorted(scores.items(), key=lambda item: item[1], reverse=True)
+    emissions: List[CategoryScore] = []
+    for label, score in ranked[:CLIP_TOP_EMISSIONS]:
+        mapped = map_clip_label(
+            label, image_metadata, CLIP_LABEL_TO_ORGANIZER, GEOGRAPHIC_LABELS
+        )
+        if mapped is None:
+            continue
+        category, subcategory = mapped
+        emissions.append(
+            CategoryScore(
+                category=category,
+                subcategory=subcategory,
+                confidence=score,
+                signal_name=self.name,
+                evidence={EVIDENCE_CLIP_LABEL: label, EVIDENCE_CLIP_SCORE: score},
+            )
+        )
+    return emissions</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="src.scoring.signals" href="index.html">src.scoring.signals</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="src.scoring.signals.clip_vision.map_clip_label" href="#src.scoring.signals.clip_vision.map_clip_label">map_clip_label</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="src.scoring.signals.clip_vision.ClipVisionSignal" href="#src.scoring.signals.clip_vision.ClipVisionSignal">ClipVisionSignal</a></code></h4>
+<ul class="">
+<li><code><a title="src.scoring.signals.clip_vision.ClipVisionSignal.applies_to" href="#src.scoring.signals.clip_vision.ClipVisionSignal.applies_to">applies_to</a></code></li>
+<li><code><a title="src.scoring.signals.clip_vision.ClipVisionSignal.cost_tier" href="#src.scoring.signals.clip_vision.ClipVisionSignal.cost_tier">cost_tier</a></code></li>
+<li><code><a title="src.scoring.signals.clip_vision.ClipVisionSignal.name" href="#src.scoring.signals.clip_vision.ClipVisionSignal.name">name</a></code></li>
+<li><code><a title="src.scoring.signals.clip_vision.ClipVisionSignal.run" href="#src.scoring.signals.clip_vision.ClipVisionSignal.run">run</a></code></li>
+<li><code><a title="src.scoring.signals.clip_vision.ClipVisionSignal.weight" href="#src.scoring.signals.clip_vision.ClipVisionSignal.weight">weight</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

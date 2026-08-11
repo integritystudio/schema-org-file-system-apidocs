@@ -70,25 +70,25 @@ class ExtractionResult:
 <dl>
 <dt id="src.analyzers.text_extractor.ExtractionResult.confidence"><code class="name">var <span class="ident">confidence</span> : float | None</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.analyzers.text_extractor.ExtractionResult.language"><code class="name">var <span class="ident">language</span> : str | None</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.analyzers.text_extractor.ExtractionResult.source"><code class="name">var <span class="ident">source</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.analyzers.text_extractor.ExtractionResult.text"><code class="name">var <span class="ident">text</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 </dd>
 <dt id="src.analyzers.text_extractor.TextExtractor"><code class="flex name class">
 <span>class <span class="ident">TextExtractor</span></span>
-<span>(</span><span>cost_calculator: Any | None = None)</span>
+<span>(</span><span>cost_calculator: "'CostROICalculator | None'" = None,<br>force_doctr_fallback: bool = False)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -98,9 +98,16 @@ class ExtractionResult:
 <pre><code class="python">class TextExtractor:
     &#34;&#34;&#34;Extract text content from various file formats.&#34;&#34;&#34;
 
-    def __init__(self, cost_calculator: Any | None = None) -&gt; None:
+    def __init__(
+        self,
+        cost_calculator: &#34;CostROICalculator | None&#34; = None,
+        force_doctr_fallback: bool = False,
+    ) -&gt; None:
         self.cost_calculator = cost_calculator
         self.ocr_available = OCR_AVAILABLE
+        # When True, image OCR always runs the docTR fallback even after a
+        # clean easyocr negative (faint-text recall over cost).
+        self.force_doctr_fallback = force_doctr_fallback
 
     def extract_text_from_image(self, image_path: Path) -&gt; str:
         &#34;&#34;&#34;Extract text from image using docTR OCR.&#34;&#34;&#34;
@@ -130,7 +137,9 @@ class ExtractionResult:
             else nullcontext()
         ):
             try:
-                ocr_result = extract_ocr_with_confidence(image_path, max_chars=0)
+                ocr_result = extract_ocr_with_confidence(
+                    image_path, max_chars=0, force_doctr_fallback=self.force_doctr_fallback
+                )
                 if ocr_result is None:
                     return ExtractionResult(text=&#34;&#34;, source=&#34;ocr&#34;)
                 return ExtractionResult(
@@ -230,7 +239,7 @@ class ExtractionResult:
             else nullcontext()
         ):
             try:
-                doc = Document(docx_path)
+                doc = Document(str(docx_path))
                 text = []
                 for paragraph in doc.paragraphs:
                     if paragraph.text.strip():
@@ -293,7 +302,7 @@ class ExtractionResult:
             return self.extract_text_from_docx(file_path)
         elif file_ext in [&#34;.xlsx&#34;, &#34;.xls&#34;]:
             return self.extract_text_from_xlsx(file_path)
-        elif (mime_type and mime_type.startswith(&#34;text/&#34;)) or file_ext in [&#34;.txt&#34;, &#34;.md&#34;, &#34;.csv&#34;]:
+        elif (mime_type and mime_type.startswith(&#34;text/&#34;)) or file_ext in TEXT_EXTENSIONS:
             try:
                 with open(file_path, &#34;r&#34;, encoding=&#34;utf-8&#34;, errors=&#34;ignore&#34;) as f:
                     return f.read(_MAX_TEXT_BYTES)
@@ -325,7 +334,7 @@ class ExtractionResult:
                 confidence=1.0,
                 source=&#34;xlsx&#34;,
             )
-        elif (mime_type and mime_type.startswith(&#34;text/&#34;)) or file_ext in [&#34;.txt&#34;, &#34;.md&#34;, &#34;.csv&#34;]:
+        elif (mime_type and mime_type.startswith(&#34;text/&#34;)) or file_ext in TEXT_EXTENSIONS:
             try:
                 with open(file_path, &#34;r&#34;, encoding=&#34;utf-8&#34;, errors=&#34;ignore&#34;) as f:
                     return ExtractionResult(
@@ -372,7 +381,7 @@ class ExtractionResult:
             confidence=1.0,
             source=&#34;xlsx&#34;,
         )
-    elif (mime_type and mime_type.startswith(&#34;text/&#34;)) or file_ext in [&#34;.txt&#34;, &#34;.md&#34;, &#34;.csv&#34;]:
+    elif (mime_type and mime_type.startswith(&#34;text/&#34;)) or file_ext in TEXT_EXTENSIONS:
         try:
             with open(file_path, &#34;r&#34;, encoding=&#34;utf-8&#34;, errors=&#34;ignore&#34;) as f:
                 return ExtractionResult(
@@ -407,7 +416,9 @@ class ExtractionResult:
         else nullcontext()
     ):
         try:
-            ocr_result = extract_ocr_with_confidence(image_path, max_chars=0)
+            ocr_result = extract_ocr_with_confidence(
+                image_path, max_chars=0, force_doctr_fallback=self.force_doctr_fallback
+            )
             if ocr_result is None:
                 return ExtractionResult(text=&#34;&#34;, source=&#34;ocr&#34;)
             return ExtractionResult(
@@ -502,7 +513,7 @@ class ExtractionResult:
         return self.extract_text_from_docx(file_path)
     elif file_ext in [&#34;.xlsx&#34;, &#34;.xls&#34;]:
         return self.extract_text_from_xlsx(file_path)
-    elif (mime_type and mime_type.startswith(&#34;text/&#34;)) or file_ext in [&#34;.txt&#34;, &#34;.md&#34;, &#34;.csv&#34;]:
+    elif (mime_type and mime_type.startswith(&#34;text/&#34;)) or file_ext in TEXT_EXTENSIONS:
         try:
             with open(file_path, &#34;r&#34;, encoding=&#34;utf-8&#34;, errors=&#34;ignore&#34;) as f:
                 return f.read(_MAX_TEXT_BYTES)
@@ -512,8 +523,9 @@ class ExtractionResult:
     return &#34;&#34;</code></pre>
 </details>
 <div class="desc"><p>Extract text from various file types.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_path</code></strong></dt>
 <dd>Path to the file.</dd>
 <dt><strong><code>mime_type</code></strong></dt>
@@ -541,7 +553,7 @@ string to skip MIME-based routing.</dd>
         else nullcontext()
     ):
         try:
-            doc = Document(docx_path)
+            doc = Document(str(docx_path))
             text = []
             for paragraph in doc.paragraphs:
                 if paragraph.text.strip():

@@ -153,7 +153,7 @@ feature dict consumed by DataPreprocessor.</p>
     def _get_extension_category(self, filename: str) -&gt; str:
         &#34;&#34;&#34;Get category based on extension.&#34;&#34;&#34;
         ext = self._get_extension(filename)
-        return self.extension_map.get(ext, &#39;other&#39;)
+        return cast(str, self.extension_map.get(ext, &#39;other&#39;))
 
     def _tokenize_filename(self, filename: str) -&gt; List[str]:
         &#34;&#34;&#34;Tokenize filename into meaningful parts.&#34;&#34;&#34;
@@ -167,7 +167,7 @@ feature dict consumed by DataPreprocessor.</p>
         tokens = re.split(r&#39;[_\-\s\.]+&#39;, name)
 
         # Split camelCase
-        expanded_tokens = []
+        expanded_tokens: list[str] = []
         for token in tokens:
             # Split on camelCase boundaries
             parts = re.findall(r&#39;[A-Z]?[a-z]+|[A-Z]+(?=[A-Z][a-z]|\d|\W|$)|\d+&#39;, token)

@@ -138,7 +138,7 @@ source for this command, shared with the unified CLI).</p></div>
     def __init__(self, base_path: str, dry_run: bool = False):
         self.base_path = Path(base_path).expanduser()
         self.dry_run = dry_run
-        self.stats = {
+        self.stats: NameOrganizerStats = {
             &#39;total_files&#39;: 0,
             &#39;moved_files&#39;: 0,
             &#39;skipped_files&#39;: 0,
@@ -214,7 +214,7 @@ source for this command, shared with the unified CLI).</p></div>
         }
 
         # Filename pattern categories
-        self.filename_patterns = {
+        self.filename_patterns: FilenamePatterns = {
             # Artifact/build files (to be trashed)
             &#39;artifacts_trash&#39;: [
                 r&#39;\.pyc$&#39;,
@@ -336,14 +336,13 @@ source for this command, shared with the unified CLI).</p></div>
                 r&#39;^WhatsApp Video&#39;,
                 r&#39;^WA\d+&#39;,
             ],
-            # Camera photos
+            # Camera photos — vendor prefixes single-homed in shared.constants;
+            # use re.IGNORECASE at match time so lowercase patterns match the
+            # uppercase filenames real cameras produce.
             &#39;camera_photos&#39;: [
-                r&#39;^IMG_\d+&#39;,
-                r&#39;^PXL_\d+&#39;,
-                r&#39;^DSC_\d+&#39;,
-                r&#39;^DCIM_\d+&#39;,
-                r&#39;^\d{8}_\d{6}&#39;,  # YYYYMMDD_HHMMSS
-                r&#39;^\d{14}&#39;,        # YYYYMMDDHHMMSS
+                *CAMERA_VENDOR_PREFIX_PATTERNS,
+                r&#39;^\d{8}_\d{6}&#39;,          # YYYYMMDD_HHMMSS
+                r&#39;^\d{14}&#39;,               # YYYYMMDDHHMMSS
                 r&#39;^\d{8}_[A-Za-z]+_\d{6}&#39;,  # YYYYMMDD_Location_HHMMSS
             ],
             # Social media downloads
@@ -572,9 +571,10 @@ source for this command, shared with the unified CLI).</p></div>
             if re.search(pattern, filename, re.IGNORECASE):
                 return (&#39;Media/Photos&#39;, &#39;WhatsApp&#39;)
 
-        # Check camera photos
+        # Check camera photos — IGNORECASE because CAMERA_VENDOR_PREFIX_PATTERNS
+        # uses lowercase patterns that must match uppercase camera filenames.
         for pattern in self.filename_patterns[&#39;camera_photos&#39;]:
-            if re.search(pattern, filename):
+            if re.search(pattern, filename, re.IGNORECASE):
                 return (&#39;Media/Photos&#39;, &#39;Camera&#39;)
 
         # Check social media
@@ -726,7 +726,7 @@ source for this command, shared with the unified CLI).</p></div>
             print(f&#34;  ✗ Error moving file: {e}&#34;)
             return False
 
-    def organize_directory(self, source_dir: str, recursive: bool = False, limit: int = None):
+    def organize_directory(self, source_dir: str, recursive: bool = False, limit: Optional[int] = None):
         &#34;&#34;&#34;Organize files in a directory.&#34;&#34;&#34;
         source_path = Path(source_dir).expanduser()
 
@@ -779,7 +779,7 @@ source for this command, shared with the unified CLI).</p></div>
 
                 # Skip if already in correct location
                 if file_path.parent == destination.parent:
-                    print(f&#34;  → Already in correct location&#34;)
+                    print(&#34;  → Already in correct location&#34;)
                     self.stats[&#39;skipped_files&#39;] += 1
                     continue
 
@@ -965,9 +965,10 @@ Returns (category, subcategory) or None.</p></div>
         if re.search(pattern, filename, re.IGNORECASE):
             return (&#39;Media/Photos&#39;, &#39;WhatsApp&#39;)
 
-    # Check camera photos
+    # Check camera photos — IGNORECASE because CAMERA_VENDOR_PREFIX_PATTERNS
+    # uses lowercase patterns that must match uppercase camera filenames.
     for pattern in self.filename_patterns[&#39;camera_photos&#39;]:
-        if re.search(pattern, filename):
+        if re.search(pattern, filename, re.IGNORECASE):
             return (&#39;Media/Photos&#39;, &#39;Camera&#39;)
 
     # Check social media
@@ -1166,14 +1167,14 @@ Priority: filename patterns &gt; extension &gt; filepath &gt; uncategorized</p><
 <div class="desc"><p>Move a file to its destination.</p></div>
 </dd>
 <dt id="src.organizers.name_organizer.FileNameOrganizer.organize_directory"><code class="name flex">
-<span>def <span class="ident">organize_directory</span></span>(<span>self, source_dir: str, recursive: bool = False, limit: int = None)</span>
+<span>def <span class="ident">organize_directory</span></span>(<span>self, source_dir: str, recursive: bool = False, limit: int | None = None)</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def organize_directory(self, source_dir: str, recursive: bool = False, limit: int = None):
+<pre><code class="python">def organize_directory(self, source_dir: str, recursive: bool = False, limit: Optional[int] = None):
     &#34;&#34;&#34;Organize files in a directory.&#34;&#34;&#34;
     source_path = Path(source_dir).expanduser()
 
@@ -1226,7 +1227,7 @@ Priority: filename patterns &gt; extension &gt; filepath &gt; uncategorized</p><
 
             # Skip if already in correct location
             if file_path.parent == destination.parent:
-                print(f&#34;  → Already in correct location&#34;)
+                print(&#34;  → Already in correct location&#34;)
                 self.stats[&#39;skipped_files&#39;] += 1
                 continue
 
@@ -1315,6 +1316,226 @@ Priority: filename patterns &gt; extension &gt; filepath &gt; uncategorized</p><
 </dd>
 </dl>
 </dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns"><code class="flex name class">
+<span>class <span class="ident">FilenamePatterns</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FilenamePatterns(TypedDict):
+    &#34;&#34;&#34;``NameBasedOrganizer.filename_patterns`` shape (regex lists per
+    category; ``game_assets`` is the one nested bucket).&#34;&#34;&#34;
+    artifacts_trash: List[str]
+    technical_build: List[str]
+    license_files: List[str]
+    readme_files: List[str]
+    technical_docs: List[str]
+    log_files: List[str]
+    ai_generated: List[str]
+    screenshots: List[str]
+    whatsapp: List[str]
+    camera_photos: List[str]
+    social_media: List[str]
+    web_templates: List[str]
+    game_assets: GameAssetPatterns
+    location_data: List[str]
+    numbered_generic: List[str]
+    logos: List[str]
+    icons: List[str]
+    calendar: List[str]
+    medical: List[str]
+    emoji: List[str]</code></pre>
+</details>
+<div class="desc"><p><code>NameBasedOrganizer.filename_patterns</code> shape (regex lists per
+category; <code>game_assets</code> is the one nested bucket).</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.organizers.name_organizer.FilenamePatterns.ai_generated"><code class="name">var <span class="ident">ai_generated</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.artifacts_trash"><code class="name">var <span class="ident">artifacts_trash</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.calendar"><code class="name">var <span class="ident">calendar</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.camera_photos"><code class="name">var <span class="ident">camera_photos</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.emoji"><code class="name">var <span class="ident">emoji</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.game_assets"><code class="name">var <span class="ident">game_assets</span> : <a title="src.organizers.name_organizer.GameAssetPatterns" href="#src.organizers.name_organizer.GameAssetPatterns">GameAssetPatterns</a></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.icons"><code class="name">var <span class="ident">icons</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.license_files"><code class="name">var <span class="ident">license_files</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.location_data"><code class="name">var <span class="ident">location_data</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.log_files"><code class="name">var <span class="ident">log_files</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.logos"><code class="name">var <span class="ident">logos</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.medical"><code class="name">var <span class="ident">medical</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.numbered_generic"><code class="name">var <span class="ident">numbered_generic</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.readme_files"><code class="name">var <span class="ident">readme_files</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.screenshots"><code class="name">var <span class="ident">screenshots</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.social_media"><code class="name">var <span class="ident">social_media</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.technical_build"><code class="name">var <span class="ident">technical_build</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.technical_docs"><code class="name">var <span class="ident">technical_docs</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.web_templates"><code class="name">var <span class="ident">web_templates</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.FilenamePatterns.whatsapp"><code class="name">var <span class="ident">whatsapp</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.organizers.name_organizer.GameAssetPatterns"><code class="flex name class">
+<span>class <span class="ident">GameAssetPatterns</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GameAssetPatterns(TypedDict):
+    &#34;&#34;&#34;Regex buckets for the game-asset sub-classifier.&#34;&#34;&#34;
+    sprites: List[str]
+    textures: List[str]
+    ui: List[str]
+    fonts: List[str]
+    items: List[str]</code></pre>
+</details>
+<div class="desc"><p>Regex buckets for the game-asset sub-classifier.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.organizers.name_organizer.GameAssetPatterns.fonts"><code class="name">var <span class="ident">fonts</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.GameAssetPatterns.sprites"><code class="name">var <span class="ident">sprites</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.GameAssetPatterns.textures"><code class="name">var <span class="ident">textures</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.GameAssetPatterns.ui"><code class="name">var <span class="ident">ui</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="src.organizers.name_organizer.GameAssetPatterns.items"><code class="name flex">
+<span>def <span class="ident">items</span></span>(<span>self, /) ‑> List[str]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a set-like object providing a view on the dict's items.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.organizers.name_organizer.NameOrganizerStats"><code class="flex name class">
+<span>class <span class="ident">NameOrganizerStats</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class NameOrganizerStats(TypedDict):
+    &#34;&#34;&#34;``NameBasedOrganizer.stats`` counters.&#34;&#34;&#34;
+    total_files: int
+    moved_files: int
+    skipped_files: int
+    errors: int
+    by_category: Dict[str, int]</code></pre>
+</details>
+<div class="desc"><p><code>NameBasedOrganizer.stats</code> counters.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.organizers.name_organizer.NameOrganizerStats.by_category"><code class="name">var <span class="ident">by_category</span> : Dict[str, int]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.NameOrganizerStats.errors"><code class="name">var <span class="ident">errors</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.NameOrganizerStats.moved_files"><code class="name">var <span class="ident">moved_files</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.NameOrganizerStats.skipped_files"><code class="name">var <span class="ident">skipped_files</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.organizers.name_organizer.NameOrganizerStats.total_files"><code class="name">var <span class="ident">total_files</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
 </dl>
 </section>
 </article>
@@ -1348,6 +1569,51 @@ Priority: filename patterns &gt; extension &gt; filepath &gt; uncategorized</p><
 <li><code><a title="src.organizers.name_organizer.FileNameOrganizer.organize_directory" href="#src.organizers.name_organizer.FileNameOrganizer.organize_directory">organize_directory</a></code></li>
 <li><code><a title="src.organizers.name_organizer.FileNameOrganizer.print_summary" href="#src.organizers.name_organizer.FileNameOrganizer.print_summary">print_summary</a></code></li>
 <li><code><a title="src.organizers.name_organizer.FileNameOrganizer.save_report" href="#src.organizers.name_organizer.FileNameOrganizer.save_report">save_report</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.organizers.name_organizer.FilenamePatterns" href="#src.organizers.name_organizer.FilenamePatterns">FilenamePatterns</a></code></h4>
+<ul class="two-column">
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.ai_generated" href="#src.organizers.name_organizer.FilenamePatterns.ai_generated">ai_generated</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.artifacts_trash" href="#src.organizers.name_organizer.FilenamePatterns.artifacts_trash">artifacts_trash</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.calendar" href="#src.organizers.name_organizer.FilenamePatterns.calendar">calendar</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.camera_photos" href="#src.organizers.name_organizer.FilenamePatterns.camera_photos">camera_photos</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.emoji" href="#src.organizers.name_organizer.FilenamePatterns.emoji">emoji</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.game_assets" href="#src.organizers.name_organizer.FilenamePatterns.game_assets">game_assets</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.icons" href="#src.organizers.name_organizer.FilenamePatterns.icons">icons</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.license_files" href="#src.organizers.name_organizer.FilenamePatterns.license_files">license_files</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.location_data" href="#src.organizers.name_organizer.FilenamePatterns.location_data">location_data</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.log_files" href="#src.organizers.name_organizer.FilenamePatterns.log_files">log_files</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.logos" href="#src.organizers.name_organizer.FilenamePatterns.logos">logos</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.medical" href="#src.organizers.name_organizer.FilenamePatterns.medical">medical</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.numbered_generic" href="#src.organizers.name_organizer.FilenamePatterns.numbered_generic">numbered_generic</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.readme_files" href="#src.organizers.name_organizer.FilenamePatterns.readme_files">readme_files</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.screenshots" href="#src.organizers.name_organizer.FilenamePatterns.screenshots">screenshots</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.social_media" href="#src.organizers.name_organizer.FilenamePatterns.social_media">social_media</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.technical_build" href="#src.organizers.name_organizer.FilenamePatterns.technical_build">technical_build</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.technical_docs" href="#src.organizers.name_organizer.FilenamePatterns.technical_docs">technical_docs</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.web_templates" href="#src.organizers.name_organizer.FilenamePatterns.web_templates">web_templates</a></code></li>
+<li><code><a title="src.organizers.name_organizer.FilenamePatterns.whatsapp" href="#src.organizers.name_organizer.FilenamePatterns.whatsapp">whatsapp</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.organizers.name_organizer.GameAssetPatterns" href="#src.organizers.name_organizer.GameAssetPatterns">GameAssetPatterns</a></code></h4>
+<ul class="">
+<li><code><a title="src.organizers.name_organizer.GameAssetPatterns.fonts" href="#src.organizers.name_organizer.GameAssetPatterns.fonts">fonts</a></code></li>
+<li><code><a title="src.organizers.name_organizer.GameAssetPatterns.items" href="#src.organizers.name_organizer.GameAssetPatterns.items">items</a></code></li>
+<li><code><a title="src.organizers.name_organizer.GameAssetPatterns.sprites" href="#src.organizers.name_organizer.GameAssetPatterns.sprites">sprites</a></code></li>
+<li><code><a title="src.organizers.name_organizer.GameAssetPatterns.textures" href="#src.organizers.name_organizer.GameAssetPatterns.textures">textures</a></code></li>
+<li><code><a title="src.organizers.name_organizer.GameAssetPatterns.ui" href="#src.organizers.name_organizer.GameAssetPatterns.ui">ui</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.organizers.name_organizer.NameOrganizerStats" href="#src.organizers.name_organizer.NameOrganizerStats">NameOrganizerStats</a></code></h4>
+<ul class="">
+<li><code><a title="src.organizers.name_organizer.NameOrganizerStats.by_category" href="#src.organizers.name_organizer.NameOrganizerStats.by_category">by_category</a></code></li>
+<li><code><a title="src.organizers.name_organizer.NameOrganizerStats.errors" href="#src.organizers.name_organizer.NameOrganizerStats.errors">errors</a></code></li>
+<li><code><a title="src.organizers.name_organizer.NameOrganizerStats.moved_files" href="#src.organizers.name_organizer.NameOrganizerStats.moved_files">moved_files</a></code></li>
+<li><code><a title="src.organizers.name_organizer.NameOrganizerStats.skipped_files" href="#src.organizers.name_organizer.NameOrganizerStats.skipped_files">skipped_files</a></code></li>
+<li><code><a title="src.organizers.name_organizer.NameOrganizerStats.total_files" href="#src.organizers.name_organizer.NameOrganizerStats.total_files">total_files</a></code></li>
 </ul>
 </li>
 </ul>

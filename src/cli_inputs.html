@@ -129,7 +129,7 @@ class CommandInputs:
 </dd>
 <dt id="src.cli_inputs.ContentInputs"><code class="flex name class">
 <span>class <span class="ident">ContentInputs</span></span>
-<span>(</span><span>sources: List[str],<br>base_path: str,<br>dry_run: bool,<br>limit: int | None,<br>report: str | None,<br>force: bool,<br>no_cost_tracking: bool,<br>cost_report: str,<br>check_deps: bool,<br>skip_health_check: bool,<br>sentry_dsn: str | None,<br>no_sentry: bool,<br>db_path: str,<br>no_db: bool,<br>run_migration: bool)</span>
+<span>(</span><span>sources: List[str],<br>base_path: str,<br>dry_run: bool,<br>limit: int | None,<br>report: str | None,<br>force: bool,<br>no_cost_tracking: bool,<br>cost_report: str,<br>check_deps: bool,<br>skip_health_check: bool,<br>sentry_dsn: str | None,<br>no_sentry: bool,<br>db_path: str,<br>no_db: bool,<br>run_migration: bool,<br>ocr_clip_topk: int | None,<br>ocr_doctr_fallback: bool)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -154,7 +154,9 @@ class ContentInputs(CommandInputs):
     no_sentry: bool
     db_path: str
     no_db: bool
-    run_migration: bool</code></pre>
+    run_migration: bool
+    ocr_clip_topk: Optional[int]
+    ocr_doctr_fallback: bool</code></pre>
 </details>
 <div class="desc"><p>organize-files content (src.cli.add_content_arguments).</p></div>
 <h3>Ancestors</h3>
@@ -165,63 +167,71 @@ class ContentInputs(CommandInputs):
 <dl>
 <dt id="src.cli_inputs.ContentInputs.base_path"><code class="name">var <span class="ident">base_path</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.ContentInputs.check_deps"><code class="name">var <span class="ident">check_deps</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.ContentInputs.cost_report"><code class="name">var <span class="ident">cost_report</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.ContentInputs.db_path"><code class="name">var <span class="ident">db_path</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.ContentInputs.dry_run"><code class="name">var <span class="ident">dry_run</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.ContentInputs.force"><code class="name">var <span class="ident">force</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.ContentInputs.limit"><code class="name">var <span class="ident">limit</span> : int | None</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.ContentInputs.no_cost_tracking"><code class="name">var <span class="ident">no_cost_tracking</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.ContentInputs.no_db"><code class="name">var <span class="ident">no_db</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.ContentInputs.no_sentry"><code class="name">var <span class="ident">no_sentry</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cli_inputs.ContentInputs.ocr_clip_topk"><code class="name">var <span class="ident">ocr_clip_topk</span> : int | None</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cli_inputs.ContentInputs.ocr_doctr_fallback"><code class="name">var <span class="ident">ocr_doctr_fallback</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.ContentInputs.report"><code class="name">var <span class="ident">report</span> : str | None</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.ContentInputs.run_migration"><code class="name">var <span class="ident">run_migration</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.ContentInputs.sentry_dsn"><code class="name">var <span class="ident">sentry_dsn</span> : str | None</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.ContentInputs.skip_health_check"><code class="name">var <span class="ident">skip_health_check</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.ContentInputs.sources"><code class="name">var <span class="ident">sources</span> : List[str]</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -260,19 +270,19 @@ class EvaluateInputs(CommandInputs):
 <dl>
 <dt id="src.cli_inputs.EvaluateInputs.classifier"><code class="name">var <span class="ident">classifier</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.EvaluateInputs.min_support"><code class="name">var <span class="ident">min_support</span> : int | None</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.EvaluateInputs.output"><code class="name">var <span class="ident">output</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.EvaluateInputs.test_data"><code class="name">var <span class="ident">test_data</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -312,23 +322,23 @@ class NameInputs(CommandInputs):
 <dl>
 <dt id="src.cli_inputs.NameInputs.base_path"><code class="name">var <span class="ident">base_path</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.NameInputs.dry_run"><code class="name">var <span class="ident">dry_run</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.NameInputs.limit"><code class="name">var <span class="ident">limit</span> : int | None</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.NameInputs.recursive"><code class="name">var <span class="ident">recursive</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.NameInputs.sources"><code class="name">var <span class="ident">sources</span> : List[str]</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -368,23 +378,23 @@ class PreprocessInputs(CommandInputs):
 <dl>
 <dt id="src.cli_inputs.PreprocessInputs.input"><code class="name">var <span class="ident">input</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.PreprocessInputs.min_freq"><code class="name">var <span class="ident">min_freq</span> : int</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.PreprocessInputs.output"><code class="name">var <span class="ident">output</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.PreprocessInputs.report_only"><code class="name">var <span class="ident">report_only</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.PreprocessInputs.test_ratio"><code class="name">var <span class="ident">test_ratio</span> : float</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -420,7 +430,7 @@ class TimelineInputs(CommandInputs):
 <dl>
 <dt id="src.cli_inputs.TimelineInputs.db_path"><code class="name">var <span class="ident">db_path</span> : str | None</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -458,15 +468,15 @@ class TypeInputs(CommandInputs):
 <dl>
 <dt id="src.cli_inputs.TypeInputs.base_path"><code class="name">var <span class="ident">base_path</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.TypeInputs.dry_run"><code class="name">var <span class="ident">dry_run</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.TypeInputs.sources"><code class="name">var <span class="ident">sources</span> : List[str]</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -504,15 +514,15 @@ class UpdateSiteInputs(CommandInputs):
 <dl>
 <dt id="src.cli_inputs.UpdateSiteInputs.report"><code class="name">var <span class="ident">report</span> : str | None</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.UpdateSiteInputs.results_dir"><code class="name">var <span class="ident">results_dir</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cli_inputs.UpdateSiteInputs.site_dir"><code class="name">var <span class="ident">site_dir</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 <h3>Inherited members</h3>
@@ -561,6 +571,8 @@ class UpdateSiteInputs(CommandInputs):
 <li><code><a title="src.cli_inputs.ContentInputs.no_cost_tracking" href="#src.cli_inputs.ContentInputs.no_cost_tracking">no_cost_tracking</a></code></li>
 <li><code><a title="src.cli_inputs.ContentInputs.no_db" href="#src.cli_inputs.ContentInputs.no_db">no_db</a></code></li>
 <li><code><a title="src.cli_inputs.ContentInputs.no_sentry" href="#src.cli_inputs.ContentInputs.no_sentry">no_sentry</a></code></li>
+<li><code><a title="src.cli_inputs.ContentInputs.ocr_clip_topk" href="#src.cli_inputs.ContentInputs.ocr_clip_topk">ocr_clip_topk</a></code></li>
+<li><code><a title="src.cli_inputs.ContentInputs.ocr_doctr_fallback" href="#src.cli_inputs.ContentInputs.ocr_doctr_fallback">ocr_doctr_fallback</a></code></li>
 <li><code><a title="src.cli_inputs.ContentInputs.report" href="#src.cli_inputs.ContentInputs.report">report</a></code></li>
 <li><code><a title="src.cli_inputs.ContentInputs.run_migration" href="#src.cli_inputs.ContentInputs.run_migration">run_migration</a></code></li>
 <li><code><a title="src.cli_inputs.ContentInputs.sentry_dsn" href="#src.cli_inputs.ContentInputs.sentry_dsn">sentry_dsn</a></code></li>

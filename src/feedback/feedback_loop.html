@@ -90,7 +90,7 @@ el.replaceWith(d);
 <dl>
 <dt id="src.feedback.feedback_loop.FeedbackIntegration"><code class="flex name class">
 <span>class <span class="ident">FeedbackIntegration</span></span>
-<span>(</span><span>feedback_file: str = None)</span>
+<span>(</span><span>feedback_file: str | None = None)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -100,16 +100,16 @@ el.replaceWith(d);
 <pre><code class="python">class FeedbackIntegration:
     &#34;&#34;&#34;Integrates correction feedback with the file organizer.&#34;&#34;&#34;
 
-    def __init__(self, feedback_file: str = None):
+    def __init__(self, feedback_file: Optional[str] = None):
         &#34;&#34;&#34;Initialize the integration.
 
         Args:
             feedback_file: Path to corrections JSON file
         &#34;&#34;&#34;
         self.feedback = CorrectionFeedbackSystem(feedback_file)
-        self._cached_rules = None
+        self._cached_rules: Optional[Dict[str, Any]] = None
 
-    def get_cached_rules(self) -&gt; Dict:
+    def get_cached_rules(self) -&gt; Dict[str, Any]:
         &#34;&#34;&#34;Get or compute cached rules.&#34;&#34;&#34;
         if self._cached_rules is None:
             self._cached_rules = self.feedback.export_rules()
@@ -124,8 +124,8 @@ el.replaceWith(d);
         file_path: str,
         filename: str,
         proposed_category: str,
-        proposed_subcategory: str = None
-    ) -&gt; Tuple[str, str, float]:
+        proposed_subcategory: Optional[str] = None
+    ) -&gt; Tuple[str, Optional[str], float]:
         &#34;&#34;&#34;Check if corrections suggest a different category.
 
         This should be called BEFORE final categorization to apply learned rules.
@@ -161,7 +161,7 @@ el.replaceWith(d);
         # No correction needed
         return (proposed_category, proposed_subcategory, 1.0)
 
-    def get_pattern_keywords(self) -&gt; Dict[str, Dict]:
+    def get_pattern_keywords(self) -&gt; Dict[str, Dict[str, List[str]]]:
         &#34;&#34;&#34;Get learned keyword patterns for each category.
 
         Returns keywords that should trigger specific categories based on
@@ -171,7 +171,7 @@ el.replaceWith(d);
             Dictionary mapping categories to their learned keywords
         &#34;&#34;&#34;
         rules = self.get_cached_rules()
-        keywords = {}
+        keywords: dict[str, dict[str, list[str]]] = {}
 
         for rule in rules.get(&#34;pattern_rules&#34;, []):
             category = rule[&#34;category&#34;]
@@ -201,9 +201,9 @@ el.replaceWith(d);
 
     def apply_to_organization_result(
         self,
-        result: Dict,
+        result: Dict[str, Any],
         auto_apply: bool = False
-    ) -&gt; Dict:
+    ) -&gt; Dict[str, Any]:
         &#34;&#34;&#34;Apply feedback suggestions to an organization result.
 
         Args:
@@ -234,9 +234,9 @@ el.replaceWith(d);
 
     def batch_apply_corrections(
         self,
-        results: List[Dict],
+        results: List[Dict[str, Any]],
         confidence_threshold: float = 0.85
-    ) -&gt; Tuple[List[Dict], Dict]:
+    ) -&gt; Tuple[List[Dict[str, Any]], _ApplyStats]:
         &#34;&#34;&#34;Apply corrections to a batch of organization results.
 
         Args:
@@ -247,7 +247,7 @@ el.replaceWith(d);
             Tuple of (modified_results, statistics)
         &#34;&#34;&#34;
         modified = []
-        stats = {
+        stats: _ApplyStats = {
             &#34;total&#34;: len(results),
             &#34;suggestions_made&#34;: 0,
             &#34;auto_applied&#34;: 0,
@@ -274,7 +274,7 @@ el.replaceWith(d);
 
         return modified, stats
 
-    def generate_correction_report(self, results: List[Dict]) -&gt; str:
+    def generate_correction_report(self, results: List[Dict[str, Any]]) -&gt; str:
         &#34;&#34;&#34;Generate a report of suggested corrections from organization results.
 
         Args:
@@ -283,7 +283,7 @@ el.replaceWith(d);
         Returns:
             Markdown report string
         &#34;&#34;&#34;
-        suggestions = []
+        suggestions: List[_SuggestionRow] = []
 
         for result in results:
             filename = (
@@ -319,15 +319,16 @@ el.replaceWith(d);
 </details>
 <div class="desc"><p>Integrates correction feedback with the file organizer.</p>
 <p>Initialize the integration.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>feedback_file</code></strong></dt>
 <dd>Path to corrections JSON file</dd>
 </dl></div>
 <h3>Methods</h3>
 <dl>
 <dt id="src.feedback.feedback_loop.FeedbackIntegration.apply_to_organization_result"><code class="name flex">
-<span>def <span class="ident">apply_to_organization_result</span></span>(<span>self, result: Dict, auto_apply: bool = False) ‑> Dict</span>
+<span>def <span class="ident">apply_to_organization_result</span></span>(<span>self, result: Dict[str, Any], auto_apply: bool = False) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -336,9 +337,9 @@ el.replaceWith(d);
 </summary>
 <pre><code class="python">def apply_to_organization_result(
     self,
-    result: Dict,
+    result: Dict[str, Any],
     auto_apply: bool = False
-) -&gt; Dict:
+) -&gt; Dict[str, Any]:
     &#34;&#34;&#34;Apply feedback suggestions to an organization result.
 
     Args:
@@ -368,18 +369,20 @@ el.replaceWith(d);
     return result</code></pre>
 </details>
 <div class="desc"><p>Apply feedback suggestions to an organization result.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>result</code></strong></dt>
 <dd>A single result from the organization report</dd>
 <dt><strong><code>auto_apply</code></strong></dt>
 <dd>Whether to automatically apply high-confidence suggestions</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Modified result with feedback suggestions</p></div>
+<p>Returns
+-----=
+Modified result with feedback suggestions</p></div>
 </dd>
 <dt id="src.feedback.feedback_loop.FeedbackIntegration.batch_apply_corrections"><code class="name flex">
-<span>def <span class="ident">batch_apply_corrections</span></span>(<span>self, results: List[Dict], confidence_threshold: float = 0.85) ‑> Tuple[List[Dict], Dict]</span>
+<span>def <span class="ident">batch_apply_corrections</span></span>(<span>self, results: List[Dict[str, Any]], confidence_threshold: float = 0.85) ‑> Tuple[List[Dict[str, Any]], src.feedback.feedback_loop._ApplyStats]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -388,9 +391,9 @@ el.replaceWith(d);
 </summary>
 <pre><code class="python">def batch_apply_corrections(
     self,
-    results: List[Dict],
+    results: List[Dict[str, Any]],
     confidence_threshold: float = 0.85
-) -&gt; Tuple[List[Dict], Dict]:
+) -&gt; Tuple[List[Dict[str, Any]], _ApplyStats]:
     &#34;&#34;&#34;Apply corrections to a batch of organization results.
 
     Args:
@@ -401,7 +404,7 @@ el.replaceWith(d);
         Tuple of (modified_results, statistics)
     &#34;&#34;&#34;
     modified = []
-    stats = {
+    stats: _ApplyStats = {
         &#34;total&#34;: len(results),
         &#34;suggestions_made&#34;: 0,
         &#34;auto_applied&#34;: 0,
@@ -429,25 +432,27 @@ el.replaceWith(d);
     return modified, stats</code></pre>
 </details>
 <div class="desc"><p>Apply corrections to a batch of organization results.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>results</code></strong></dt>
 <dd>List of organization results</dd>
 <dt><strong><code>confidence_threshold</code></strong></dt>
 <dd>Minimum confidence to auto-apply</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Tuple of (modified_results, statistics)</p></div>
+<p>Returns
+-----=
+Tuple of (modified_results, statistics)</p></div>
 </dd>
 <dt id="src.feedback.feedback_loop.FeedbackIntegration.generate_correction_report"><code class="name flex">
-<span>def <span class="ident">generate_correction_report</span></span>(<span>self, results: List[Dict]) ‑> str</span>
+<span>def <span class="ident">generate_correction_report</span></span>(<span>self, results: List[Dict[str, Any]]) ‑> str</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def generate_correction_report(self, results: List[Dict]) -&gt; str:
+<pre><code class="python">def generate_correction_report(self, results: List[Dict[str, Any]]) -&gt; str:
     &#34;&#34;&#34;Generate a report of suggested corrections from organization results.
 
     Args:
@@ -456,7 +461,7 @@ el.replaceWith(d);
     Returns:
         Markdown report string
     &#34;&#34;&#34;
-    suggestions = []
+    suggestions: List[_SuggestionRow] = []
 
     for result in results:
         filename = (
@@ -491,23 +496,25 @@ el.replaceWith(d);
     return report</code></pre>
 </details>
 <div class="desc"><p>Generate a report of suggested corrections from organization results.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>results</code></strong></dt>
 <dd>List of organization results</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Markdown report string</p></div>
+<p>Returns
+-----=
+Markdown report string</p></div>
 </dd>
 <dt id="src.feedback.feedback_loop.FeedbackIntegration.get_cached_rules"><code class="name flex">
-<span>def <span class="ident">get_cached_rules</span></span>(<span>self) ‑> Dict</span>
+<span>def <span class="ident">get_cached_rules</span></span>(<span>self) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_cached_rules(self) -&gt; Dict:
+<pre><code class="python">def get_cached_rules(self) -&gt; Dict[str, Any]:
     &#34;&#34;&#34;Get or compute cached rules.&#34;&#34;&#34;
     if self._cached_rules is None:
         self._cached_rules = self.feedback.export_rules()
@@ -516,14 +523,14 @@ el.replaceWith(d);
 <div class="desc"><p>Get or compute cached rules.</p></div>
 </dd>
 <dt id="src.feedback.feedback_loop.FeedbackIntegration.get_pattern_keywords"><code class="name flex">
-<span>def <span class="ident">get_pattern_keywords</span></span>(<span>self) ‑> Dict[str, Dict]</span>
+<span>def <span class="ident">get_pattern_keywords</span></span>(<span>self) ‑> Dict[str, Dict[str, List[str]]]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_pattern_keywords(self) -&gt; Dict[str, Dict]:
+<pre><code class="python">def get_pattern_keywords(self) -&gt; Dict[str, Dict[str, List[str]]]:
     &#34;&#34;&#34;Get learned keyword patterns for each category.
 
     Returns keywords that should trigger specific categories based on
@@ -533,7 +540,7 @@ el.replaceWith(d);
         Dictionary mapping categories to their learned keywords
     &#34;&#34;&#34;
     rules = self.get_cached_rules()
-    keywords = {}
+    keywords: dict[str, dict[str, list[str]]] = {}
 
     for rule in rules.get(&#34;pattern_rules&#34;, []):
         category = rule[&#34;category&#34;]
@@ -564,8 +571,9 @@ el.replaceWith(d);
 <div class="desc"><p>Get learned keyword patterns for each category.</p>
 <p>Returns keywords that should trigger specific categories based on
 correction feedback.</p>
-<h2 id="returns">Returns</h2>
-<p>Dictionary mapping categories to their learned keywords</p></div>
+<p>Returns
+-----=
+Dictionary mapping categories to their learned keywords</p></div>
 </dd>
 <dt id="src.feedback.feedback_loop.FeedbackIntegration.invalidate_cache"><code class="name flex">
 <span>def <span class="ident">invalidate_cache</span></span>(<span>self)</span>
@@ -582,7 +590,7 @@ correction feedback.</p>
 <div class="desc"><p>Invalidate the cached rules (call after adding corrections).</p></div>
 </dd>
 <dt id="src.feedback.feedback_loop.FeedbackIntegration.pre_categorize_check"><code class="name flex">
-<span>def <span class="ident">pre_categorize_check</span></span>(<span>self,<br>file_path: str,<br>filename: str,<br>proposed_category: str,<br>proposed_subcategory: str = None) ‑> Tuple[str, str, float]</span>
+<span>def <span class="ident">pre_categorize_check</span></span>(<span>self,<br>file_path: str,<br>filename: str,<br>proposed_category: str,<br>proposed_subcategory: str | None = None) ‑> Tuple[str, str | None, float]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -594,8 +602,8 @@ correction feedback.</p>
     file_path: str,
     filename: str,
     proposed_category: str,
-    proposed_subcategory: str = None
-) -&gt; Tuple[str, str, float]:
+    proposed_subcategory: Optional[str] = None
+) -&gt; Tuple[str, Optional[str], float]:
     &#34;&#34;&#34;Check if corrections suggest a different category.
 
     This should be called BEFORE final categorization to apply learned rules.
@@ -633,8 +641,9 @@ correction feedback.</p>
 </details>
 <div class="desc"><p>Check if corrections suggest a different category.</p>
 <p>This should be called BEFORE final categorization to apply learned rules.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_path</code></strong></dt>
 <dd>Path to the file</dd>
 <dt><strong><code>filename</code></strong></dt>
@@ -644,8 +653,9 @@ correction feedback.</p>
 <dt><strong><code>proposed_subcategory</code></strong></dt>
 <dd>Subcategory the organizer wants to assign</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Tuple of (final_category, final_subcategory, confidence)
+<p>Returns
+-----=
+Tuple of (final_category, final_subcategory, confidence)
 confidence is 1.0 for original proposal, &lt;1.0 for suggestions</p></div>
 </dd>
 </dl>

@@ -49,9 +49,54 @@ API endpoints, and bulk export functionality.</p>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="src.integration.ApiResponse"><code class="flex name class">
+<span>class <span class="ident">ApiResponse</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ApiResponse(TypedDict):
+    &#34;&#34;&#34;API envelope for one schema or the full collection.
+
+    ``count`` is present only on collection responses.
+    &#34;&#34;&#34;
+    success: bool
+    data: Union[SchemaMapping, List[SchemaMapping]]
+    format: str
+    count: NotRequired[int]</code></pre>
+</details>
+<div class="desc"><p>API envelope for one schema or the full collection.</p>
+<p><code>count</code> is present only on collection responses.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.integration.ApiResponse.count"><code class="name">var <span class="ident">count</span> : NotRequired[int]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.integration.ApiResponse.data"><code class="name">var <span class="ident">data</span> : Mapping[str, JsonValue | SchemaMapping | Sequence[SchemaValue]] | List[Mapping[str, JsonValue | SchemaMapping | Sequence[SchemaValue]]]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.integration.ApiResponse.format"><code class="name">var <span class="ident">format</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.integration.ApiResponse.success"><code class="name">var <span class="ident">success</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
 <dt id="src.integration.OutputFormat"><code class="flex name class">
 <span>class <span class="ident">OutputFormat</span></span>
-<span>(</span><span>*args, **kwds)</span>
+<span>(</span><span>*values)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -74,19 +119,86 @@ API endpoints, and bulk export functionality.</p>
 <dl>
 <dt id="src.integration.OutputFormat.JSON"><code class="name">var <span class="ident">JSON</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.integration.OutputFormat.JSON_LD"><code class="name">var <span class="ident">JSON_LD</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.integration.OutputFormat.MICRODATA"><code class="name">var <span class="ident">MICRODATA</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.integration.OutputFormat.RDFA"><code class="name">var <span class="ident">RDFA</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.integration.RegistryEntry"><code class="flex name class">
+<span>class <span class="ident">RegistryEntry</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RegistryEntry(TypedDict):
+    &#34;&#34;&#34;One registered schema with its metadata.&#34;&#34;&#34;
+    schema: SchemaMapping
+    metadata: Dict[str, Any]
+    registered_at: str</code></pre>
+</details>
+<div class="desc"><p>One registered schema with its metadata.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.integration.RegistryEntry.metadata"><code class="name">var <span class="ident">metadata</span> : Dict[str, Any]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.integration.RegistryEntry.registered_at"><code class="name">var <span class="ident">registered_at</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.integration.RegistryEntry.schema"><code class="name">var <span class="ident">schema</span> : Mapping[str, JsonValue | SchemaMapping | Sequence[SchemaValue]]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.integration.RegistryStatistics"><code class="flex name class">
+<span>class <span class="ident">RegistryStatistics</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RegistryStatistics(TypedDict):
+    &#34;&#34;&#34;Aggregate counts for a SchemaRegistry.&#34;&#34;&#34;
+    total_schemas: int
+    types: Dict[str, int]</code></pre>
+</details>
+<div class="desc"><p>Aggregate counts for a SchemaRegistry.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.integration.RegistryStatistics.total_schemas"><code class="name">var <span class="ident">total_schemas</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.integration.RegistryStatistics.types"><code class="name">var <span class="ident">types</span> : Dict[str, int]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 </dd>
@@ -106,11 +218,11 @@ API endpoints, and bulk export functionality.</p>
     and provides API-ready output.
     &#34;&#34;&#34;
 
-    def __init__(self):
+    def __init__(self) -&gt; None:
         &#34;&#34;&#34;Initialize integration layer.&#34;&#34;&#34;
-        self.schemas: List[Dict[str, Any]] = []
+        self.schemas: List[SchemaMapping] = []
 
-    def add_schema(self, schema: Union[Dict[str, Any], &#39;SchemaOrgBase&#39;]) -&gt; &#39;SchemaIntegration&#39;:
+    def add_schema(self, schema: Union[SchemaMapping, &#39;SchemaOrgBase&#39;]) -&gt; &#39;SchemaIntegration&#39;:
         &#34;&#34;&#34;
         Add schema to collection.
 
@@ -121,11 +233,13 @@ API endpoints, and bulk export functionality.</p>
             Self for method chaining
         &#34;&#34;&#34;
         if hasattr(schema, &#39;to_dict&#39;):
-            schema = schema.to_dict()
+            # mypy can&#39;t intersect Mapping with a to_dict protocol; the
+            # duck-typed branch is only reachable for SchemaOrgBase-likes.
+            schema = cast(&#39;SchemaOrgBase&#39;, schema).to_dict()
         self.schemas.append(schema)
         return self
 
-    def to_json_ld(self, schema: Optional[Dict[str, Any]] = None,
+    def to_json_ld(self, schema: Optional[SchemaMapping] = None,
                    indent: int = 2) -&gt; str:
         &#34;&#34;&#34;
         Convert to JSON-LD format.
@@ -147,7 +261,7 @@ API endpoints, and bulk export functionality.</p>
 
         return json.dumps(data, indent=indent, ensure_ascii=False)
 
-    def to_json_ld_script(self, schema: Optional[Dict[str, Any]] = None,
+    def to_json_ld_script(self, schema: Optional[SchemaMapping] = None,
                          indent: int = 2) -&gt; str:
         &#34;&#34;&#34;
         Convert to JSON-LD script tag for HTML.
@@ -162,7 +276,7 @@ API endpoints, and bulk export functionality.</p>
         json_ld = self.to_json_ld(schema, indent)
         return f&#39;&lt;script type=&#34;application/ld+json&#34;&gt;\n{json_ld}\n&lt;/script&gt;&#39;
 
-    def to_microdata(self, schema: Dict[str, Any],
+    def to_microdata(self, schema: SchemaMapping,
                      tag: str = &#34;div&#34;) -&gt; str:
         &#34;&#34;&#34;
         Convert to HTML5 microdata format.
@@ -211,7 +325,7 @@ API endpoints, and bulk export functionality.</p>
         html_parts.append(f&#39;&lt;/{tag}&gt;&#39;)
         return &#39;\n&#39;.join(html_parts)
 
-    def to_rdfa(self, schema: Dict[str, Any],
+    def to_rdfa(self, schema: SchemaMapping,
                 tag: str = &#34;div&#34;) -&gt; str:
         &#34;&#34;&#34;
         Convert to RDFa format.
@@ -264,7 +378,7 @@ API endpoints, and bulk export functionality.</p>
         return &#39;\n&#39;.join(html_parts)
 
     def export_format(self, format: OutputFormat,
-                     schema: Optional[Dict[str, Any]] = None) -&gt; str:
+                     schema: Optional[SchemaMapping] = None) -&gt; str:
         &#34;&#34;&#34;
         Export in specified format.
 
@@ -280,14 +394,18 @@ API endpoints, and bulk export functionality.</p>
 
         if format == OutputFormat.JSON_LD:
             return self.to_json_ld(schema)
-        elif format == OutputFormat.MICRODATA:
-            return self.to_microdata(schema)
-        elif format == OutputFormat.RDFA:
-            return self.to_rdfa(schema)
-        elif format == OutputFormat.JSON:
+        if format == OutputFormat.JSON:
             return json.dumps(schema, indent=2)
-        else:
-            raise ValueError(f&#34;Unsupported format: {format}&#34;)
+
+        if schema is None:
+            raise ValueError(&#34;No schema available to export&#34;)
+
+        if format == OutputFormat.MICRODATA:
+            return self.to_microdata(schema)
+        if format == OutputFormat.RDFA:
+            return self.to_rdfa(schema)
+
+        raise ValueError(f&#34;Unsupported format: {format}&#34;)
 
     def export_all(self, format: OutputFormat) -&gt; List[str]:
         &#34;&#34;&#34;
@@ -320,10 +438,10 @@ API endpoints, and bulk export functionality.</p>
             structured_data = self.to_json_ld_script()
         elif format == OutputFormat.MICRODATA:
             # Microdata is embedded in content
-            structured_data = f&#34;&lt;!-- Microdata embedded in content --&gt;&#34;
+            structured_data = &#34;&lt;!-- Microdata embedded in content --&gt;&#34;
         elif format == OutputFormat.RDFA:
             # RDFa is embedded in content
-            structured_data = f&#34;&lt;!-- RDFa embedded in content --&gt;&#34;
+            structured_data = &#34;&lt;!-- RDFa embedded in content --&gt;&#34;
 
         html = f&#34;&#34;&#34;&lt;!DOCTYPE html&gt;
 &lt;html lang=&#34;en&#34;&gt;
@@ -339,7 +457,7 @@ API endpoints, and bulk export functionality.</p>
 &lt;/html&gt;&#34;&#34;&#34;
         return html
 
-    def get_api_response(self, schema_id: Optional[str] = None) -&gt; Dict[str, Any]:
+    def get_api_response(self, schema_id: Optional[str] = None) -&gt; ApiResponse:
         &#34;&#34;&#34;
         Get API-ready response.
 
@@ -351,7 +469,7 @@ API endpoints, and bulk export functionality.</p>
         &#34;&#34;&#34;
         if schema_id is not None:
             # In real implementation, look up by ID
-            schema = self.schemas[0] if self.schemas else {}
+            schema: SchemaMapping = self.schemas[0] if self.schemas else {}
             return {
                 &#34;success&#34;: True,
                 &#34;data&#34;: schema,
@@ -397,14 +515,14 @@ and provides API-ready output.</p>
 <h3>Methods</h3>
 <dl>
 <dt id="src.integration.SchemaIntegration.add_schema"><code class="name flex">
-<span>def <span class="ident">add_schema</span></span>(<span>self, schema: Dict[str, Any] | ForwardRef('SchemaOrgBase')) ‑> <a title="src.integration.SchemaIntegration" href="#src.integration.SchemaIntegration">SchemaIntegration</a></span>
+<span>def <span class="ident">add_schema</span></span>(<span>self,<br>schema: Mapping[str, JsonValue | SchemaMapping | Sequence[ForwardRef('SchemaValue')]] | SchemaOrgBase) ‑> <a title="src.integration.SchemaIntegration" href="#src.integration.SchemaIntegration">SchemaIntegration</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def add_schema(self, schema: Union[Dict[str, Any], &#39;SchemaOrgBase&#39;]) -&gt; &#39;SchemaIntegration&#39;:
+<pre><code class="python">def add_schema(self, schema: Union[SchemaMapping, &#39;SchemaOrgBase&#39;]) -&gt; &#39;SchemaIntegration&#39;:
     &#34;&#34;&#34;
     Add schema to collection.
 
@@ -415,18 +533,22 @@ and provides API-ready output.</p>
         Self for method chaining
     &#34;&#34;&#34;
     if hasattr(schema, &#39;to_dict&#39;):
-        schema = schema.to_dict()
+        # mypy can&#39;t intersect Mapping with a to_dict protocol; the
+        # duck-typed branch is only reachable for SchemaOrgBase-likes.
+        schema = cast(&#39;SchemaOrgBase&#39;, schema).to_dict()
     self.schemas.append(schema)
     return self</code></pre>
 </details>
 <div class="desc"><p>Add schema to collection.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema</code></strong></dt>
 <dd>Schema dictionary or SchemaOrgBase instance</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Self for method chaining</p></div>
+<p>Returns
+-----=
+Self for method chaining</p></div>
 </dd>
 <dt id="src.integration.SchemaIntegration.clear"><code class="name flex">
 <span>def <span class="ident">clear</span></span>(<span>self) ‑> None</span>
@@ -469,10 +591,10 @@ and provides API-ready output.</p>
             structured_data = self.to_json_ld_script()
         elif format == OutputFormat.MICRODATA:
             # Microdata is embedded in content
-            structured_data = f&#34;&lt;!-- Microdata embedded in content --&gt;&#34;
+            structured_data = &#34;&lt;!-- Microdata embedded in content --&gt;&#34;
         elif format == OutputFormat.RDFA:
             # RDFa is embedded in content
-            structured_data = f&#34;&lt;!-- RDFa embedded in content --&gt;&#34;
+            structured_data = &#34;&lt;!-- RDFa embedded in content --&gt;&#34;
 
         html = f&#34;&#34;&#34;&lt;!DOCTYPE html&gt;
 &lt;html lang=&#34;en&#34;&gt;
@@ -489,8 +611,9 @@ and provides API-ready output.</p>
         return html</code></pre>
 </details>
 <div class="desc"><p>Create complete HTML page with embedded structured data.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>title</code></strong></dt>
 <dd>Page title</dd>
 <dt><strong><code>content</code></strong></dt>
@@ -498,8 +621,9 @@ and provides API-ready output.</p>
 <dt><strong><code>format</code></strong></dt>
 <dd>Structured data format to use</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Complete HTML page</p></div>
+<p>Returns
+-----=
+Complete HTML page</p></div>
 </dd>
 <dt id="src.integration.SchemaIntegration.export_all"><code class="name flex">
 <span>def <span class="ident">export_all</span></span>(<span>self,<br>format: <a title="src.integration.OutputFormat" href="#src.integration.OutputFormat">OutputFormat</a>) ‑> List[str]</span>
@@ -522,13 +646,15 @@ and provides API-ready output.</p>
     return [self.export_format(format, schema) for schema in self.schemas]</code></pre>
 </details>
 <div class="desc"><p>Export all schemas in specified format.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>format</code></strong></dt>
 <dd>Output format</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>List of formatted strings</p></div>
+<p>Returns
+-----=
+List of formatted strings</p></div>
 </dd>
 <dt id="src.integration.SchemaIntegration.export_bulk"><code class="name flex">
 <span>def <span class="ident">export_bulk</span></span>(<span>self,<br>format: <a title="src.integration.OutputFormat" href="#src.integration.OutputFormat">OutputFormat</a>,<br>file_path: str) ‑> None</span>
@@ -560,8 +686,9 @@ and provides API-ready output.</p>
                 f.write(output)</code></pre>
 </details>
 <div class="desc"><p>Export all schemas to file.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>format</code></strong></dt>
 <dd>Output format</dd>
 <dt><strong><code>file_path</code></strong></dt>
@@ -569,7 +696,7 @@ and provides API-ready output.</p>
 </dl></div>
 </dd>
 <dt id="src.integration.SchemaIntegration.export_format"><code class="name flex">
-<span>def <span class="ident">export_format</span></span>(<span>self,<br>format: <a title="src.integration.OutputFormat" href="#src.integration.OutputFormat">OutputFormat</a>,<br>schema: Dict[str, Any] | None = None) ‑> str</span>
+<span>def <span class="ident">export_format</span></span>(<span>self,<br>format: <a title="src.integration.OutputFormat" href="#src.integration.OutputFormat">OutputFormat</a>,<br>schema: Mapping[str, JsonValue | SchemaMapping | Sequence[ForwardRef('SchemaValue')]] | None = None) ‑> str</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -577,7 +704,7 @@ and provides API-ready output.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def export_format(self, format: OutputFormat,
-                 schema: Optional[Dict[str, Any]] = None) -&gt; str:
+                 schema: Optional[SchemaMapping] = None) -&gt; str:
     &#34;&#34;&#34;
     Export in specified format.
 
@@ -593,35 +720,41 @@ and provides API-ready output.</p>
 
     if format == OutputFormat.JSON_LD:
         return self.to_json_ld(schema)
-    elif format == OutputFormat.MICRODATA:
-        return self.to_microdata(schema)
-    elif format == OutputFormat.RDFA:
-        return self.to_rdfa(schema)
-    elif format == OutputFormat.JSON:
+    if format == OutputFormat.JSON:
         return json.dumps(schema, indent=2)
-    else:
-        raise ValueError(f&#34;Unsupported format: {format}&#34;)</code></pre>
+
+    if schema is None:
+        raise ValueError(&#34;No schema available to export&#34;)
+
+    if format == OutputFormat.MICRODATA:
+        return self.to_microdata(schema)
+    if format == OutputFormat.RDFA:
+        return self.to_rdfa(schema)
+
+    raise ValueError(f&#34;Unsupported format: {format}&#34;)</code></pre>
 </details>
 <div class="desc"><p>Export in specified format.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>format</code></strong></dt>
 <dd>Output format</dd>
 <dt><strong><code>schema</code></strong></dt>
 <dd>Specific schema (or use all)</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Formatted string</p></div>
+<p>Returns
+-----=
+Formatted string</p></div>
 </dd>
 <dt id="src.integration.SchemaIntegration.get_api_response"><code class="name flex">
-<span>def <span class="ident">get_api_response</span></span>(<span>self, schema_id: str | None = None) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">get_api_response</span></span>(<span>self, schema_id: str | None = None) ‑> <a title="src.integration.ApiResponse" href="#src.integration.ApiResponse">ApiResponse</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_api_response(self, schema_id: Optional[str] = None) -&gt; Dict[str, Any]:
+<pre><code class="python">def get_api_response(self, schema_id: Optional[str] = None) -&gt; ApiResponse:
     &#34;&#34;&#34;
     Get API-ready response.
 
@@ -633,7 +766,7 @@ and provides API-ready output.</p>
     &#34;&#34;&#34;
     if schema_id is not None:
         # In real implementation, look up by ID
-        schema = self.schemas[0] if self.schemas else {}
+        schema: SchemaMapping = self.schemas[0] if self.schemas else {}
         return {
             &#34;success&#34;: True,
             &#34;data&#34;: schema,
@@ -648,23 +781,25 @@ and provides API-ready output.</p>
         }</code></pre>
 </details>
 <div class="desc"><p>Get API-ready response.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema_id</code></strong></dt>
 <dd>Specific schema ID (or return all)</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>API response dictionary</p></div>
+<p>Returns
+-----=
+API response dictionary</p></div>
 </dd>
 <dt id="src.integration.SchemaIntegration.to_json_ld"><code class="name flex">
-<span>def <span class="ident">to_json_ld</span></span>(<span>self, schema: Dict[str, Any] | None = None, indent: int = 2) ‑> str</span>
+<span>def <span class="ident">to_json_ld</span></span>(<span>self,<br>schema: Mapping[str, JsonValue | SchemaMapping | Sequence[ForwardRef('SchemaValue')]] | None = None,<br>indent: int = 2) ‑> str</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_json_ld(self, schema: Optional[Dict[str, Any]] = None,
+<pre><code class="python">def to_json_ld(self, schema: Optional[SchemaMapping] = None,
                indent: int = 2) -&gt; str:
     &#34;&#34;&#34;
     Convert to JSON-LD format.
@@ -687,25 +822,27 @@ and provides API-ready output.</p>
     return json.dumps(data, indent=indent, ensure_ascii=False)</code></pre>
 </details>
 <div class="desc"><p>Convert to JSON-LD format.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema</code></strong></dt>
 <dd>Specific schema to convert (or use all schemas)</dd>
 <dt><strong><code>indent</code></strong></dt>
 <dd>JSON indentation</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>JSON-LD string</p></div>
+<p>Returns
+-----=
+JSON-LD string</p></div>
 </dd>
 <dt id="src.integration.SchemaIntegration.to_json_ld_script"><code class="name flex">
-<span>def <span class="ident">to_json_ld_script</span></span>(<span>self, schema: Dict[str, Any] | None = None, indent: int = 2) ‑> str</span>
+<span>def <span class="ident">to_json_ld_script</span></span>(<span>self,<br>schema: Mapping[str, JsonValue | SchemaMapping | Sequence[ForwardRef('SchemaValue')]] | None = None,<br>indent: int = 2) ‑> str</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_json_ld_script(self, schema: Optional[Dict[str, Any]] = None,
+<pre><code class="python">def to_json_ld_script(self, schema: Optional[SchemaMapping] = None,
                      indent: int = 2) -&gt; str:
     &#34;&#34;&#34;
     Convert to JSON-LD script tag for HTML.
@@ -721,25 +858,27 @@ and provides API-ready output.</p>
     return f&#39;&lt;script type=&#34;application/ld+json&#34;&gt;\n{json_ld}\n&lt;/script&gt;&#39;</code></pre>
 </details>
 <div class="desc"><p>Convert to JSON-LD script tag for HTML.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema</code></strong></dt>
 <dd>Specific schema to convert</dd>
 <dt><strong><code>indent</code></strong></dt>
 <dd>JSON indentation</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>HTML script tag with JSON-LD</p></div>
+<p>Returns
+-----=
+HTML script tag with JSON-LD</p></div>
 </dd>
 <dt id="src.integration.SchemaIntegration.to_microdata"><code class="name flex">
-<span>def <span class="ident">to_microdata</span></span>(<span>self, schema: Dict[str, Any], tag: str = 'div') ‑> str</span>
+<span>def <span class="ident">to_microdata</span></span>(<span>self,<br>schema: Mapping[str, JsonValue | SchemaMapping | Sequence[ForwardRef('SchemaValue')]],<br>tag: str = 'div') ‑> str</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_microdata(self, schema: Dict[str, Any],
+<pre><code class="python">def to_microdata(self, schema: SchemaMapping,
                  tag: str = &#34;div&#34;) -&gt; str:
     &#34;&#34;&#34;
     Convert to HTML5 microdata format.
@@ -789,25 +928,27 @@ and provides API-ready output.</p>
     return &#39;\n&#39;.join(html_parts)</code></pre>
 </details>
 <div class="desc"><p>Convert to HTML5 microdata format.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema</code></strong></dt>
 <dd>Schema dictionary</dd>
 <dt><strong><code>tag</code></strong></dt>
 <dd>HTML tag to use</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>HTML with microdata attributes</p></div>
+<p>Returns
+-----=
+HTML with microdata attributes</p></div>
 </dd>
 <dt id="src.integration.SchemaIntegration.to_rdfa"><code class="name flex">
-<span>def <span class="ident">to_rdfa</span></span>(<span>self, schema: Dict[str, Any], tag: str = 'div') ‑> str</span>
+<span>def <span class="ident">to_rdfa</span></span>(<span>self,<br>schema: Mapping[str, JsonValue | SchemaMapping | Sequence[ForwardRef('SchemaValue')]],<br>tag: str = 'div') ‑> str</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_rdfa(self, schema: Dict[str, Any],
+<pre><code class="python">def to_rdfa(self, schema: SchemaMapping,
             tag: str = &#34;div&#34;) -&gt; str:
     &#34;&#34;&#34;
     Convert to RDFa format.
@@ -860,15 +1001,17 @@ and provides API-ready output.</p>
     return &#39;\n&#39;.join(html_parts)</code></pre>
 </details>
 <div class="desc"><p>Convert to RDFa format.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema</code></strong></dt>
 <dd>Schema dictionary</dd>
 <dt><strong><code>tag</code></strong></dt>
 <dd>HTML tag to use</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>HTML with RDFa attributes</p></div>
+<p>Returns
+-----=
+HTML with RDFa attributes</p></div>
 </dd>
 </dl>
 </dd>
@@ -887,11 +1030,11 @@ and provides API-ready output.</p>
     Provides indexing, search, and retrieval capabilities.
     &#34;&#34;&#34;
 
-    def __init__(self):
+    def __init__(self) -&gt; None:
         &#34;&#34;&#34;Initialize registry.&#34;&#34;&#34;
-        self.registry: Dict[str, Dict[str, Any]] = {}
+        self.registry: Dict[str, RegistryEntry] = {}
 
-    def register(self, schema_id: str, schema: Dict[str, Any],
+    def register(self, schema_id: str, schema: SchemaMapping,
                 metadata: Optional[Dict[str, Any]] = None) -&gt; None:
         &#34;&#34;&#34;
         Register a schema.
@@ -907,12 +1050,12 @@ and provides API-ready output.</p>
             &#34;registered_at&#34;: str(json.dumps({&#34;timestamp&#34;: &#34;now&#34;}))
         }
 
-    def get(self, schema_id: str) -&gt; Optional[Dict[str, Any]]:
+    def get(self, schema_id: str) -&gt; Optional[SchemaMapping]:
         &#34;&#34;&#34;Get schema by ID.&#34;&#34;&#34;
         entry = self.registry.get(schema_id)
         return entry[&#34;schema&#34;] if entry else None
 
-    def get_by_type(self, schema_type: str) -&gt; List[Dict[str, Any]]:
+    def get_by_type(self, schema_type: str) -&gt; List[SchemaMapping]:
         &#34;&#34;&#34;Get all schemas of specific type.&#34;&#34;&#34;
         results = []
         for entry in self.registry.values():
@@ -921,7 +1064,7 @@ and provides API-ready output.</p>
                 results.append(schema)
         return results
 
-    def search(self, query: str) -&gt; List[Dict[str, Any]]:
+    def search(self, query: str) -&gt; List[SchemaMapping]:
         &#34;&#34;&#34;
         Search schemas by text.
 
@@ -964,15 +1107,15 @@ and provides API-ready output.</p>
             return True
         return False
 
-    def export_all(self) -&gt; List[Dict[str, Any]]:
+    def export_all(self) -&gt; List[SchemaMapping]:
         &#34;&#34;&#34;Export all schemas.&#34;&#34;&#34;
         return [entry[&#34;schema&#34;] for entry in self.registry.values()]
 
-    def get_statistics(self) -&gt; Dict[str, Any]:
+    def get_statistics(self) -&gt; RegistryStatistics:
         &#34;&#34;&#34;Get registry statistics.&#34;&#34;&#34;
         type_counts: Dict[str, int] = {}
         for entry in self.registry.values():
-            schema_type = entry[&#34;schema&#34;].get(&#34;@type&#34;, &#34;Unknown&#34;)
+            schema_type = str(entry[&#34;schema&#34;].get(&#34;@type&#34;, &#34;Unknown&#34;))
             type_counts[schema_type] = type_counts.get(schema_type, 0) + 1
 
         return {
@@ -1000,28 +1143,28 @@ and provides API-ready output.</p>
 <div class="desc"><p>Get total count of schemas.</p></div>
 </dd>
 <dt id="src.integration.SchemaRegistry.export_all"><code class="name flex">
-<span>def <span class="ident">export_all</span></span>(<span>self) ‑> List[Dict[str, Any]]</span>
+<span>def <span class="ident">export_all</span></span>(<span>self) ‑> List[Mapping[str, JsonValue | SchemaMapping | Sequence[SchemaValue]]]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def export_all(self) -&gt; List[Dict[str, Any]]:
+<pre><code class="python">def export_all(self) -&gt; List[SchemaMapping]:
     &#34;&#34;&#34;Export all schemas.&#34;&#34;&#34;
     return [entry[&#34;schema&#34;] for entry in self.registry.values()]</code></pre>
 </details>
 <div class="desc"><p>Export all schemas.</p></div>
 </dd>
 <dt id="src.integration.SchemaRegistry.get"><code class="name flex">
-<span>def <span class="ident">get</span></span>(<span>self, schema_id: str) ‑> Dict[str, Any] | None</span>
+<span>def <span class="ident">get</span></span>(<span>self, schema_id: str) ‑> Mapping[str, JsonValue | SchemaMapping | Sequence[SchemaValue]] | None</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get(self, schema_id: str) -&gt; Optional[Dict[str, Any]]:
+<pre><code class="python">def get(self, schema_id: str) -&gt; Optional[SchemaMapping]:
     &#34;&#34;&#34;Get schema by ID.&#34;&#34;&#34;
     entry = self.registry.get(schema_id)
     return entry[&#34;schema&#34;] if entry else None</code></pre>
@@ -1029,14 +1172,14 @@ and provides API-ready output.</p>
 <div class="desc"><p>Get schema by ID.</p></div>
 </dd>
 <dt id="src.integration.SchemaRegistry.get_by_type"><code class="name flex">
-<span>def <span class="ident">get_by_type</span></span>(<span>self, schema_type: str) ‑> List[Dict[str, Any]]</span>
+<span>def <span class="ident">get_by_type</span></span>(<span>self, schema_type: str) ‑> List[Mapping[str, JsonValue | SchemaMapping | Sequence[SchemaValue]]]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_by_type(self, schema_type: str) -&gt; List[Dict[str, Any]]:
+<pre><code class="python">def get_by_type(self, schema_type: str) -&gt; List[SchemaMapping]:
     &#34;&#34;&#34;Get all schemas of specific type.&#34;&#34;&#34;
     results = []
     for entry in self.registry.values():
@@ -1048,18 +1191,18 @@ and provides API-ready output.</p>
 <div class="desc"><p>Get all schemas of specific type.</p></div>
 </dd>
 <dt id="src.integration.SchemaRegistry.get_statistics"><code class="name flex">
-<span>def <span class="ident">get_statistics</span></span>(<span>self) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">get_statistics</span></span>(<span>self) ‑> <a title="src.integration.RegistryStatistics" href="#src.integration.RegistryStatistics">RegistryStatistics</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_statistics(self) -&gt; Dict[str, Any]:
+<pre><code class="python">def get_statistics(self) -&gt; RegistryStatistics:
     &#34;&#34;&#34;Get registry statistics.&#34;&#34;&#34;
     type_counts: Dict[str, int] = {}
     for entry in self.registry.values():
-        schema_type = entry[&#34;schema&#34;].get(&#34;@type&#34;, &#34;Unknown&#34;)
+        schema_type = str(entry[&#34;schema&#34;].get(&#34;@type&#34;, &#34;Unknown&#34;))
         type_counts[schema_type] = type_counts.get(schema_type, 0) + 1
 
     return {
@@ -1084,14 +1227,14 @@ and provides API-ready output.</p>
 <div class="desc"><p>List all schema IDs.</p></div>
 </dd>
 <dt id="src.integration.SchemaRegistry.register"><code class="name flex">
-<span>def <span class="ident">register</span></span>(<span>self,<br>schema_id: str,<br>schema: Dict[str, Any],<br>metadata: Dict[str, Any] | None = None) ‑> None</span>
+<span>def <span class="ident">register</span></span>(<span>self,<br>schema_id: str,<br>schema: Mapping[str, JsonValue | SchemaMapping | Sequence[ForwardRef('SchemaValue')]],<br>metadata: Dict[str, Any] | None = None)</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def register(self, schema_id: str, schema: Dict[str, Any],
+<pre><code class="python">def register(self, schema_id: str, schema: SchemaMapping,
             metadata: Optional[Dict[str, Any]] = None) -&gt; None:
     &#34;&#34;&#34;
     Register a schema.
@@ -1108,8 +1251,9 @@ and provides API-ready output.</p>
     }</code></pre>
 </details>
 <div class="desc"><p>Register a schema.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema_id</code></strong></dt>
 <dd>Unique schema identifier</dd>
 <dt><strong><code>schema</code></strong></dt>
@@ -1142,23 +1286,25 @@ and provides API-ready output.</p>
     return False</code></pre>
 </details>
 <div class="desc"><p>Remove schema by ID.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema_id</code></strong></dt>
 <dd>Schema ID to remove</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>True if removed, False if not found</p></div>
+<p>Returns
+-----=
+True if removed, False if not found</p></div>
 </dd>
 <dt id="src.integration.SchemaRegistry.search"><code class="name flex">
-<span>def <span class="ident">search</span></span>(<span>self, query: str) ‑> List[Dict[str, Any]]</span>
+<span>def <span class="ident">search</span></span>(<span>self, query: str) ‑> List[Mapping[str, JsonValue | SchemaMapping | Sequence[SchemaValue]]]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def search(self, query: str) -&gt; List[Dict[str, Any]]:
+<pre><code class="python">def search(self, query: str) -&gt; List[SchemaMapping]:
     &#34;&#34;&#34;
     Search schemas by text.
 
@@ -1179,13 +1325,15 @@ and provides API-ready output.</p>
     return results</code></pre>
 </details>
 <div class="desc"><p>Search schemas by text.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>query</code></strong></dt>
 <dd>Search query</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>List of matching schemas</p></div>
+<p>Returns
+-----=
+List of matching schemas</p></div>
 </dd>
 </dl>
 </dd>
@@ -1205,12 +1353,36 @@ and provides API-ready output.</p>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
+<h4><code><a title="src.integration.ApiResponse" href="#src.integration.ApiResponse">ApiResponse</a></code></h4>
+<ul class="">
+<li><code><a title="src.integration.ApiResponse.count" href="#src.integration.ApiResponse.count">count</a></code></li>
+<li><code><a title="src.integration.ApiResponse.data" href="#src.integration.ApiResponse.data">data</a></code></li>
+<li><code><a title="src.integration.ApiResponse.format" href="#src.integration.ApiResponse.format">format</a></code></li>
+<li><code><a title="src.integration.ApiResponse.success" href="#src.integration.ApiResponse.success">success</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="src.integration.OutputFormat" href="#src.integration.OutputFormat">OutputFormat</a></code></h4>
 <ul class="">
 <li><code><a title="src.integration.OutputFormat.JSON" href="#src.integration.OutputFormat.JSON">JSON</a></code></li>
 <li><code><a title="src.integration.OutputFormat.JSON_LD" href="#src.integration.OutputFormat.JSON_LD">JSON_LD</a></code></li>
 <li><code><a title="src.integration.OutputFormat.MICRODATA" href="#src.integration.OutputFormat.MICRODATA">MICRODATA</a></code></li>
 <li><code><a title="src.integration.OutputFormat.RDFA" href="#src.integration.OutputFormat.RDFA">RDFA</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.integration.RegistryEntry" href="#src.integration.RegistryEntry">RegistryEntry</a></code></h4>
+<ul class="">
+<li><code><a title="src.integration.RegistryEntry.metadata" href="#src.integration.RegistryEntry.metadata">metadata</a></code></li>
+<li><code><a title="src.integration.RegistryEntry.registered_at" href="#src.integration.RegistryEntry.registered_at">registered_at</a></code></li>
+<li><code><a title="src.integration.RegistryEntry.schema" href="#src.integration.RegistryEntry.schema">schema</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.integration.RegistryStatistics" href="#src.integration.RegistryStatistics">RegistryStatistics</a></code></h4>
+<ul class="">
+<li><code><a title="src.integration.RegistryStatistics.total_schemas" href="#src.integration.RegistryStatistics.total_schemas">total_schemas</a></code></li>
+<li><code><a title="src.integration.RegistryStatistics.types" href="#src.integration.RegistryStatistics.types">types</a></code></li>
 </ul>
 </li>
 <li>

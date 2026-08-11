@@ -49,7 +49,7 @@ Supports namespacing, TTL, and JSON values.</p>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="src.storage.kv_store.get_kv_store"><code class="name flex">
-<span>def <span class="ident">get_kv_store</span></span>(<span>db_path: pathlib.Path | str = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db')) ‑> <a title="src.storage.kv_store.KeyValueStorage" href="#src.storage.kv_store.KeyValueStorage">KeyValueStorage</a></span>
+<span>def <span class="ident">get_kv_store</span></span>(<span>db_path: str | pathlib.Path = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db')) ‑> <a title="src.storage.kv_store.KeyValueStorage" href="#src.storage.kv_store.KeyValueStorage">KeyValueStorage</a></span>
 </code></dt>
 <dd>
 <details class="source">
@@ -67,9 +67,45 @@ Supports namespacing, TTL, and JSON values.</p>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="src.storage.kv_store.KVStoreInfo"><code class="flex name class">
+<span>class <span class="ident">KVStoreInfo</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class KVStoreInfo(TypedDict):
+    &#34;&#34;&#34;``KeyValueStorage.info()`` shape.&#34;&#34;&#34;
+    total_keys: int
+    by_namespace: Dict[str, int]
+    expired_keys: int</code></pre>
+</details>
+<div class="desc"><p><code><a title="src.storage.kv_store.KeyValueStorage.info" href="#src.storage.kv_store.KeyValueStorage.info">KeyValueStorage.info()</a></code> shape.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.storage.kv_store.KVStoreInfo.by_namespace"><code class="name">var <span class="ident">by_namespace</span> : Dict[str, int]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.kv_store.KVStoreInfo.expired_keys"><code class="name">var <span class="ident">expired_keys</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.kv_store.KVStoreInfo.total_keys"><code class="name">var <span class="ident">total_keys</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
 <dt id="src.storage.kv_store.KeyValueStorage"><code class="flex name class">
 <span>class <span class="ident">KeyValueStorage</span></span>
-<span>(</span><span>db_path: pathlib.Path | str = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'))</span>
+<span>(</span><span>db_path: str | pathlib.Path = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'))</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -110,7 +146,10 @@ Supports namespacing, TTL, and JSON values.</p>
 
         # SQLite optimizations
         @event.listens_for(self.engine, &#34;connect&#34;)
-        def set_sqlite_pragma(dbapi_connection: Any, connection_record: Any) -&gt; None:
+        def set_sqlite_pragma(
+            dbapi_connection: &#34;DBAPIConnection&#34;,
+            connection_record: &#34;ConnectionPoolEntry&#34;,
+        ) -&gt; None:
             cursor = dbapi_connection.cursor()
             cursor.execute(&#34;PRAGMA foreign_keys=ON&#34;)
             cursor.execute(&#34;PRAGMA journal_mode=WAL&#34;)
@@ -182,8 +221,8 @@ Supports namespacing, TTL, and JSON values.</p>
         key: str,
         value: Any,
         namespace: str = NAMESPACE_CACHE,
-        ttl_seconds: int = None,
-        file_id: str = None
+        ttl_seconds: Optional[int] = None,
+        file_id: Optional[str] = None
     ) -&gt; bool:
         &#34;&#34;&#34;
         Set a value.
@@ -325,7 +364,7 @@ Supports namespacing, TTL, and JSON values.</p>
         self,
         mapping: Dict[str, Any],
         namespace: str = NAMESPACE_CACHE,
-        ttl_seconds: int = None
+        ttl_seconds: Optional[int] = None
     ) -&gt; bool:
         &#34;&#34;&#34;
         Set multiple values at once.
@@ -480,7 +519,7 @@ Supports namespacing, TTL, and JSON values.</p>
     def scan(
         self,
         namespace: str = NAMESPACE_CACHE,
-        match: str = None,
+        match: Optional[str] = None,
         count: int = 100,
         cursor: int = 0
     ) -&gt; tuple:
@@ -764,7 +803,7 @@ Supports namespacing, TTL, and JSON values.</p>
     # Utility Methods
     # =========================================================================
 
-    def _get_value_type(self, value: Any) -&gt; str:
+    def _get_value_type(self, value: object) -&gt; str:
         &#34;&#34;&#34;Determine the type of a value.&#34;&#34;&#34;
         if isinstance(value, bool):
             return &#39;bool&#39;
@@ -779,7 +818,7 @@ Supports namespacing, TTL, and JSON values.</p>
         else:
             return &#39;json&#39;
 
-    def info(self) -&gt; Dict[str, Any]:
+    def info(self) -&gt; KVStoreInfo:
         &#34;&#34;&#34;
         Get storage statistics.
 
@@ -816,8 +855,9 @@ Supports namespacing, TTL, and JSON values.</p>
 - Pattern-based key scanning</p>
 <p>Can be swapped with Redis by implementing the same interface.</p>
 <p>Initialize key-value storage.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>db_path</code></strong></dt>
 <dd>Path to SQLite database (shared with graph store)</dd>
 </dl></div>
@@ -825,27 +865,27 @@ Supports namespacing, TTL, and JSON values.</p>
 <dl>
 <dt id="src.storage.kv_store.KeyValueStorage.NAMESPACE_CACHE"><code class="name">var <span class="ident">NAMESPACE_CACHE</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.NAMESPACE_CONFIG"><code class="name">var <span class="ident">NAMESPACE_CONFIG</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.NAMESPACE_FEATURE"><code class="name">var <span class="ident">NAMESPACE_FEATURE</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.NAMESPACE_METADATA"><code class="name">var <span class="ident">NAMESPACE_METADATA</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.NAMESPACE_SESSION"><code class="name">var <span class="ident">NAMESPACE_SESSION</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.NAMESPACE_STATS"><code class="name">var <span class="ident">NAMESPACE_STATS</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -875,8 +915,9 @@ Supports namespacing, TTL, and JSON values.</p>
         return result</code></pre>
 </details>
 <div class="desc"><p>Remove all expired keys.</p>
-<h2 id="returns">Returns</h2>
-<p>Number of keys removed</p></div>
+<p>Returns
+-----=
+Number of keys removed</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.decr"><code class="name flex">
 <span>def <span class="ident">decr</span></span>(<span>self, key: str, amount: int = 1, namespace: str = 'stats') ‑> int</span>
@@ -906,8 +947,9 @@ Supports namespacing, TTL, and JSON values.</p>
     return self.incr(key, -amount, namespace)</code></pre>
 </details>
 <div class="desc"><p>Decrement a counter.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>key</code></strong></dt>
 <dd>The counter key</dd>
 <dt><strong><code>amount</code></strong></dt>
@@ -915,8 +957,9 @@ Supports namespacing, TTL, and JSON values.</p>
 <dt><strong><code>namespace</code></strong></dt>
 <dd>Namespace for the counter</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>New counter value</p></div>
+<p>Returns
+-----=
+New counter value</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.delete"><code class="name flex">
 <span>def <span class="ident">delete</span></span>(<span>self, key: str, namespace: str = 'cache') ‑> bool</span>
@@ -947,15 +990,17 @@ Supports namespacing, TTL, and JSON values.</p>
         return result &gt; 0</code></pre>
 </details>
 <div class="desc"><p>Delete a key.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>key</code></strong></dt>
 <dd>The key to delete</dd>
 <dt><strong><code>namespace</code></strong></dt>
 <dd>Namespace for the key</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>True if key existed and was deleted</p></div>
+<p>Returns
+-----=
+True if key existed and was deleted</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.exists"><code class="name flex">
 <span>def <span class="ident">exists</span></span>(<span>self, key: str, namespace: str = 'cache') ‑> bool</span>
@@ -995,15 +1040,17 @@ Supports namespacing, TTL, and JSON values.</p>
         return True</code></pre>
 </details>
 <div class="desc"><p>Check if a key exists.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>key</code></strong></dt>
 <dd>The key to check</dd>
 <dt><strong><code>namespace</code></strong></dt>
 <dd>Namespace for the key</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>True if key exists and hasn't expired</p></div>
+<p>Returns
+-----=
+True if key exists and hasn't expired</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.expire"><code class="name flex">
 <span>def <span class="ident">expire</span></span>(<span>self, key: str, seconds: int, namespace: str = 'cache') ‑> bool</span>
@@ -1045,8 +1092,9 @@ Supports namespacing, TTL, and JSON values.</p>
         return True</code></pre>
 </details>
 <div class="desc"><p>Set TTL on an existing key.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>key</code></strong></dt>
 <dd>The key</dd>
 <dt><strong><code>seconds</code></strong></dt>
@@ -1054,8 +1102,9 @@ Supports namespacing, TTL, and JSON values.</p>
 <dt><strong><code>namespace</code></strong></dt>
 <dd>Namespace</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>True if key exists and TTL was set</p></div>
+<p>Returns
+-----=
+True if key exists and TTL was set</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.flush_all"><code class="name flex">
 <span>def <span class="ident">flush_all</span></span>(<span>self) ‑> int</span>
@@ -1077,8 +1126,9 @@ Supports namespacing, TTL, and JSON values.</p>
         return result</code></pre>
 </details>
 <div class="desc"><p>Delete all keys in all namespaces.</p>
-<h2 id="returns">Returns</h2>
-<p>Number of keys deleted</p></div>
+<p>Returns
+-----=
+Number of keys deleted</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.flush_namespace"><code class="name flex">
 <span>def <span class="ident">flush_namespace</span></span>(<span>self, namespace: str) ‑> int</span>
@@ -1105,13 +1155,15 @@ Supports namespacing, TTL, and JSON values.</p>
         return result</code></pre>
 </details>
 <div class="desc"><p>Delete all keys in a namespace.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>namespace</code></strong></dt>
 <dd>Namespace to flush</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Number of keys deleted</p></div>
+<p>Returns
+-----=
+Number of keys deleted</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.get"><code class="name flex">
 <span>def <span class="ident">get</span></span>(<span>self, key: str, namespace: str = 'cache', default: Any = None) ‑> Any</span>
@@ -1157,8 +1209,9 @@ Supports namespacing, TTL, and JSON values.</p>
         return record.value</code></pre>
 </details>
 <div class="desc"><p>Get a value by key.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>key</code></strong></dt>
 <dd>The key to retrieve</dd>
 <dt><strong><code>namespace</code></strong></dt>
@@ -1166,8 +1219,9 @@ Supports namespacing, TTL, and JSON values.</p>
 <dt><strong><code>default</code></strong></dt>
 <dd>Default value if key doesn't exist</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>The value or default</p></div>
+<p>Returns
+-----=
+The value or default</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.get_session"><code class="name flex">
 <span>def <span class="ident">get_session</span></span>(<span>self) ‑> sqlalchemy.orm.session.Session</span>
@@ -1216,8 +1270,9 @@ Supports namespacing, TTL, and JSON values.</p>
     return count</code></pre>
 </details>
 <div class="desc"><p>Delete fields from a hash.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>name</code></strong></dt>
 <dd>Hash name</dd>
 <dt><strong><code>*keys</code></strong></dt>
@@ -1225,8 +1280,9 @@ Supports namespacing, TTL, and JSON values.</p>
 <dt><strong><code>namespace</code></strong></dt>
 <dd>Namespace</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Number of fields deleted</p></div>
+<p>Returns
+-----=
+Number of fields deleted</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.hget"><code class="name flex">
 <span>def <span class="ident">hget</span></span>(<span>self, name: str, key: str, namespace: str = 'metadata') ‑> Any</span>
@@ -1257,8 +1313,9 @@ Supports namespacing, TTL, and JSON values.</p>
     return self.get(hash_key, namespace)</code></pre>
 </details>
 <div class="desc"><p>Get a field from a hash.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>name</code></strong></dt>
 <dd>Hash name</dd>
 <dt><strong><code>key</code></strong></dt>
@@ -1266,8 +1323,9 @@ Supports namespacing, TTL, and JSON values.</p>
 <dt><strong><code>namespace</code></strong></dt>
 <dd>Namespace</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Field value or None</p></div>
+<p>Returns
+-----=
+Field value or None</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.hgetall"><code class="name flex">
 <span>def <span class="ident">hgetall</span></span>(<span>self, name: str, namespace: str = 'metadata') ‑> Dict[str, Any]</span>
@@ -1303,15 +1361,17 @@ Supports namespacing, TTL, and JSON values.</p>
     return result</code></pre>
 </details>
 <div class="desc"><p>Get all fields from a hash.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>name</code></strong></dt>
 <dd>Hash name</dd>
 <dt><strong><code>namespace</code></strong></dt>
 <dd>Namespace</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Dictionary of field -&gt; value</p></div>
+<p>Returns
+-----=
+Dictionary of field -&gt; value</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.hset"><code class="name flex">
 <span>def <span class="ident">hset</span></span>(<span>self, name: str, key: str, value: Any, namespace: str = 'metadata') ‑> bool</span>
@@ -1344,8 +1404,9 @@ Supports namespacing, TTL, and JSON values.</p>
     return self.set(hash_key, value, namespace)</code></pre>
 </details>
 <div class="desc"><p>Set a field in a hash.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>name</code></strong></dt>
 <dd>Hash name</dd>
 <dt><strong><code>key</code></strong></dt>
@@ -1355,8 +1416,9 @@ Supports namespacing, TTL, and JSON values.</p>
 <dt><strong><code>namespace</code></strong></dt>
 <dd>Namespace</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>True if successful</p></div>
+<p>Returns
+-----=
+True if successful</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.incr"><code class="name flex">
 <span>def <span class="ident">incr</span></span>(<span>self, key: str, amount: int = 1, namespace: str = 'stats') ‑> int</span>
@@ -1407,8 +1469,9 @@ Supports namespacing, TTL, and JSON values.</p>
             return amount</code></pre>
 </details>
 <div class="desc"><p>Increment a counter.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>key</code></strong></dt>
 <dd>The counter key</dd>
 <dt><strong><code>amount</code></strong></dt>
@@ -1416,8 +1479,9 @@ Supports namespacing, TTL, and JSON values.</p>
 <dt><strong><code>namespace</code></strong></dt>
 <dd>Namespace for the counter</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>New counter value</p></div>
+<p>Returns
+-----=
+New counter value</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.incrby_float"><code class="name flex">
 <span>def <span class="ident">incrby_float</span></span>(<span>self, key: str, amount: float, namespace: str = 'stats') ‑> float</span>
@@ -1469,8 +1533,9 @@ Supports namespacing, TTL, and JSON values.</p>
             return amount</code></pre>
 </details>
 <div class="desc"><p>Increment a float counter.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>key</code></strong></dt>
 <dd>The counter key</dd>
 <dt><strong><code>amount</code></strong></dt>
@@ -1478,18 +1543,19 @@ Supports namespacing, TTL, and JSON values.</p>
 <dt><strong><code>namespace</code></strong></dt>
 <dd>Namespace for the counter</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>New counter value</p></div>
+<p>Returns
+-----=
+New counter value</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.info"><code class="name flex">
-<span>def <span class="ident">info</span></span>(<span>self) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">info</span></span>(<span>self) ‑> <a title="src.storage.kv_store.KVStoreInfo" href="#src.storage.kv_store.KVStoreInfo">KVStoreInfo</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def info(self) -&gt; Dict[str, Any]:
+<pre><code class="python">def info(self) -&gt; KVStoreInfo:
     &#34;&#34;&#34;
     Get storage statistics.
 
@@ -1518,8 +1584,9 @@ Supports namespacing, TTL, and JSON values.</p>
         }</code></pre>
 </details>
 <div class="desc"><p>Get storage statistics.</p>
-<h2 id="returns">Returns</h2>
-<p>Dictionary with stats</p></div>
+<p>Returns
+-----=
+Dictionary with stats</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.keys"><code class="name flex">
 <span>def <span class="ident">keys</span></span>(<span>self, pattern: str = '*', namespace: str = 'cache') ‑> List[str]</span>
@@ -1557,15 +1624,17 @@ Supports namespacing, TTL, and JSON values.</p>
         return [row[0] for row in query.all()]</code></pre>
 </details>
 <div class="desc"><p>Get all keys matching a pattern.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>pattern</code></strong></dt>
 <dd>Glob-style pattern (* for wildcard)</dd>
 <dt><strong><code>namespace</code></strong></dt>
 <dd>Namespace to search</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>List of matching keys</p></div>
+<p>Returns
+-----=
+List of matching keys</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.mget"><code class="name flex">
 <span>def <span class="ident">mget</span></span>(<span>self, keys: List[str], namespace: str = 'cache') ‑> Dict[str, Any]</span>
@@ -1610,18 +1679,20 @@ Supports namespacing, TTL, and JSON values.</p>
         return result</code></pre>
 </details>
 <div class="desc"><p>Get multiple values at once.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>keys</code></strong></dt>
 <dd>List of keys to retrieve</dd>
 <dt><strong><code>namespace</code></strong></dt>
 <dd>Namespace for the keys</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Dictionary of key -&gt; value (missing keys omitted)</p></div>
+<p>Returns
+-----=
+Dictionary of key -&gt; value (missing keys omitted)</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.mset"><code class="name flex">
-<span>def <span class="ident">mset</span></span>(<span>self, mapping: Dict[str, Any], namespace: str = 'cache', ttl_seconds: int = None) ‑> bool</span>
+<span>def <span class="ident">mset</span></span>(<span>self,<br>mapping: Dict[str, Any],<br>namespace: str = 'cache',<br>ttl_seconds: int | None = None) ‑> bool</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -1632,7 +1703,7 @@ Supports namespacing, TTL, and JSON values.</p>
     self,
     mapping: Dict[str, Any],
     namespace: str = NAMESPACE_CACHE,
-    ttl_seconds: int = None
+    ttl_seconds: Optional[int] = None
 ) -&gt; bool:
     &#34;&#34;&#34;
     Set multiple values at once.
@@ -1650,8 +1721,9 @@ Supports namespacing, TTL, and JSON values.</p>
     return True</code></pre>
 </details>
 <div class="desc"><p>Set multiple values at once.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>mapping</code></strong></dt>
 <dd>Dictionary of key -&gt; value</dd>
 <dt><strong><code>namespace</code></strong></dt>
@@ -1659,8 +1731,9 @@ Supports namespacing, TTL, and JSON values.</p>
 <dt><strong><code>ttl_seconds</code></strong></dt>
 <dd>Optional TTL for all keys</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>True if successful</p></div>
+<p>Returns
+-----=
+True if successful</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.persist"><code class="name flex">
 <span>def <span class="ident">persist</span></span>(<span>self, key: str, namespace: str = 'cache') ‑> bool</span>
@@ -1696,18 +1769,20 @@ Supports namespacing, TTL, and JSON values.</p>
         return True</code></pre>
 </details>
 <div class="desc"><p>Remove TTL from a key, making it permanent.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>key</code></strong></dt>
 <dd>The key</dd>
 <dt><strong><code>namespace</code></strong></dt>
 <dd>Namespace</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>True if key exists and TTL was removed</p></div>
+<p>Returns
+-----=
+True if key exists and TTL was removed</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.scan"><code class="name flex">
-<span>def <span class="ident">scan</span></span>(<span>self,<br>namespace: str = 'cache',<br>match: str = None,<br>count: int = 100,<br>cursor: int = 0) ‑> tuple</span>
+<span>def <span class="ident">scan</span></span>(<span>self,<br>namespace: str = 'cache',<br>match: str | None = None,<br>count: int = 100,<br>cursor: int = 0) ‑> tuple</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -1717,7 +1792,7 @@ Supports namespacing, TTL, and JSON values.</p>
 <pre><code class="python">def scan(
     self,
     namespace: str = NAMESPACE_CACHE,
-    match: str = None,
+    match: Optional[str] = None,
     count: int = 100,
     cursor: int = 0
 ) -&gt; tuple:
@@ -1768,8 +1843,9 @@ Supports namespacing, TTL, and JSON values.</p>
         return (next_cursor, keys)</code></pre>
 </details>
 <div class="desc"><p>Incrementally iterate over keys.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>namespace</code></strong></dt>
 <dd>Namespace to scan</dd>
 <dt><strong><code>match</code></strong></dt>
@@ -1779,8 +1855,9 @@ Supports namespacing, TTL, and JSON values.</p>
 <dt><strong><code>cursor</code></strong></dt>
 <dd>Position to start from</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Tuple of (next_cursor, list of keys)</p></div>
+<p>Returns
+-----=
+Tuple of (next_cursor, list of keys)</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.session_scope"><code class="name flex">
 <span>def <span class="ident">session_scope</span></span>(<span>self) ‑> Generator[sqlalchemy.orm.session.Session, None, None]</span>
@@ -1806,7 +1883,7 @@ def session_scope(self) -&gt; Generator[Session, None, None]:
 <div class="desc"><p>Provide a transactional scope around a series of operations.</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.set"><code class="name flex">
-<span>def <span class="ident">set</span></span>(<span>self,<br>key: str,<br>value: Any,<br>namespace: str = 'cache',<br>ttl_seconds: int = None,<br>file_id: str = None) ‑> bool</span>
+<span>def <span class="ident">set</span></span>(<span>self,<br>key: str,<br>value: Any,<br>namespace: str = 'cache',<br>ttl_seconds: int | None = None,<br>file_id: str | None = None) ‑> bool</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -1818,8 +1895,8 @@ def session_scope(self) -&gt; Generator[Session, None, None]:
     key: str,
     value: Any,
     namespace: str = NAMESPACE_CACHE,
-    ttl_seconds: int = None,
-    file_id: str = None
+    ttl_seconds: Optional[int] = None,
+    file_id: Optional[str] = None
 ) -&gt; bool:
     &#34;&#34;&#34;
     Set a value.
@@ -1871,8 +1948,9 @@ def session_scope(self) -&gt; Generator[Session, None, None]:
         return True</code></pre>
 </details>
 <div class="desc"><p>Set a value.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>key</code></strong></dt>
 <dd>The key to set</dd>
 <dt><strong><code>value</code></strong></dt>
@@ -1884,8 +1962,9 @@ def session_scope(self) -&gt; Generator[Session, None, None]:
 <dt><strong><code>file_id</code></strong></dt>
 <dd>Optional file association</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>True if successful</p></div>
+<p>Returns
+-----=
+True if successful</p></div>
 </dd>
 <dt id="src.storage.kv_store.KeyValueStorage.ttl"><code class="name flex">
 <span>def <span class="ident">ttl</span></span>(<span>self, key: str, namespace: str = 'cache') ‑> int | None</span>
@@ -1924,15 +2003,17 @@ def session_scope(self) -&gt; Generator[Session, None, None]:
         return max(0, int(remaining))</code></pre>
 </details>
 <div class="desc"><p>Get remaining TTL for a key.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>key</code></strong></dt>
 <dd>The key</dd>
 <dt><strong><code>namespace</code></strong></dt>
 <dd>Namespace</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Seconds remaining, -1 if no TTL, None if key doesn't exist</p></div>
+<p>Returns
+-----=
+Seconds remaining, -1 if no TTL, None if key doesn't exist</p></div>
 </dd>
 </dl>
 </dd>
@@ -1956,6 +2037,14 @@ def session_scope(self) -&gt; Generator[Session, None, None]:
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="src.storage.kv_store.KVStoreInfo" href="#src.storage.kv_store.KVStoreInfo">KVStoreInfo</a></code></h4>
+<ul class="">
+<li><code><a title="src.storage.kv_store.KVStoreInfo.by_namespace" href="#src.storage.kv_store.KVStoreInfo.by_namespace">by_namespace</a></code></li>
+<li><code><a title="src.storage.kv_store.KVStoreInfo.expired_keys" href="#src.storage.kv_store.KVStoreInfo.expired_keys">expired_keys</a></code></li>
+<li><code><a title="src.storage.kv_store.KVStoreInfo.total_keys" href="#src.storage.kv_store.KVStoreInfo.total_keys">total_keys</a></code></li>
+</ul>
+</li>
 <li>
 <h4><code><a title="src.storage.kv_store.KeyValueStorage" href="#src.storage.kv_store.KeyValueStorage">KeyValueStorage</a></code></h4>
 <ul class="two-column">

@@ -49,7 +49,7 @@ el.replaceWith(d);
 <dl>
 <dt id="src.pipeline.batch_processor.BatchProcessor"><code class="flex name class">
 <span>class <span class="ident">BatchProcessor</span></span>
-<span>(</span><span>file_processor: Any)</span>
+<span>(</span><span>file_processor: FileProcessor)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -64,7 +64,7 @@ el.replaceWith(d);
         file_processor: Injected FileProcessor (or compatible organizer) instance.
     &#34;&#34;&#34;
 
-    def __init__(self, file_processor: Any) -&gt; None:
+    def __init__(self, file_processor: &#34;FileProcessor&#34;) -&gt; None:
         self.file_processor = file_processor
 
     @property
@@ -157,15 +157,51 @@ el.replaceWith(d);
                 except Exception as exc:
                     print(f&#34;easyocr pre-warm failed (will load on first use): {exc}\n&#34;)
 
+        # Open an organization session so the timeline can group this run&#39;s
+        # files. Only for real (non-dry-run) runs with a graph store: dry runs
+        # never persist files, so a session row would stay empty. Failures here
+        # are non-fatal — organization proceeds without session linkage.
+        graph_store = getattr(self.file_processor, &#34;graph_store&#34;, None)
+        session_id: Optional[str] = None
+        if graph_store is not None and not dry_run:
+            try:
+                fp_base_path = getattr(self.file_processor, &#34;base_path&#34;, None)
+                org_session = graph_store.create_session(
+                    source_directories=source_dirs,
+                    base_path=str(fp_base_path) if fp_base_path else &#34;&#34;,
+                    dry_run=dry_run,
+                    file_limit=limit,
+                )
+                session_id = org_session.id
+            except Exception as exc:
+                print(f&#34;  ⚠ Could not create organization session (non-fatal): {exc}&#34;)
+
         for i, file_path in enumerate(all_files, 1):
             print(f&#34;[{i}/{len(all_files)}] Processing: {file_path.name}&#34;)
-            result = self.file_processor.organize_file(file_path, dry_run=dry_run, force=force)
+            result = self.file_processor.organize_file(
+                file_path, dry_run=dry_run, force=force, session_id=session_id
+            )
             results.append(result)
 
             if result[&#34;status&#34;] in (&#34;organized&#34;, &#34;would_organize&#34;):
                 print(f&#34;  → {result[&#39;destination&#39;]}&#34;)
             elif result[&#34;status&#34;] == &#34;error&#34;:
                 print(f&#34;  ✗ Error: {result[&#39;reason&#39;]}&#34;)
+
+        # Finalize the session with run statistics (mirrors ``summary`` below).
+        if session_id is not None and graph_store is not None:
+            try:
+                graph_store.complete_session(
+                    session_id,
+                    {
+                        &#34;total_files&#34;: len(all_files),
+                        &#34;organized&#34;: stats[&#34;organized&#34;],
+                        &#34;skipped&#34;: stats[&#34;skipped&#34;],
+                        &#34;errors&#34;: stats[&#34;errors&#34;],
+                    },
+                )
+            except Exception as exc:
+                print(f&#34;  ⚠ Could not complete organization session (non-fatal): {exc}&#34;)
 
         summary: Dict[str, Any] = {
             &#34;total_files&#34;: len(all_files),
@@ -242,8 +278,9 @@ el.replaceWith(d);
                 cost_printer()</code></pre>
 </details>
 <div class="desc"><p>Orchestrates batch file organization across one or more directories.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_processor</code></strong></dt>
 <dd>Injected FileProcessor (or compatible organizer) instance.</dd>
 </dl></div>
@@ -330,15 +367,51 @@ el.replaceWith(d);
             except Exception as exc:
                 print(f&#34;easyocr pre-warm failed (will load on first use): {exc}\n&#34;)
 
+    # Open an organization session so the timeline can group this run&#39;s
+    # files. Only for real (non-dry-run) runs with a graph store: dry runs
+    # never persist files, so a session row would stay empty. Failures here
+    # are non-fatal — organization proceeds without session linkage.
+    graph_store = getattr(self.file_processor, &#34;graph_store&#34;, None)
+    session_id: Optional[str] = None
+    if graph_store is not None and not dry_run:
+        try:
+            fp_base_path = getattr(self.file_processor, &#34;base_path&#34;, None)
+            org_session = graph_store.create_session(
+                source_directories=source_dirs,
+                base_path=str(fp_base_path) if fp_base_path else &#34;&#34;,
+                dry_run=dry_run,
+                file_limit=limit,
+            )
+            session_id = org_session.id
+        except Exception as exc:
+            print(f&#34;  ⚠ Could not create organization session (non-fatal): {exc}&#34;)
+
     for i, file_path in enumerate(all_files, 1):
         print(f&#34;[{i}/{len(all_files)}] Processing: {file_path.name}&#34;)
-        result = self.file_processor.organize_file(file_path, dry_run=dry_run, force=force)
+        result = self.file_processor.organize_file(
+            file_path, dry_run=dry_run, force=force, session_id=session_id
+        )
         results.append(result)
 
         if result[&#34;status&#34;] in (&#34;organized&#34;, &#34;would_organize&#34;):
             print(f&#34;  → {result[&#39;destination&#39;]}&#34;)
         elif result[&#34;status&#34;] == &#34;error&#34;:
             print(f&#34;  ✗ Error: {result[&#39;reason&#39;]}&#34;)
+
+    # Finalize the session with run statistics (mirrors ``summary`` below).
+    if session_id is not None and graph_store is not None:
+        try:
+            graph_store.complete_session(
+                session_id,
+                {
+                    &#34;total_files&#34;: len(all_files),
+                    &#34;organized&#34;: stats[&#34;organized&#34;],
+                    &#34;skipped&#34;: stats[&#34;skipped&#34;],
+                    &#34;errors&#34;: stats[&#34;errors&#34;],
+                },
+            )
+        except Exception as exc:
+            print(f&#34;  ⚠ Could not complete organization session (non-fatal): {exc}&#34;)
 
     summary: Dict[str, Any] = {
         &#34;total_files&#34;: len(all_files),
@@ -354,8 +427,9 @@ el.replaceWith(d);
     return summary</code></pre>
 </details>
 <div class="desc"><p>Organize files from multiple source directories.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>source_dirs</code></strong></dt>
 <dd>List of directory paths to organize.</dd>
 <dt><strong><code>dry_run</code></strong></dt>
@@ -365,8 +439,9 @@ el.replaceWith(d);
 <dt><strong><code>force</code></strong></dt>
 <dd>If True, re-organize files even if already in correct location.</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Dictionary with organization results.</p></div>
+<p>Returns
+-----=
+Dictionary with organization results.</p></div>
 </dd>
 <dt id="src.pipeline.batch_processor.BatchProcessor.print_summary"><code class="name flex">
 <span>def <span class="ident">print_summary</span></span>(<span>self, summary: Dict[str, Any]) ‑> None</span>

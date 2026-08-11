@@ -109,11 +109,23 @@ Schema.org structured data for various file types.</p>
 </dd>
 <dt><code class="name"><a title="src.organizers" href="organizers/index.html">src.organizers</a></code></dt>
 <dd>
-<div class="desc"><p>Organizer modules for content-based file classification.</p></div>
+<div class="desc"><p>Organizer modules for content-based file classification …</p></div>
 </dd>
 <dt><code class="name"><a title="src.pipeline" href="pipeline/index.html">src.pipeline</a></code></dt>
 <dd>
 <div class="desc"><p>Pipeline module: single-file and batch file processing orchestration.</p></div>
+</dd>
+<dt><code class="name"><a title="src.schema_types" href="schema_types.html">src.schema_types</a></code></dt>
+<dd>
+<div class="desc"><p>Shared typing aliases for schema.org JSON-LD payloads …</p></div>
+</dd>
+<dt><code class="name"><a title="src.scoring" href="scoring/index.html">src.scoring</a></code></dt>
+<dd>
+<div class="desc"><p>Unified scoring engine (docs/architecture/UNIFIED_SCORING_PLAN.md) …</p></div>
+</dd>
+<dt><code class="name"><a title="src.similarity" href="similarity/index.html">src.similarity</a></code></dt>
+<dd>
+<div class="desc"><p>Near-duplicate detection: faiss index over SSCD copy-detection descriptors …</p></div>
 </dd>
 <dt><code class="name"><a title="src.storage" href="storage/index.html">src.storage</a></code></dt>
 <dd>
@@ -191,8 +203,9 @@ Schema.org structured data for various file types.</p>
         return event_id</code></pre>
 </details>
 <div class="desc"><p>Capture an error to Sentry with full context.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>error</code></strong></dt>
 <dd>The exception to capture</dd>
 <dt><strong><code>level</code></strong></dt>
@@ -204,8 +217,9 @@ Schema.org structured data for various file types.</p>
 <dt><strong><code>user_id</code></strong></dt>
 <dd>User identifier if available</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Sentry event ID if captured, None otherwise</p></div>
+<p>Returns
+-----=
+Sentry event ID if captured, None otherwise</p></div>
 </dd>
 <dt id="src.capture_warning"><code class="name flex">
 <span>def <span class="ident">capture_warning</span></span>(<span>message: str,<br>context: Dict[str, Any] | None = None,<br>tags: Dict[str, str] | None = None) ‑> str | None</span>
@@ -324,7 +338,7 @@ Schema.org structured data for various file types.</p>
 
         # Set default tags
         set_tag(&#39;service&#39;, &#39;schema-org-file-system&#39;)
-        set_tag(&#39;python_version&#39;, os.sys.version.split()[0])
+        set_tag(&#39;python_version&#39;, sys.version.split()[0])
 
         print(f&#34;Sentry initialized for environment: {environment}&#34;)
         return True
@@ -334,8 +348,9 @@ Schema.org structured data for various file types.</p>
         return False</code></pre>
 </details>
 <div class="desc"><p>Initialize Sentry error tracking.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>dsn</code></strong></dt>
 <dd>Sentry DSN (defaults to SENTRY_DSN env var)</dd>
 <dt><strong><code>environment</code></strong></dt>
@@ -347,8 +362,9 @@ Schema.org structured data for various file types.</p>
 <dt><strong><code>enable_logs</code></strong></dt>
 <dd>Whether to enable Sentry logs</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>True if Sentry initialized successfully, False otherwise</p></div>
+<p>Returns
+-----=
+True if Sentry initialized successfully, False otherwise</p></div>
 </dd>
 <dt id="src.require_feature"><code class="name flex">
 <span>def <span class="ident">require_feature</span></span>(<span>feature: str) ‑> bool</span>
@@ -379,14 +395,15 @@ Schema.org structured data for various file types.</p>
     return status.available if status else False</code></pre>
 </details>
 <div class="desc"><p>Check if a feature is available, print warning if not.</p>
-<h2 id="usage">Usage</h2>
-<p>if require_feature('clip_vision'):
+<p>Usage
+-----=
+if require_feature('clip_vision'):
 # Use CLIP model
 else:
 # Fallback behavior</p></div>
 </dd>
 <dt id="src.track_error"><code class="name flex">
-<span>def <span class="ident">track_error</span></span>(<span>operation: str = None, level: str = 'error', reraise: bool = True) ‑> Callable</span>
+<span>def <span class="ident">track_error</span></span>(<span>operation: str | None = None, level: str = 'error', reraise: bool = True) ‑> Callable[[Callable[~P, ~R]], Callable[~P, ~R | None]]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -394,10 +411,10 @@ else:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def track_error(
-    operation: str = None,
+    operation: Optional[str] = None,
     level: str = ErrorLevel.ERROR,
     reraise: bool = True
-) -&gt; Callable:
+) -&gt; Callable[[Callable[P, R]], Callable[P, Optional[R]]]:
     &#34;&#34;&#34;
     Decorator for automatic error tracking.
 
@@ -410,9 +427,9 @@ else:
         def classify(image):
             # Errors are captured but not re-raised
     &#34;&#34;&#34;
-    def decorator(func: Callable) -&gt; Callable:
+    def decorator(func: Callable[P, R]) -&gt; Callable[P, Optional[R]]:
         @functools.wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -&gt; Any:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -&gt; Optional[R]:
             op_name = operation or func.__name__
             try:
                 with track_operation(op_name, op_type=&#39;function&#39;):
@@ -434,8 +451,9 @@ else:
     return decorator</code></pre>
 </details>
 <div class="desc"><p>Decorator for automatic error tracking.</p>
-<h2 id="usage">Usage</h2>
-<p>@track_error('process_file')
+<p>Usage
+-----=
+@track_error('process_file')
 def process_file(path):
 # &hellip; your code</p>
 <p>@track_error('classify', reraise=False)
@@ -443,7 +461,7 @@ def classify(image):
 # Errors are captured but not re-raised</p></div>
 </dd>
 <dt id="src.track_operation"><code class="name flex">
-<span>def <span class="ident">track_operation</span></span>(<span>operation_name: str, op_type: str = 'task', **attributes: Any) ‑> Generator[Any, None, None]</span>
+<span>def <span class="ident">track_operation</span></span>(<span>operation_name: str, op_type: str = 'task', **attributes: Any) ‑> Generator[Span | None, None, None]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -455,7 +473,7 @@ def track_operation(
     operation_name: str,
     op_type: str = &#39;task&#39;,
     **attributes: Any
-) -&gt; Generator[Any, None, None]:
+) -&gt; Generator[Optional[&#34;Span&#34;], None, None]:
     &#34;&#34;&#34;
     Context manager for tracking operation performance.
 
@@ -469,7 +487,7 @@ def track_operation(
         **attributes: Additional attributes to attach
     &#34;&#34;&#34;
     if not SENTRY_AVAILABLE:
-        yield
+        yield None
         return
 
     with sentry_sdk.start_span(op=op_type, name=operation_name) as span:
@@ -483,11 +501,13 @@ def track_operation(
             raise</code></pre>
 </details>
 <div class="desc"><p>Context manager for tracking operation performance.</p>
-<h2 id="usage">Usage</h2>
-<p>with track_operation('classify_image', file_path='/path/to/file.jpg'):
+<p>Usage
+-----=
+with track_operation('classify_image', file_path='/path/to/file.jpg'):
 result = classifier.classify(image)</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>operation_name</code></strong></dt>
 <dd>Name of the operation</dd>
 <dt><strong><code>op_type</code></strong></dt>
@@ -538,8 +558,9 @@ result = classifier.classify(image)</p>
 <div class="desc"><p>Generator for archive files (ZIP, TAR, etc.).</p>
 <p>Supports: DigitalDocument with hasPart relationships</p>
 <p>Initialize archive generator.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>entity_id</code></strong></dt>
 <dd>Optional entity ID for @id field. If not provided, generates UUID v4.</dd>
 </dl></div>
@@ -632,8 +653,9 @@ result = classifier.classify(image)</p>
 <div class="desc"><p>Generator for audio files.</p>
 <p>Supports: AudioObject, MusicRecording, PodcastEpisode</p>
 <p>Initialize audio generator.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>audio_type</code></strong></dt>
 <dd>Specific audio type (AudioObject, MusicRecording, PodcastEpisode)</dd>
 <dt><strong><code>entity_id</code></strong></dt>
@@ -727,8 +749,9 @@ result = classifier.classify(image)</p>
 <div class="desc"><p>Generator for source code files.</p>
 <p>Supports: SoftwareSourceCode, CreativeWork</p>
 <p>Initialize code generator.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>entity_id</code></strong></dt>
 <dd>Optional entity ID for @id field. If not provided, generates UUID v4.</dd>
 </dl></div>
@@ -820,8 +843,9 @@ result = classifier.classify(image)</p>
 <div class="desc"><p>Generator for dataset files.</p>
 <p>Supports: Dataset</p>
 <p>Initialize dataset generator.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>entity_id</code></strong></dt>
 <dd>Optional entity ID for @id field. If not provided, generates UUID v4.</dd>
 </dl></div>
@@ -915,8 +939,9 @@ result = classifier.classify(image)</p>
 <div class="desc"><p>Generator for document files (PDFs, Word docs, text files).</p>
 <p>Supports: DigitalDocument, Article, Report, ScholarlyArticle</p>
 <p>Initialize document generator.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>document_type</code></strong></dt>
 <dd>Specific document type (DigitalDocument, Article, Report, etc.)</dd>
 <dt><strong><code>entity_id</code></strong></dt>
@@ -994,23 +1019,23 @@ result = classifier.classify(image)</p>
 <dl>
 <dt id="src.ErrorLevel.DEBUG"><code class="name">var <span class="ident">DEBUG</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.ErrorLevel.ERROR"><code class="name">var <span class="ident">ERROR</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.ErrorLevel.FATAL"><code class="name">var <span class="ident">FATAL</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.ErrorLevel.INFO"><code class="name">var <span class="ident">INFO</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.ErrorLevel.WARNING"><code class="name">var <span class="ident">WARNING</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 </dd>
@@ -1036,11 +1061,11 @@ result = classifier.classify(image)</p>
         tracker.print_summary()
     &#34;&#34;&#34;
 
-    def __init__(self):
+    def __init__(self) -&gt; None:
         self.processed = 0
         self.succeeded = 0
         self.failed = 0
-        self.errors: list[Dict[str, Any]] = []
+        self.errors: list[FileErrorInfo] = []
 
     @contextmanager
     def track_file(self, file_path: str, category: Optional[str] = None) -&gt; Generator[None, None, None]:
@@ -1058,7 +1083,7 @@ result = classifier.classify(image)</p>
             self.succeeded += 1
         except Exception as e:
             self.failed += 1
-            error_info = {
+            error_info: FileErrorInfo = {
                 &#39;file_path&#39;: file_path,
                 &#39;error_type&#39;: type(e).__name__,
                 &#39;error_message&#39;: str(e),
@@ -1076,7 +1101,7 @@ result = classifier.classify(image)</p>
 
     def print_summary(self) -&gt; None:
         &#34;&#34;&#34;Print processing summary.&#34;&#34;&#34;
-        print(f&#34;\nFile Processing Summary:&#34;)
+        print(&#34;\nFile Processing Summary:&#34;)
         print(f&#34;  Processed: {self.processed}&#34;)
         print(f&#34;  Succeeded: {self.succeeded} ({self.succeeded/max(self.processed,1)*100:.1f}%)&#34;)
         print(f&#34;  Failed: {self.failed}&#34;)
@@ -1088,11 +1113,11 @@ result = classifier.classify(image)</p>
                 error_type = error[&#39;error_type&#39;]
                 error_types[error_type] = error_types.get(error_type, 0) + 1
 
-            print(f&#34;\nError breakdown:&#34;)
+            print(&#34;\nError breakdown:&#34;)
             for error_type, count in sorted(error_types.items(), key=lambda x: -x[1]):
                 print(f&#34;  {error_type}: {count}&#34;)
 
-    def get_stats(self) -&gt; Dict[str, Any]:
+    def get_stats(self) -&gt; ProcessingStats:
         &#34;&#34;&#34;Get processing statistics as dict.&#34;&#34;&#34;
         return {
             &#39;processed&#39;: self.processed,
@@ -1103,8 +1128,9 @@ result = classifier.classify(image)</p>
         }</code></pre>
 </details>
 <div class="desc"><p>Specialized error tracker for file processing operations.</p>
-<h2 id="usage">Usage</h2>
-<p>tracker = FileProcessingErrorTracker()</p>
+<p>Usage
+-----=
+tracker = FileProcessingErrorTracker()</p>
 <p>for file in files:
 with tracker.track_file(file.path):
 process_file(file)</p>
@@ -1112,14 +1138,14 @@ process_file(file)</p>
 <h3>Methods</h3>
 <dl>
 <dt id="src.FileProcessingErrorTracker.get_stats"><code class="name flex">
-<span>def <span class="ident">get_stats</span></span>(<span>self) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">get_stats</span></span>(<span>self) ‑> <a title="src.error_tracking.ProcessingStats" href="error_tracking.html#src.error_tracking.ProcessingStats">ProcessingStats</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_stats(self) -&gt; Dict[str, Any]:
+<pre><code class="python">def get_stats(self) -&gt; ProcessingStats:
     &#34;&#34;&#34;Get processing statistics as dict.&#34;&#34;&#34;
     return {
         &#39;processed&#39;: self.processed,
@@ -1141,7 +1167,7 @@ process_file(file)</p>
 </summary>
 <pre><code class="python">def print_summary(self) -&gt; None:
     &#34;&#34;&#34;Print processing summary.&#34;&#34;&#34;
-    print(f&#34;\nFile Processing Summary:&#34;)
+    print(&#34;\nFile Processing Summary:&#34;)
     print(f&#34;  Processed: {self.processed}&#34;)
     print(f&#34;  Succeeded: {self.succeeded} ({self.succeeded/max(self.processed,1)*100:.1f}%)&#34;)
     print(f&#34;  Failed: {self.failed}&#34;)
@@ -1153,7 +1179,7 @@ process_file(file)</p>
             error_type = error[&#39;error_type&#39;]
             error_types[error_type] = error_types.get(error_type, 0) + 1
 
-        print(f&#34;\nError breakdown:&#34;)
+        print(&#34;\nError breakdown:&#34;)
         for error_type, count in sorted(error_types.items(), key=lambda x: -x[1]):
             print(f&#34;  {error_type}: {count}&#34;)</code></pre>
 </details>
@@ -1183,7 +1209,7 @@ def track_file(self, file_path: str, category: Optional[str] = None) -&gt; Gener
         self.succeeded += 1
     except Exception as e:
         self.failed += 1
-        error_info = {
+        error_info: FileErrorInfo = {
             &#39;file_path&#39;: file_path,
             &#39;error_type&#39;: type(e).__name__,
             &#39;error_message&#39;: str(e),
@@ -1240,8 +1266,9 @@ def track_file(self, file_path: str, category: Optional[str] = None) -&gt; Gener
 <div class="desc"><p>Generator for image files.</p>
 <p>Supports: ImageObject, Photograph</p>
 <p>Initialize image generator.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>image_type</code></strong></dt>
 <dd>Specific image type (ImageObject, Photograph)</dd>
 <dt><strong><code>entity_id</code></strong></dt>
@@ -1390,9 +1417,9 @@ def track_file(self, file_path: str, category: Optional[str] = None) -&gt; Gener
             Encoding format string
         &#34;&#34;&#34;
         mime_type = self.detect_mime_type(file_path)
-        return self.mime_to_format.get(mime_type, mime_type)
+        return cast(str, self.mime_to_format.get(mime_type, mime_type))
 
-    def enrich_from_file_stats(self, file_path: str) -&gt; Dict[str, Any]:
+    def enrich_from_file_stats(self, file_path: str) -&gt; FileStatsMetadata:
         &#34;&#34;&#34;
         Extract metadata from file system stats.
 
@@ -1930,8 +1957,9 @@ def track_file(self, file_path: str, category: Optional[str] = None) -&gt; Gener
                     merged[key] = value
         return merged
 
-    def create_enriched_schema(self, generator_class, base_metadata: Dict[str, Any],
-                              *enrichment_sources: Dict[str, Any]) -&gt; Any:
+    def create_enriched_schema(self, generator_class: Callable[..., SchemaOrgBase],
+                              base_metadata: Dict[str, Any],
+                              *enrichment_sources: Dict[str, Any]) -&gt; SchemaOrgBase:
         &#34;&#34;&#34;
         Create enriched schema from multiple metadata sources.
 
@@ -1966,15 +1994,16 @@ appropriate Schema.org properties.</p>
 <h3>Methods</h3>
 <dl>
 <dt id="src.MetadataEnricher.create_enriched_schema"><code class="name flex">
-<span>def <span class="ident">create_enriched_schema</span></span>(<span>self,<br>generator_class,<br>base_metadata: Dict[str, Any],<br>*enrichment_sources: Dict[str, Any]) ‑> Any</span>
+<span>def <span class="ident">create_enriched_schema</span></span>(<span>self,<br>generator_class: Callable[..., <a title="src.base.SchemaOrgBase" href="base.html#src.base.SchemaOrgBase">SchemaOrgBase</a>],<br>base_metadata: Dict[str, Any],<br>*enrichment_sources: Dict[str, Any]) ‑> <a title="src.base.SchemaOrgBase" href="base.html#src.base.SchemaOrgBase">SchemaOrgBase</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def create_enriched_schema(self, generator_class, base_metadata: Dict[str, Any],
-                          *enrichment_sources: Dict[str, Any]) -&gt; Any:
+<pre><code class="python">def create_enriched_schema(self, generator_class: Callable[..., SchemaOrgBase],
+                          base_metadata: Dict[str, Any],
+                          *enrichment_sources: Dict[str, Any]) -&gt; SchemaOrgBase:
     &#34;&#34;&#34;
     Create enriched schema from multiple metadata sources.
 
@@ -2003,8 +2032,9 @@ appropriate Schema.org properties.</p>
     return generator</code></pre>
 </details>
 <div class="desc"><p>Create enriched schema from multiple metadata sources.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>generator_class</code></strong></dt>
 <dd>Schema generator class to use</dd>
 <dt><strong><code>base_metadata</code></strong></dt>
@@ -2012,8 +2042,9 @@ appropriate Schema.org properties.</p>
 <dt><strong><code>*enrichment_sources</code></strong></dt>
 <dd>Additional enrichment source dictionaries</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Configured schema generator instance</p></div>
+<p>Returns
+-----=
+Configured schema generator instance</p></div>
 </dd>
 <dt id="src.MetadataEnricher.detect_mime_type"><code class="name flex">
 <span>def <span class="ident">detect_mime_type</span></span>(<span>self, file_path: str) ‑> str</span>
@@ -2037,13 +2068,15 @@ appropriate Schema.org properties.</p>
     return mime_type or &#39;application/octet-stream&#39;</code></pre>
 </details>
 <div class="desc"><p>Detect MIME type from file path.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_path</code></strong></dt>
 <dd>Path to file</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>MIME type string</p></div>
+<p>Returns
+-----=
+MIME type string</p></div>
 </dd>
 <dt id="src.MetadataEnricher.enrich_from_audio_metadata"><code class="name flex">
 <span>def <span class="ident">enrich_from_audio_metadata</span></span>(<span>self, audio_meta: Dict[str, Any]) ‑> Dict[str, Any]</span>
@@ -2114,13 +2147,15 @@ appropriate Schema.org properties.</p>
     return metadata</code></pre>
 </details>
 <div class="desc"><p>Extract metadata from audio file metadata.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>audio_meta</code></strong></dt>
 <dd>Audio metadata dictionary</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Enriched metadata</p></div>
+<p>Returns
+-----=
+Enriched metadata</p></div>
 </dd>
 <dt id="src.MetadataEnricher.enrich_from_code_analysis"><code class="name flex">
 <span>def <span class="ident">enrich_from_code_analysis</span></span>(<span>self, code_analysis: Dict[str, Any]) ‑> Dict[str, Any]</span>
@@ -2189,13 +2224,15 @@ appropriate Schema.org properties.</p>
     return metadata</code></pre>
 </details>
 <div class="desc"><p>Extract metadata from code analysis results.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>code_analysis</code></strong></dt>
 <dd>Code analysis results</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Enriched metadata</p></div>
+<p>Returns
+-----=
+Enriched metadata</p></div>
 </dd>
 <dt id="src.MetadataEnricher.enrich_from_dataset_info"><code class="name flex">
 <span>def <span class="ident">enrich_from_dataset_info</span></span>(<span>self, dataset_info: Dict[str, Any]) ‑> Dict[str, Any]</span>
@@ -2265,13 +2302,15 @@ appropriate Schema.org properties.</p>
     return metadata</code></pre>
 </details>
 <div class="desc"><p>Extract metadata from dataset information.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>dataset_info</code></strong></dt>
 <dd>Dataset information dictionary</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Enriched metadata</p></div>
+<p>Returns
+-----=
+Enriched metadata</p></div>
 </dd>
 <dt id="src.MetadataEnricher.enrich_from_document_properties"><code class="name flex">
 <span>def <span class="ident">enrich_from_document_properties</span></span>(<span>self, doc_props: Dict[str, Any]) ‑> Dict[str, Any]</span>
@@ -2323,13 +2362,15 @@ appropriate Schema.org properties.</p>
     return metadata</code></pre>
 </details>
 <div class="desc"><p>Extract metadata from document properties.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>doc_props</code></strong></dt>
 <dd>Document properties dictionary</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Enriched metadata</p></div>
+<p>Returns
+-----=
+Enriched metadata</p></div>
 </dd>
 <dt id="src.MetadataEnricher.enrich_from_exif"><code class="name flex">
 <span>def <span class="ident">enrich_from_exif</span></span>(<span>self, exif_data: Dict[str, Any]) ‑> Dict[str, Any]</span>
@@ -2413,23 +2454,25 @@ appropriate Schema.org properties.</p>
     return metadata</code></pre>
 </details>
 <div class="desc"><p>Extract metadata from EXIF data.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>exif_data</code></strong></dt>
 <dd>EXIF data dictionary</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Enriched metadata</p></div>
+<p>Returns
+-----=
+Enriched metadata</p></div>
 </dd>
 <dt id="src.MetadataEnricher.enrich_from_file_stats"><code class="name flex">
-<span>def <span class="ident">enrich_from_file_stats</span></span>(<span>self, file_path: str) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">enrich_from_file_stats</span></span>(<span>self, file_path: str) ‑> <a title="src.enrichment.FileStatsMetadata" href="enrichment.html#src.enrichment.FileStatsMetadata">FileStatsMetadata</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def enrich_from_file_stats(self, file_path: str) -&gt; Dict[str, Any]:
+<pre><code class="python">def enrich_from_file_stats(self, file_path: str) -&gt; FileStatsMetadata:
     &#34;&#34;&#34;
     Extract metadata from file system stats.
 
@@ -2467,15 +2510,18 @@ appropriate Schema.org properties.</p>
     }</code></pre>
 </details>
 <div class="desc"><p>Extract metadata from file system stats.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_path</code></strong></dt>
 <dd>Path to file</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Metadata dictionary with proper @id for JSON-LD</p>
-<h2 id="note">Note</h2>
-<p>The @id is generated as a content-addressed URN using SHA-256 hash
+<p>Returns
+-----=
+Metadata dictionary with proper @id for JSON-LD</p>
+<p>Note
+-----=
+The @id is generated as a content-addressed URN using SHA-256 hash
 of the absolute file path. This ensures:
 - Same file always gets the same @id (deterministic)
 - Valid IRI for JSON-LD compliance
@@ -2561,13 +2607,15 @@ of the absolute file path. This ensures:
     return metadata</code></pre>
 </details>
 <div class="desc"><p>Extract metadata from NLP analysis results.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>nlp_results</code></strong></dt>
 <dd>NLP analysis results</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Enriched metadata</p></div>
+<p>Returns
+-----=
+Enriched metadata</p></div>
 </dd>
 <dt id="src.MetadataEnricher.enrich_from_video_metadata"><code class="name flex">
 <span>def <span class="ident">enrich_from_video_metadata</span></span>(<span>self, video_meta: Dict[str, Any]) ‑> Dict[str, Any]</span>
@@ -2625,13 +2673,15 @@ of the absolute file path. This ensures:
     return metadata</code></pre>
 </details>
 <div class="desc"><p>Extract metadata from video file metadata.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>video_meta</code></strong></dt>
 <dd>Video metadata dictionary</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Enriched metadata</p></div>
+<p>Returns
+-----=
+Enriched metadata</p></div>
 </dd>
 <dt id="src.MetadataEnricher.get_encoding_format"><code class="name flex">
 <span>def <span class="ident">get_encoding_format</span></span>(<span>self, file_path: str) ‑> str</span>
@@ -2652,16 +2702,18 @@ of the absolute file path. This ensures:
         Encoding format string
     &#34;&#34;&#34;
     mime_type = self.detect_mime_type(file_path)
-    return self.mime_to_format.get(mime_type, mime_type)</code></pre>
+    return cast(str, self.mime_to_format.get(mime_type, mime_type))</code></pre>
 </details>
 <div class="desc"><p>Get encoding format for Schema.org.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_path</code></strong></dt>
 <dd>Path to file</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Encoding format string</p></div>
+<p>Returns
+-----=
+Encoding format string</p></div>
 </dd>
 <dt id="src.MetadataEnricher.merge_metadata"><code class="name flex">
 <span>def <span class="ident">merge_metadata</span></span>(<span>self, *metadata_dicts: Dict[str, Any]) ‑> Dict[str, Any]</span>
@@ -2692,19 +2744,21 @@ of the absolute file path. This ensures:
 </details>
 <div class="desc"><p>Merge multiple metadata dictionaries.</p>
 <p>Later dictionaries override earlier ones.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>*metadata_dicts</code></strong></dt>
 <dd>Variable number of metadata dictionaries</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Merged metadata dictionary</p></div>
+<p>Returns
+-----=
+Merged metadata dictionary</p></div>
 </dd>
 </dl>
 </dd>
 <dt id="src.OutputFormat"><code class="flex name class">
 <span>class <span class="ident">OutputFormat</span></span>
-<span>(</span><span>*args, **kwds)</span>
+<span>(</span><span>*values)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -2727,19 +2781,19 @@ of the absolute file path. This ensures:
 <dl>
 <dt id="src.OutputFormat.JSON"><code class="name">var <span class="ident">JSON</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.OutputFormat.JSON_LD"><code class="name">var <span class="ident">JSON_LD</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.OutputFormat.MICRODATA"><code class="name">var <span class="ident">MICRODATA</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.OutputFormat.RDFA"><code class="name">var <span class="ident">RDFA</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 </dd>
@@ -2761,7 +2815,7 @@ of the absolute file path. This ensures:
     }
 
     @classmethod
-    def get_context(cls, additional_contexts: Optional[Dict[str, str]] = None) -&gt; Dict[str, Any]:
+    def get_context(cls, additional_contexts: Optional[Dict[str, str]] = None) -&gt; Dict[str, str]:
         &#34;&#34;&#34;
         Get Schema.org context with optional additional contexts.
 
@@ -2781,27 +2835,29 @@ of the absolute file path. This ensures:
 <dl>
 <dt id="src.SchemaContext.DEFAULT_CONTEXT"><code class="name">var <span class="ident">DEFAULT_CONTEXT</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.SchemaContext.SCHEMA_ORG"><code class="name">var <span class="ident">SCHEMA_ORG</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 <h3>Static methods</h3>
 <dl>
 <dt id="src.SchemaContext.get_context"><code class="name flex">
-<span>def <span class="ident">get_context</span></span>(<span>additional_contexts: Dict[str, str] | None = None) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">get_context</span></span>(<span>additional_contexts: Dict[str, str] | None = None) ‑> Dict[str, str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get Schema.org context with optional additional contexts.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>additional_contexts</code></strong></dt>
 <dd>Additional context mappings to include</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Complete context dictionary</p></div>
+<p>Returns
+-----=
+Complete context dictionary</p></div>
 </dd>
 </dl>
 </dd>
@@ -2821,11 +2877,11 @@ of the absolute file path. This ensures:
     and provides API-ready output.
     &#34;&#34;&#34;
 
-    def __init__(self):
+    def __init__(self) -&gt; None:
         &#34;&#34;&#34;Initialize integration layer.&#34;&#34;&#34;
-        self.schemas: List[Dict[str, Any]] = []
+        self.schemas: List[SchemaMapping] = []
 
-    def add_schema(self, schema: Union[Dict[str, Any], &#39;SchemaOrgBase&#39;]) -&gt; &#39;SchemaIntegration&#39;:
+    def add_schema(self, schema: Union[SchemaMapping, &#39;SchemaOrgBase&#39;]) -&gt; &#39;SchemaIntegration&#39;:
         &#34;&#34;&#34;
         Add schema to collection.
 
@@ -2836,11 +2892,13 @@ of the absolute file path. This ensures:
             Self for method chaining
         &#34;&#34;&#34;
         if hasattr(schema, &#39;to_dict&#39;):
-            schema = schema.to_dict()
+            # mypy can&#39;t intersect Mapping with a to_dict protocol; the
+            # duck-typed branch is only reachable for SchemaOrgBase-likes.
+            schema = cast(&#39;SchemaOrgBase&#39;, schema).to_dict()
         self.schemas.append(schema)
         return self
 
-    def to_json_ld(self, schema: Optional[Dict[str, Any]] = None,
+    def to_json_ld(self, schema: Optional[SchemaMapping] = None,
                    indent: int = 2) -&gt; str:
         &#34;&#34;&#34;
         Convert to JSON-LD format.
@@ -2862,7 +2920,7 @@ of the absolute file path. This ensures:
 
         return json.dumps(data, indent=indent, ensure_ascii=False)
 
-    def to_json_ld_script(self, schema: Optional[Dict[str, Any]] = None,
+    def to_json_ld_script(self, schema: Optional[SchemaMapping] = None,
                          indent: int = 2) -&gt; str:
         &#34;&#34;&#34;
         Convert to JSON-LD script tag for HTML.
@@ -2877,7 +2935,7 @@ of the absolute file path. This ensures:
         json_ld = self.to_json_ld(schema, indent)
         return f&#39;&lt;script type=&#34;application/ld+json&#34;&gt;\n{json_ld}\n&lt;/script&gt;&#39;
 
-    def to_microdata(self, schema: Dict[str, Any],
+    def to_microdata(self, schema: SchemaMapping,
                      tag: str = &#34;div&#34;) -&gt; str:
         &#34;&#34;&#34;
         Convert to HTML5 microdata format.
@@ -2926,7 +2984,7 @@ of the absolute file path. This ensures:
         html_parts.append(f&#39;&lt;/{tag}&gt;&#39;)
         return &#39;\n&#39;.join(html_parts)
 
-    def to_rdfa(self, schema: Dict[str, Any],
+    def to_rdfa(self, schema: SchemaMapping,
                 tag: str = &#34;div&#34;) -&gt; str:
         &#34;&#34;&#34;
         Convert to RDFa format.
@@ -2979,7 +3037,7 @@ of the absolute file path. This ensures:
         return &#39;\n&#39;.join(html_parts)
 
     def export_format(self, format: OutputFormat,
-                     schema: Optional[Dict[str, Any]] = None) -&gt; str:
+                     schema: Optional[SchemaMapping] = None) -&gt; str:
         &#34;&#34;&#34;
         Export in specified format.
 
@@ -2995,14 +3053,18 @@ of the absolute file path. This ensures:
 
         if format == OutputFormat.JSON_LD:
             return self.to_json_ld(schema)
-        elif format == OutputFormat.MICRODATA:
-            return self.to_microdata(schema)
-        elif format == OutputFormat.RDFA:
-            return self.to_rdfa(schema)
-        elif format == OutputFormat.JSON:
+        if format == OutputFormat.JSON:
             return json.dumps(schema, indent=2)
-        else:
-            raise ValueError(f&#34;Unsupported format: {format}&#34;)
+
+        if schema is None:
+            raise ValueError(&#34;No schema available to export&#34;)
+
+        if format == OutputFormat.MICRODATA:
+            return self.to_microdata(schema)
+        if format == OutputFormat.RDFA:
+            return self.to_rdfa(schema)
+
+        raise ValueError(f&#34;Unsupported format: {format}&#34;)
 
     def export_all(self, format: OutputFormat) -&gt; List[str]:
         &#34;&#34;&#34;
@@ -3035,10 +3097,10 @@ of the absolute file path. This ensures:
             structured_data = self.to_json_ld_script()
         elif format == OutputFormat.MICRODATA:
             # Microdata is embedded in content
-            structured_data = f&#34;&lt;!-- Microdata embedded in content --&gt;&#34;
+            structured_data = &#34;&lt;!-- Microdata embedded in content --&gt;&#34;
         elif format == OutputFormat.RDFA:
             # RDFa is embedded in content
-            structured_data = f&#34;&lt;!-- RDFa embedded in content --&gt;&#34;
+            structured_data = &#34;&lt;!-- RDFa embedded in content --&gt;&#34;
 
         html = f&#34;&#34;&#34;&lt;!DOCTYPE html&gt;
 &lt;html lang=&#34;en&#34;&gt;
@@ -3054,7 +3116,7 @@ of the absolute file path. This ensures:
 &lt;/html&gt;&#34;&#34;&#34;
         return html
 
-    def get_api_response(self, schema_id: Optional[str] = None) -&gt; Dict[str, Any]:
+    def get_api_response(self, schema_id: Optional[str] = None) -&gt; ApiResponse:
         &#34;&#34;&#34;
         Get API-ready response.
 
@@ -3066,7 +3128,7 @@ of the absolute file path. This ensures:
         &#34;&#34;&#34;
         if schema_id is not None:
             # In real implementation, look up by ID
-            schema = self.schemas[0] if self.schemas else {}
+            schema: SchemaMapping = self.schemas[0] if self.schemas else {}
             return {
                 &#34;success&#34;: True,
                 &#34;data&#34;: schema,
@@ -3112,14 +3174,14 @@ and provides API-ready output.</p>
 <h3>Methods</h3>
 <dl>
 <dt id="src.SchemaIntegration.add_schema"><code class="name flex">
-<span>def <span class="ident">add_schema</span></span>(<span>self,<br>schema: Dict[str, Any] | ForwardRef('<a title="src.SchemaOrgBase" href="#src.SchemaOrgBase">SchemaOrgBase</a>')) ‑> <a title="src.SchemaIntegration" href="#src.SchemaIntegration">SchemaIntegration</a></span>
+<span>def <span class="ident">add_schema</span></span>(<span>self,<br>schema: Mapping[str, JsonValue | SchemaMapping | Sequence[ForwardRef('SchemaValue')]] | <a title="src.SchemaOrgBase" href="#src.SchemaOrgBase">SchemaOrgBase</a>) ‑> <a title="src.SchemaIntegration" href="#src.SchemaIntegration">SchemaIntegration</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def add_schema(self, schema: Union[Dict[str, Any], &#39;SchemaOrgBase&#39;]) -&gt; &#39;SchemaIntegration&#39;:
+<pre><code class="python">def add_schema(self, schema: Union[SchemaMapping, &#39;SchemaOrgBase&#39;]) -&gt; &#39;SchemaIntegration&#39;:
     &#34;&#34;&#34;
     Add schema to collection.
 
@@ -3130,18 +3192,22 @@ and provides API-ready output.</p>
         Self for method chaining
     &#34;&#34;&#34;
     if hasattr(schema, &#39;to_dict&#39;):
-        schema = schema.to_dict()
+        # mypy can&#39;t intersect Mapping with a to_dict protocol; the
+        # duck-typed branch is only reachable for SchemaOrgBase-likes.
+        schema = cast(&#39;SchemaOrgBase&#39;, schema).to_dict()
     self.schemas.append(schema)
     return self</code></pre>
 </details>
 <div class="desc"><p>Add schema to collection.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema</code></strong></dt>
 <dd>Schema dictionary or SchemaOrgBase instance</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Self for method chaining</p></div>
+<p>Returns
+-----=
+Self for method chaining</p></div>
 </dd>
 <dt id="src.SchemaIntegration.clear"><code class="name flex">
 <span>def <span class="ident">clear</span></span>(<span>self) ‑> None</span>
@@ -3184,10 +3250,10 @@ and provides API-ready output.</p>
             structured_data = self.to_json_ld_script()
         elif format == OutputFormat.MICRODATA:
             # Microdata is embedded in content
-            structured_data = f&#34;&lt;!-- Microdata embedded in content --&gt;&#34;
+            structured_data = &#34;&lt;!-- Microdata embedded in content --&gt;&#34;
         elif format == OutputFormat.RDFA:
             # RDFa is embedded in content
-            structured_data = f&#34;&lt;!-- RDFa embedded in content --&gt;&#34;
+            structured_data = &#34;&lt;!-- RDFa embedded in content --&gt;&#34;
 
         html = f&#34;&#34;&#34;&lt;!DOCTYPE html&gt;
 &lt;html lang=&#34;en&#34;&gt;
@@ -3204,8 +3270,9 @@ and provides API-ready output.</p>
         return html</code></pre>
 </details>
 <div class="desc"><p>Create complete HTML page with embedded structured data.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>title</code></strong></dt>
 <dd>Page title</dd>
 <dt><strong><code>content</code></strong></dt>
@@ -3213,8 +3280,9 @@ and provides API-ready output.</p>
 <dt><strong><code>format</code></strong></dt>
 <dd>Structured data format to use</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Complete HTML page</p></div>
+<p>Returns
+-----=
+Complete HTML page</p></div>
 </dd>
 <dt id="src.SchemaIntegration.export_all"><code class="name flex">
 <span>def <span class="ident">export_all</span></span>(<span>self,<br>format: <a title="src.integration.OutputFormat" href="integration.html#src.integration.OutputFormat">OutputFormat</a>) ‑> List[str]</span>
@@ -3237,13 +3305,15 @@ and provides API-ready output.</p>
     return [self.export_format(format, schema) for schema in self.schemas]</code></pre>
 </details>
 <div class="desc"><p>Export all schemas in specified format.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>format</code></strong></dt>
 <dd>Output format</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>List of formatted strings</p></div>
+<p>Returns
+-----=
+List of formatted strings</p></div>
 </dd>
 <dt id="src.SchemaIntegration.export_bulk"><code class="name flex">
 <span>def <span class="ident">export_bulk</span></span>(<span>self,<br>format: <a title="src.integration.OutputFormat" href="integration.html#src.integration.OutputFormat">OutputFormat</a>,<br>file_path: str) ‑> None</span>
@@ -3275,8 +3345,9 @@ and provides API-ready output.</p>
                 f.write(output)</code></pre>
 </details>
 <div class="desc"><p>Export all schemas to file.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>format</code></strong></dt>
 <dd>Output format</dd>
 <dt><strong><code>file_path</code></strong></dt>
@@ -3284,7 +3355,7 @@ and provides API-ready output.</p>
 </dl></div>
 </dd>
 <dt id="src.SchemaIntegration.export_format"><code class="name flex">
-<span>def <span class="ident">export_format</span></span>(<span>self,<br>format: <a title="src.integration.OutputFormat" href="integration.html#src.integration.OutputFormat">OutputFormat</a>,<br>schema: Dict[str, Any] | None = None) ‑> str</span>
+<span>def <span class="ident">export_format</span></span>(<span>self,<br>format: <a title="src.integration.OutputFormat" href="integration.html#src.integration.OutputFormat">OutputFormat</a>,<br>schema: Mapping[str, JsonValue | SchemaMapping | Sequence[ForwardRef('SchemaValue')]] | None = None) ‑> str</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -3292,7 +3363,7 @@ and provides API-ready output.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def export_format(self, format: OutputFormat,
-                 schema: Optional[Dict[str, Any]] = None) -&gt; str:
+                 schema: Optional[SchemaMapping] = None) -&gt; str:
     &#34;&#34;&#34;
     Export in specified format.
 
@@ -3308,35 +3379,41 @@ and provides API-ready output.</p>
 
     if format == OutputFormat.JSON_LD:
         return self.to_json_ld(schema)
-    elif format == OutputFormat.MICRODATA:
-        return self.to_microdata(schema)
-    elif format == OutputFormat.RDFA:
-        return self.to_rdfa(schema)
-    elif format == OutputFormat.JSON:
+    if format == OutputFormat.JSON:
         return json.dumps(schema, indent=2)
-    else:
-        raise ValueError(f&#34;Unsupported format: {format}&#34;)</code></pre>
+
+    if schema is None:
+        raise ValueError(&#34;No schema available to export&#34;)
+
+    if format == OutputFormat.MICRODATA:
+        return self.to_microdata(schema)
+    if format == OutputFormat.RDFA:
+        return self.to_rdfa(schema)
+
+    raise ValueError(f&#34;Unsupported format: {format}&#34;)</code></pre>
 </details>
 <div class="desc"><p>Export in specified format.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>format</code></strong></dt>
 <dd>Output format</dd>
 <dt><strong><code>schema</code></strong></dt>
 <dd>Specific schema (or use all)</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Formatted string</p></div>
+<p>Returns
+-----=
+Formatted string</p></div>
 </dd>
 <dt id="src.SchemaIntegration.get_api_response"><code class="name flex">
-<span>def <span class="ident">get_api_response</span></span>(<span>self, schema_id: str | None = None) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">get_api_response</span></span>(<span>self, schema_id: str | None = None) ‑> <a title="src.integration.ApiResponse" href="integration.html#src.integration.ApiResponse">ApiResponse</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_api_response(self, schema_id: Optional[str] = None) -&gt; Dict[str, Any]:
+<pre><code class="python">def get_api_response(self, schema_id: Optional[str] = None) -&gt; ApiResponse:
     &#34;&#34;&#34;
     Get API-ready response.
 
@@ -3348,7 +3425,7 @@ and provides API-ready output.</p>
     &#34;&#34;&#34;
     if schema_id is not None:
         # In real implementation, look up by ID
-        schema = self.schemas[0] if self.schemas else {}
+        schema: SchemaMapping = self.schemas[0] if self.schemas else {}
         return {
             &#34;success&#34;: True,
             &#34;data&#34;: schema,
@@ -3363,23 +3440,25 @@ and provides API-ready output.</p>
         }</code></pre>
 </details>
 <div class="desc"><p>Get API-ready response.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema_id</code></strong></dt>
 <dd>Specific schema ID (or return all)</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>API response dictionary</p></div>
+<p>Returns
+-----=
+API response dictionary</p></div>
 </dd>
 <dt id="src.SchemaIntegration.to_json_ld"><code class="name flex">
-<span>def <span class="ident">to_json_ld</span></span>(<span>self, schema: Dict[str, Any] | None = None, indent: int = 2) ‑> str</span>
+<span>def <span class="ident">to_json_ld</span></span>(<span>self,<br>schema: Mapping[str, JsonValue | SchemaMapping | Sequence[ForwardRef('SchemaValue')]] | None = None,<br>indent: int = 2) ‑> str</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_json_ld(self, schema: Optional[Dict[str, Any]] = None,
+<pre><code class="python">def to_json_ld(self, schema: Optional[SchemaMapping] = None,
                indent: int = 2) -&gt; str:
     &#34;&#34;&#34;
     Convert to JSON-LD format.
@@ -3402,25 +3481,27 @@ and provides API-ready output.</p>
     return json.dumps(data, indent=indent, ensure_ascii=False)</code></pre>
 </details>
 <div class="desc"><p>Convert to JSON-LD format.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema</code></strong></dt>
 <dd>Specific schema to convert (or use all schemas)</dd>
 <dt><strong><code>indent</code></strong></dt>
 <dd>JSON indentation</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>JSON-LD string</p></div>
+<p>Returns
+-----=
+JSON-LD string</p></div>
 </dd>
 <dt id="src.SchemaIntegration.to_json_ld_script"><code class="name flex">
-<span>def <span class="ident">to_json_ld_script</span></span>(<span>self, schema: Dict[str, Any] | None = None, indent: int = 2) ‑> str</span>
+<span>def <span class="ident">to_json_ld_script</span></span>(<span>self,<br>schema: Mapping[str, JsonValue | SchemaMapping | Sequence[ForwardRef('SchemaValue')]] | None = None,<br>indent: int = 2) ‑> str</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_json_ld_script(self, schema: Optional[Dict[str, Any]] = None,
+<pre><code class="python">def to_json_ld_script(self, schema: Optional[SchemaMapping] = None,
                      indent: int = 2) -&gt; str:
     &#34;&#34;&#34;
     Convert to JSON-LD script tag for HTML.
@@ -3436,25 +3517,27 @@ and provides API-ready output.</p>
     return f&#39;&lt;script type=&#34;application/ld+json&#34;&gt;\n{json_ld}\n&lt;/script&gt;&#39;</code></pre>
 </details>
 <div class="desc"><p>Convert to JSON-LD script tag for HTML.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema</code></strong></dt>
 <dd>Specific schema to convert</dd>
 <dt><strong><code>indent</code></strong></dt>
 <dd>JSON indentation</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>HTML script tag with JSON-LD</p></div>
+<p>Returns
+-----=
+HTML script tag with JSON-LD</p></div>
 </dd>
 <dt id="src.SchemaIntegration.to_microdata"><code class="name flex">
-<span>def <span class="ident">to_microdata</span></span>(<span>self, schema: Dict[str, Any], tag: str = 'div') ‑> str</span>
+<span>def <span class="ident">to_microdata</span></span>(<span>self,<br>schema: Mapping[str, JsonValue | SchemaMapping | Sequence[ForwardRef('SchemaValue')]],<br>tag: str = 'div') ‑> str</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_microdata(self, schema: Dict[str, Any],
+<pre><code class="python">def to_microdata(self, schema: SchemaMapping,
                  tag: str = &#34;div&#34;) -&gt; str:
     &#34;&#34;&#34;
     Convert to HTML5 microdata format.
@@ -3504,25 +3587,27 @@ and provides API-ready output.</p>
     return &#39;\n&#39;.join(html_parts)</code></pre>
 </details>
 <div class="desc"><p>Convert to HTML5 microdata format.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema</code></strong></dt>
 <dd>Schema dictionary</dd>
 <dt><strong><code>tag</code></strong></dt>
 <dd>HTML tag to use</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>HTML with microdata attributes</p></div>
+<p>Returns
+-----=
+HTML with microdata attributes</p></div>
 </dd>
 <dt id="src.SchemaIntegration.to_rdfa"><code class="name flex">
-<span>def <span class="ident">to_rdfa</span></span>(<span>self, schema: Dict[str, Any], tag: str = 'div') ‑> str</span>
+<span>def <span class="ident">to_rdfa</span></span>(<span>self,<br>schema: Mapping[str, JsonValue | SchemaMapping | Sequence[ForwardRef('SchemaValue')]],<br>tag: str = 'div') ‑> str</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_rdfa(self, schema: Dict[str, Any],
+<pre><code class="python">def to_rdfa(self, schema: SchemaMapping,
             tag: str = &#34;div&#34;) -&gt; str:
     &#34;&#34;&#34;
     Convert to RDFa format.
@@ -3575,15 +3660,17 @@ and provides API-ready output.</p>
     return &#39;\n&#39;.join(html_parts)</code></pre>
 </details>
 <div class="desc"><p>Convert to RDFa format.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema</code></strong></dt>
 <dd>Schema dictionary</dd>
 <dt><strong><code>tag</code></strong></dt>
 <dd>HTML tag to use</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>HTML with RDFa attributes</p></div>
+<p>Returns
+-----=
+HTML with RDFa attributes</p></div>
 </dd>
 </dl>
 </dd>
@@ -3752,7 +3839,7 @@ and provides API-ready output.</p>
         Returns:
             The @id IRI string
         &#34;&#34;&#34;
-        return self.data.get(&#34;@id&#34;, &#34;&#34;)
+        return cast(str, self.data.get(&#34;@id&#34;, &#34;&#34;))
 
     def set_dates(self, created: Optional[datetime] = None,
                   modified: Optional[datetime] = None,
@@ -3838,7 +3925,7 @@ and provides API-ready output.</p>
         if total == 0:
             return 1.0
 
-        present = 0
+        present = 0.0
         for prop in required:
             if prop in self.data:
                 present += 1
@@ -3865,15 +3952,17 @@ compliance. The @id can be:
 - Deterministic UUID v5 from a natural key
 - Custom IRI (HTTPS URL or URN)</p>
 <p>Initialize the Schema.org generator.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema_type</code></strong></dt>
 <dd>The Schema.org type (e.g., 'DigitalDocument', 'ImageObject')</dd>
 <dt><strong><code>entity_id</code></strong></dt>
 <dd>Optional entity ID. If not provided, generates UUID v4.
 Can be a UUID string, URN, or HTTPS URL.</dd>
 </dl>
-<h2 id="examples">Examples</h2>
+<p>Examples
+-----=</p>
 <h1 id="auto-generated-id">Auto-generated ID</h1>
 <p>doc = DocumentGenerator()</p>
 <h1 id="custom-uuid">Custom UUID</h1>
@@ -3922,7 +4011,7 @@ Can be a UUID string, URN, or HTTPS URL.</dd>
     if total == 0:
         return 1.0
 
-    present = 0
+    present = 0.0
     for prop in required:
         if prop in self.data:
             present += 1
@@ -3933,8 +4022,9 @@ Can be a UUID string, URN, or HTTPS URL.</dd>
     return min(present / len(required) if required else 1.0, 1.0)</code></pre>
 </details>
 <div class="desc"><p>Calculate completion score based on required and recommended properties.</p>
-<h2 id="returns">Returns</h2>
-<p>Completion score (0.0 to 1.0)</p></div>
+<p>Returns
+-----=
+Completion score (0.0 to 1.0)</p></div>
 </dd>
 <dt id="src.SchemaOrgBase.get_id"><code class="name flex">
 <span>def <span class="ident">get_id</span></span>(<span>self) ‑> str</span>
@@ -3951,11 +4041,12 @@ Can be a UUID string, URN, or HTTPS URL.</dd>
     Returns:
         The @id IRI string
     &#34;&#34;&#34;
-    return self.data.get(&#34;@id&#34;, &#34;&#34;)</code></pre>
+    return cast(str, self.data.get(&#34;@id&#34;, &#34;&#34;))</code></pre>
 </details>
 <div class="desc"><p>Get the @id for this schema.</p>
-<h2 id="returns">Returns</h2>
-<p>The @id IRI string</p></div>
+<p>Returns
+-----=
+The @id IRI string</p></div>
 </dd>
 <dt id="src.SchemaOrgBase.get_recommended_properties"><code class="name flex">
 <span>def <span class="ident">get_recommended_properties</span></span>(<span>self) ‑> List[str]</span>
@@ -3976,8 +4067,9 @@ def get_recommended_properties(self) -&gt; List[str]:
     pass</code></pre>
 </details>
 <div class="desc"><p>Get list of recommended properties for this schema type.</p>
-<h2 id="returns">Returns</h2>
-<p>List of recommended property names</p></div>
+<p>Returns
+-----=
+List of recommended property names</p></div>
 </dd>
 <dt id="src.SchemaOrgBase.get_required_properties"><code class="name flex">
 <span>def <span class="ident">get_required_properties</span></span>(<span>self) ‑> List[str]</span>
@@ -3998,8 +4090,9 @@ def get_required_properties(self) -&gt; List[str]:
     pass</code></pre>
 </details>
 <div class="desc"><p>Get list of required properties for this schema type.</p>
-<h2 id="returns">Returns</h2>
-<p>List of required property names</p></div>
+<p>Returns
+-----=
+List of required property names</p></div>
 </dd>
 <dt id="src.SchemaOrgBase.set_dates"><code class="name flex">
 <span>def <span class="ident">set_dates</span></span>(<span>self,<br>created: datetime.datetime | None = None,<br>modified: datetime.datetime | None = None,<br>published: datetime.datetime | None = None) ‑> <a title="src.base.SchemaOrgBase" href="base.html#src.base.SchemaOrgBase">SchemaOrgBase</a></span>
@@ -4032,8 +4125,9 @@ def get_required_properties(self) -&gt; List[str]:
     return self</code></pre>
 </details>
 <div class="desc"><p>Set date properties.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>created</code></strong></dt>
 <dd>Date created</dd>
 <dt><strong><code>modified</code></strong></dt>
@@ -4041,8 +4135,9 @@ def get_required_properties(self) -&gt; List[str]:
 <dt><strong><code>published</code></strong></dt>
 <dd>Date published</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Self for method chaining</p></div>
+<p>Returns
+-----=
+Self for method chaining</p></div>
 </dd>
 <dt id="src.SchemaOrgBase.set_property"><code class="name flex">
 <span>def <span class="ident">set_property</span></span>(<span>self,<br>name: str,<br>value: Any,<br>property_type: <a title="src.base.PropertyType" href="base.html#src.base.PropertyType">PropertyType</a> | None = None) ‑> <a title="src.base.SchemaOrgBase" href="base.html#src.base.SchemaOrgBase">SchemaOrgBase</a></span>
@@ -4076,8 +4171,9 @@ def get_required_properties(self) -&gt; List[str]:
     return self</code></pre>
 </details>
 <div class="desc"><p>Set a property value with optional type validation.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>name</code></strong></dt>
 <dd>Property name</dd>
 <dt><strong><code>value</code></strong></dt>
@@ -4085,8 +4181,9 @@ def get_required_properties(self) -&gt; List[str]:
 <dt><strong><code>property_type</code></strong></dt>
 <dd>Expected property type for validation</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Self for method chaining</p></div>
+<p>Returns
+-----=
+Self for method chaining</p></div>
 </dd>
 <dt id="src.SchemaOrgBase.to_dict"><code class="name flex">
 <span>def <span class="ident">to_dict</span></span>(<span>self) ‑> Dict[str, Any]</span>
@@ -4106,8 +4203,9 @@ def get_required_properties(self) -&gt; List[str]:
     return self.data.copy()</code></pre>
 </details>
 <div class="desc"><p>Convert to dictionary representation.</p>
-<h2 id="returns">Returns</h2>
-<p>Dictionary representation of the schema</p></div>
+<p>Returns
+-----=
+Dictionary representation of the schema</p></div>
 </dd>
 <dt id="src.SchemaOrgBase.to_json_ld"><code class="name flex">
 <span>def <span class="ident">to_json_ld</span></span>(<span>self, indent: int = 2) ‑> str</span>
@@ -4130,13 +4228,15 @@ def get_required_properties(self) -&gt; List[str]:
     return json.dumps(self.data, indent=indent, ensure_ascii=False)</code></pre>
 </details>
 <div class="desc"><p>Convert to JSON-LD string.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>indent</code></strong></dt>
 <dd>JSON indentation level</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>JSON-LD string</p></div>
+<p>Returns
+-----=
+JSON-LD string</p></div>
 </dd>
 <dt id="src.SchemaOrgBase.to_json_ld_script"><code class="name flex">
 <span>def <span class="ident">to_json_ld_script</span></span>(<span>self, indent: int = 2) ‑> str</span>
@@ -4160,13 +4260,15 @@ def get_required_properties(self) -&gt; List[str]:
     return f&#39;&lt;script type=&#34;application/ld+json&#34;&gt;\n{json_ld}\n&lt;/script&gt;&#39;</code></pre>
 </details>
 <div class="desc"><p>Convert to JSON-LD script tag for HTML embedding.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>indent</code></strong></dt>
 <dd>JSON indentation level</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>HTML script tag with JSON-LD</p></div>
+<p>Returns
+-----=
+HTML script tag with JSON-LD</p></div>
 </dd>
 <dt id="src.SchemaOrgBase.validate_required_properties"><code class="name flex">
 <span>def <span class="ident">validate_required_properties</span></span>(<span>self) ‑> List[str]</span>
@@ -4191,8 +4293,9 @@ def get_required_properties(self) -&gt; List[str]:
     return missing</code></pre>
 </details>
 <div class="desc"><p>Validate that all required properties are present.</p>
-<h2 id="returns">Returns</h2>
-<p>List of missing required properties</p></div>
+<p>Returns
+-----=
+List of missing required properties</p></div>
 </dd>
 </dl>
 </dd>
@@ -4471,7 +4574,7 @@ def get_required_properties(self) -&gt; List[str]:
         &#34;&#34;&#34;
         return [self.validate(schema) for schema in schemas]
 
-    def generate_summary_report(self, reports: List[ValidationReport]) -&gt; Dict[str, Any]:
+    def generate_summary_report(self, reports: List[ValidationReport]) -&gt; SummaryReport:
         &#34;&#34;&#34;
         Generate summary report for batch validation.
 
@@ -4508,24 +4611,24 @@ def get_required_properties(self) -&gt; List[str]:
 <dl>
 <dt id="src.SchemaValidator.PROPERTY_TYPES"><code class="name">var <span class="ident">PROPERTY_TYPES</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.SchemaValidator.SCHEMA_TYPES"><code class="name">var <span class="ident">SCHEMA_TYPES</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
 <dt id="src.SchemaValidator.generate_summary_report"><code class="name flex">
-<span>def <span class="ident">generate_summary_report</span></span>(<span>self,<br>reports: List[<a title="src.validator.ValidationReport" href="validator.html#src.validator.ValidationReport">ValidationReport</a>]) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">generate_summary_report</span></span>(<span>self,<br>reports: List[<a title="src.validator.ValidationReport" href="validator.html#src.validator.ValidationReport">ValidationReport</a>]) ‑> <a title="src.validator.SummaryReport" href="validator.html#src.validator.SummaryReport">SummaryReport</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def generate_summary_report(self, reports: List[ValidationReport]) -&gt; Dict[str, Any]:
+<pre><code class="python">def generate_summary_report(self, reports: List[ValidationReport]) -&gt; SummaryReport:
     &#34;&#34;&#34;
     Generate summary report for batch validation.
 
@@ -4551,13 +4654,15 @@ def get_required_properties(self) -&gt; List[str]:
     }</code></pre>
 </details>
 <div class="desc"><p>Generate summary report for batch validation.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>reports</code></strong></dt>
 <dd>List of validation reports</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Summary dictionary</p></div>
+<p>Returns
+-----=
+Summary dictionary</p></div>
 </dd>
 <dt id="src.SchemaValidator.validate"><code class="name flex">
 <span>def <span class="ident">validate</span></span>(<span>self, schema_data: Dict[str, Any]) ‑> <a title="src.validator.ValidationReport" href="validator.html#src.validator.ValidationReport">ValidationReport</a></span>
@@ -4605,13 +4710,15 @@ def get_required_properties(self) -&gt; List[str]:
     return report</code></pre>
 </details>
 <div class="desc"><p>Validate Schema.org structured data.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema_data</code></strong></dt>
 <dd>Schema.org data dictionary</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Validation report</p></div>
+<p>Returns
+-----=
+Validation report</p></div>
 </dd>
 <dt id="src.SchemaValidator.validate_batch"><code class="name flex">
 <span>def <span class="ident">validate_batch</span></span>(<span>self, schemas: List[Dict[str, Any]]) ‑> List[<a title="src.validator.ValidationReport" href="validator.html#src.validator.ValidationReport">ValidationReport</a>]</span>
@@ -4634,13 +4741,15 @@ def get_required_properties(self) -&gt; List[str]:
     return [self.validate(schema) for schema in schemas]</code></pre>
 </details>
 <div class="desc"><p>Validate multiple schemas.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schemas</code></strong></dt>
 <dd>List of schema dictionaries</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>List of validation reports</p></div>
+<p>Returns
+-----=
+List of validation reports</p></div>
 </dd>
 </dl>
 </dd>
@@ -4666,21 +4775,24 @@ def get_required_properties(self) -&gt; List[str]:
             # Use CLIP model
     &#34;&#34;&#34;
 
-    def __init__(self):
+    def __init__(self) -&gt; None:
         self.features: dict[str, FeatureStatus] = {}
         self._checked = False
 
-    def run_all_checks(self) -&gt; &#39;SystemHealthChecker&#39;:
+    def run_all_checks(self) -&gt; &#34;SystemHealthChecker&#34;:
         &#34;&#34;&#34;Run all dependency checks.&#34;&#34;&#34;
         self._check_python_version()
         self._check_pillow()
         self._check_heic_support()
         self._check_ocr()
         self._check_clip_vision()
+        self._check_scene_probe()
+        self._check_similarity()
         self._check_database()
         self._check_geocoding()
         self._check_error_tracking()
         self._check_document_processing()
+        self._check_name_validator()
         self._checked = True
         return self
 
@@ -4689,67 +4801,69 @@ def get_required_properties(self) -&gt; List[str]:
         version = f&#34;{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}&#34;
         min_version = (3, 8)
         available = sys.version_info &gt;= min_version
-        self.features[&#39;python&#39;] = FeatureStatus(
+        self.features[&#34;python&#34;] = FeatureStatus(
             name=&#34;Python&#34;,
             available=available,
             version=version,
             error=None if available else f&#34;Requires Python {min_version[0]}.{min_version[1]}+&#34;,
-            impact=&#34;Core functionality&#34;
+            impact=&#34;Core functionality&#34;,
         )
 
     def _check_pillow(self) -&gt; None:
         &#34;&#34;&#34;Check PIL/Pillow for image processing.&#34;&#34;&#34;
         try:
-            from PIL import Image
             import PIL
-            self.features[&#39;pillow&#39;] = FeatureStatus(
+
+            self.features[&#34;pillow&#34;] = FeatureStatus(
                 name=&#34;Pillow (Image Processing)&#34;,
                 available=True,
                 version=PIL.__version__,
-                impact=&#34;JPEG/PNG image loading, EXIF extraction&#34;
+                impact=&#34;JPEG/PNG image loading, EXIF extraction&#34;,
             )
         except ImportError as e:
-            self.features[&#39;pillow&#39;] = FeatureStatus(
+            self.features[&#34;pillow&#34;] = FeatureStatus(
                 name=&#34;Pillow (Image Processing)&#34;,
                 available=False,
                 error=str(e),
-                impact=&#34;Cannot process images - pip install Pillow&#34;
+                impact=&#34;Cannot process images - pip install Pillow&#34;,
             )
 
     def _check_heic_support(self) -&gt; None:
         &#34;&#34;&#34;Check HEIC/HEIF image support.&#34;&#34;&#34;
         try:
             import pillow_heif
-            self.features[&#39;heic&#39;] = FeatureStatus(
+
+            self.features[&#34;heic&#34;] = FeatureStatus(
                 name=&#34;HEIC Support&#34;,
                 available=True,
                 version=pillow_heif.__version__,
-                impact=&#34;iPhone HEIC photos supported&#34;
+                impact=&#34;iPhone HEIC photos supported&#34;,
             )
         except ImportError:
-            self.features[&#39;heic&#39;] = FeatureStatus(
+            self.features[&#34;heic&#34;] = FeatureStatus(
                 name=&#34;HEIC Support&#34;,
                 available=False,
                 error=&#34;pillow-heif not installed&#34;,
-                impact=&#34;HEIC files skipped - pip install pillow-heif&#34;
+                impact=&#34;HEIC files skipped - pip install pillow-heif&#34;,
             )
 
     def _check_ocr(self) -&gt; None:
         &#34;&#34;&#34;Check docTR OCR availability.&#34;&#34;&#34;
         try:
             import doctr
-            self.features[&#39;ocr&#39;] = FeatureStatus(
+
+            self.features[&#34;ocr&#34;] = FeatureStatus(
                 name=&#34;OCR (docTR)&#34;,
                 available=True,
                 version=doctr.__version__,
-                impact=&#34;Text extraction from images/screenshots&#34;
+                impact=&#34;Text extraction from images/screenshots&#34;,
             )
         except ImportError:
-            self.features[&#39;ocr&#39;] = FeatureStatus(
+            self.features[&#34;ocr&#34;] = FeatureStatus(
                 name=&#34;OCR (docTR)&#34;,
                 available=False,
                 error=&#34;python-doctr not installed&#34;,
-                impact=&#34;No OCR - pip install python-doctr[torch]&#34;
+                impact=&#34;No OCR - pip install python-doctr[torch]&#34;,
             )
 
     def _check_clip_vision(self) -&gt; None:
@@ -4757,11 +4871,12 @@ def get_required_properties(self) -&gt; List[str]:
         try:
             import torch
             import open_clip
-            self.features[&#39;clip_vision&#39;] = FeatureStatus(
+
+            self.features[&#34;clip_vision&#34;] = FeatureStatus(
                 name=&#34;AI Vision (CLIP)&#34;,
                 available=True,
                 version=f&#34;torch {torch.__version__}, open_clip {open_clip.__version__}&#34;,
-                impact=&#34;AI-powered image content classification&#34;
+                impact=&#34;AI-powered image content classification&#34;,
             )
         except ImportError:
             missing = []
@@ -4774,66 +4889,103 @@ def get_required_properties(self) -&gt; List[str]:
             except ImportError:
                 missing.append(&#34;open-clip-torch&#34;)
 
-            self.features[&#39;clip_vision&#39;] = FeatureStatus(
+            self.features[&#34;clip_vision&#34;] = FeatureStatus(
                 name=&#34;AI Vision (CLIP)&#34;,
                 available=False,
                 error=f&#34;Missing: {&#39;, &#39;.join(missing)}&#34;,
-                impact=&#34;No AI classification - pip install torch open-clip-torch&#34;
+                impact=&#34;No AI classification - pip install torch open-clip-torch&#34;,
             )
+
+    def _check_similarity(self) -&gt; None:
+        &#34;&#34;&#34;Check faiss for the near-duplicate index.
+
+        Reports only on faiss: the SSCD descriptor half needs torch/torchvision,
+        already covered by the CLIP check, and its checkpoint downloads on first
+        use rather than at install time — so its absence is not a config error.
+
+        Deliberately probes without importing faiss: this checker also imports
+        torch, and the two abort the process when both initialise OpenMP
+        (see src/similarity/worker.py).
+        &#34;&#34;&#34;
+        import importlib.metadata
+        import importlib.util
+
+        if importlib.util.find_spec(&#34;faiss&#34;) is None:
+            self.features[&#34;similarity&#34;] = FeatureStatus(
+                name=&#34;Near-duplicate index (faiss)&#34;,
+                available=False,
+                error=&#34;Missing: faiss-cpu&#34;,
+                impact=&#34;No near-duplicate report - pip install -e &#39;.[similarity]&#39;&#34;,
+            )
+            return
+
+        try:
+            version = importlib.metadata.version(&#34;faiss-cpu&#34;)
+        except importlib.metadata.PackageNotFoundError:
+            version = &#34;unknown&#34;
+        self.features[&#34;similarity&#34;] = FeatureStatus(
+            name=&#34;Near-duplicate index (faiss)&#34;,
+            available=True,
+            version=version,
+            impact=&#34;organize-files find-duplicates&#34;,
+        )
 
     def _check_database(self) -&gt; None:
         &#34;&#34;&#34;Check SQLAlchemy for database storage.&#34;&#34;&#34;
         try:
             import sqlalchemy
-            self.features[&#39;database&#39;] = FeatureStatus(
+
+            self.features[&#34;database&#34;] = FeatureStatus(
                 name=&#34;Database (SQLAlchemy)&#34;,
                 available=True,
                 version=sqlalchemy.__version__,
-                impact=&#34;Graph-based file storage, relationships&#34;
+                impact=&#34;Graph-based file storage, relationships&#34;,
             )
         except ImportError:
-            self.features[&#39;database&#39;] = FeatureStatus(
+            self.features[&#34;database&#34;] = FeatureStatus(
                 name=&#34;Database (SQLAlchemy)&#34;,
                 available=False,
                 error=&#34;sqlalchemy not installed&#34;,
-                impact=&#34;No DB storage - pip install sqlalchemy&#34;
+                impact=&#34;No DB storage - pip install sqlalchemy&#34;,
             )
 
     def _check_geocoding(self) -&gt; None:
         &#34;&#34;&#34;Check geopy for GPS coordinate lookup.&#34;&#34;&#34;
         try:
             import geopy
-            self.features[&#39;geocoding&#39;] = FeatureStatus(
+
+            self.features[&#34;geocoding&#34;] = FeatureStatus(
                 name=&#34;Geocoding (geopy)&#34;,
                 available=True,
                 # getattr: test suites stub geopy in sys.modules without __version__
-                version=getattr(geopy, &#39;__version__&#39;, &#39;unknown&#39;),
-                impact=&#34;GPS coordinates to location names&#34;
+                version=getattr(geopy, &#34;__version__&#34;, &#34;unknown&#34;),
+                impact=&#34;GPS coordinates to location names&#34;,
             )
         except ImportError:
-            self.features[&#39;geocoding&#39;] = FeatureStatus(
+            self.features[&#34;geocoding&#34;] = FeatureStatus(
                 name=&#34;Geocoding (geopy)&#34;,
                 available=False,
                 error=&#34;geopy not installed&#34;,
-                impact=&#34;No location lookup - pip install geopy&#34;
+                impact=&#34;No location lookup - pip install geopy&#34;,
             )
 
     def _check_error_tracking(self) -&gt; None:
         &#34;&#34;&#34;Check Sentry SDK for error tracking.&#34;&#34;&#34;
         try:
             import sentry_sdk
-            self.features[&#39;sentry&#39;] = FeatureStatus(
+
+            self.features[&#34;sentry&#34;] = FeatureStatus(
                 name=&#34;Error Tracking (Sentry)&#34;,
                 available=True,
                 version=sentry_sdk.VERSION,
-                impact=&#34;Error monitoring and performance tracking&#34;
+                impact=&#34;Error monitoring and performance tracking&#34;,
             )
         except ImportError:
-            self.features[&#39;sentry&#39;] = FeatureStatus(
+            self.features[&#34;sentry&#34;] = FeatureStatus(
                 name=&#34;Error Tracking (Sentry)&#34;,
                 available=False,
                 error=&#34;sentry-sdk not installed&#34;,
-                impact=&#34;No error tracking - pip install sentry-sdk&#34;
+                impact=&#34;No error tracking - pip install sentry-sdk&#34;,
             )
 
     def _check_document_processing(self) -&gt; None:
@@ -4843,39 +4995,137 @@ def get_required_properties(self) -&gt; List[str]:
 
         # Check python-docx
         try:
-            import docx
+            import docx  # noqa: F401 — import IS the availability probe
+
             available_libs.append(&#34;docx&#34;)
         except ImportError:
             missing_libs.append(&#34;python-docx&#34;)
 
         # Check pypdf
         try:
-            import pypdf
+            import pypdf  # noqa: F401 — import IS the availability probe
+
             available_libs.append(&#34;pypdf&#34;)
         except ImportError:
             missing_libs.append(&#34;pypdf&#34;)
 
         # Check openpyxl
         try:
-            import openpyxl
+            import openpyxl  # noqa: F401 — import IS the availability probe
+
             available_libs.append(&#34;openpyxl&#34;)
         except ImportError:
             missing_libs.append(&#34;openpyxl&#34;)
 
         if available_libs:
-            self.features[&#39;documents&#39;] = FeatureStatus(
+            self.features[&#34;documents&#34;] = FeatureStatus(
                 name=&#34;Document Processing&#34;,
                 available=True,
                 version=&#34;, &#34;.join(available_libs),
-                impact=f&#34;PDF/Word/Excel parsing ({len(available_libs)}/3 libs)&#34;
+                impact=f&#34;PDF/Word/Excel parsing ({len(available_libs)}/3 libs)&#34;,
             )
         else:
-            self.features[&#39;documents&#39;] = FeatureStatus(
+            self.features[&#34;documents&#34;] = FeatureStatus(
                 name=&#34;Document Processing&#34;,
                 available=False,
                 error=f&#34;Missing: {&#39;, &#39;.join(missing_libs)}&#34;,
-                impact=&#34;No document parsing available&#34;
+                impact=&#34;No document parsing available&#34;,
             )
+
+    def _check_scene_probe(self) -&gt; None:
+        &#34;&#34;&#34;Check the trained scene-probe artifact (``SceneSignal``).&#34;&#34;&#34;
+        # Without the probe, no signal votes interiors/exteriors/places/opaque
+        # graphics at all (the binary interior probe and photo_composition&#39;s
+        # interior vote were retired with the SceneSignal swap) — those images
+        # fall to weaker generic signals or the low-margin fallback.
+        impact_when_missing = (
+            &#34;SceneSignal no-ops — interior/exterior/place/graphic scenes get &#34;
+            &#34;no scene vote and fall to weaker generic signals or the &#34;
+            &#34;low-margin fallback&#34;
+        )
+        try:
+            from scoring.signals import scene
+        except ImportError:
+            try:
+                from src.scoring.signals import scene  # type: ignore[no-redef]
+            except ImportError:
+                self.features[&#34;scene_probe&#34;] = FeatureStatus(
+                    name=&#34;Scene Probe&#34;,
+                    available=False,
+                    error=&#34;scoring.signals.scene not importable&#34;,
+                    impact=impact_when_missing,
+                )
+                return
+
+        if not scene.PROBE_PATH.exists():
+            self.features[&#34;scene_probe&#34;] = FeatureStatus(
+                name=&#34;Scene Probe&#34;,
+                available=False,
+                error=(
+                    f&#34;artifact missing: {scene.PROBE_PATH} — train with &#34;
+                    &#34;&#39;python scripts/prototype_scene_probe.py train&#39;&#34;
+                ),
+                impact=impact_when_missing,
+            )
+            return
+
+        if scene.load_probe(scene.PROBE_PATH) is None:
+            self.features[&#34;scene_probe&#34;] = FeatureStatus(
+                name=&#34;Scene Probe&#34;,
+                available=False,
+                error=(
+                    f&#34;artifact unreadable: {scene.PROBE_PATH} &#34;
+                    &#34;(joblib/scikit-learn missing, or corrupt file — retrain)&#34;
+                ),
+                impact=impact_when_missing,
+            )
+            return
+
+        self.features[&#34;scene_probe&#34;] = FeatureStatus(
+            name=&#34;Scene Probe&#34;,
+            available=True,
+            version=str(scene.PROBE_PATH),
+            impact=&#34;Trained CLIP-embedding scene classification active (SceneSignal)&#34;,
+        )
+
+    def _check_name_validator(self) -&gt; None:
+        &#34;&#34;&#34;Check person-name validation layers (``names`` extra).&#34;&#34;&#34;
+        try:
+            from classifiers.person_name_validator import available_layers
+        except ImportError:
+            try:
+                from src.classifiers.person_name_validator import available_layers  # type: ignore[no-redef]
+            except ImportError:
+                self.features[&#34;name_validator&#34;] = FeatureStatus(
+                    name=&#34;Person-Name Validator&#34;,
+                    available=False,
+                    error=&#34;person_name_validator module not found&#34;,
+                    impact=&#34;No person-name validation — all detected names route to review&#34;,
+                )
+                return
+
+        layers = available_layers()
+        active = [name for name, ok in layers.items() if ok]
+        missing = [name for name, ok in layers.items() if not ok]
+        # denylist is always available; the optional layers add precision
+        optional_ok = layers.get(&#34;shape&#34;, False) and layers.get(&#34;probablepeople&#34;, False)
+        self.features[&#34;name_validator&#34;] = FeatureStatus(
+            name=&#34;Person-Name Validator&#34;,
+            available=True,
+            version=f&#34;layers: {&#39;, &#39;.join(active)}&#34;,
+            error=(
+                f&#34;optional layers unavailable: {&#39;, &#39;.join(missing)} &#34;
+                &#34;(pip install nameparser probablepeople)&#34;
+                if missing and not optional_ok
+                else None
+            ),
+            impact=(
+                &#34;Name validation active — precision increases with optional layers&#34;
+                if optional_ok
+                else &#34;Name validation degraded — optional layers missing; &#34;
+                &#34;install nameparser probablepeople for higher precision&#34;
+            ),
+        )
 
     def is_available(self, feature: str) -&gt; bool:
         &#34;&#34;&#34;Check if a specific feature is available.&#34;&#34;&#34;
@@ -4919,11 +5169,13 @@ def get_required_properties(self) -&gt; List[str]:
             print(&#34;\033[92mAll features operational!\033[0m&#34;)
         else:
             missing = total_count - available_count
-            print(f&#34;\033[93m{missing} feature(s) unavailable - see above for install commands\033[0m&#34;)
+            print(
+                f&#34;\033[93m{missing} feature(s) unavailable - see above for install commands\033[0m&#34;
+            )
 
         print(&#34;=&#34; * SEPARATOR_WIDTH_MEDIUM + &#34;\n&#34;)
 
-    def to_dict(self) -&gt; dict:
+    def to_dict(self) -&gt; Dict[str, FeatureStatusDict]:
         &#34;&#34;&#34;Export status as dictionary.&#34;&#34;&#34;
         if not self._checked:
             self.run_all_checks()
@@ -4932,14 +5184,15 @@ def get_required_properties(self) -&gt; List[str]:
                 &#34;available&#34;: f.available,
                 &#34;version&#34;: f.version,
                 &#34;error&#34;: f.error,
-                &#34;impact&#34;: f.impact
+                &#34;impact&#34;: f.impact,
             }
             for name, f in self.features.items()
         }</code></pre>
 </details>
 <div class="desc"><p>Validates system dependencies and reports feature availability.</p>
-<h2 id="usage">Usage</h2>
-<p>checker = SystemHealthChecker()
+<p>Usage
+-----=
+checker = SystemHealthChecker()
 checker.run_all_checks()
 checker.print_status()</p>
 <h1 id="or-check-specific-feature">Or check specific feature</h1>
@@ -5017,7 +5270,9 @@ checker.print_status()</p>
         print(&#34;\033[92mAll features operational!\033[0m&#34;)
     else:
         missing = total_count - available_count
-        print(f&#34;\033[93m{missing} feature(s) unavailable - see above for install commands\033[0m&#34;)
+        print(
+            f&#34;\033[93m{missing} feature(s) unavailable - see above for install commands\033[0m&#34;
+        )
 
     print(&#34;=&#34; * SEPARATOR_WIDTH_MEDIUM + &#34;\n&#34;)</code></pre>
 </details>
@@ -5031,31 +5286,34 @@ checker.print_status()</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def run_all_checks(self) -&gt; &#39;SystemHealthChecker&#39;:
+<pre><code class="python">def run_all_checks(self) -&gt; &#34;SystemHealthChecker&#34;:
     &#34;&#34;&#34;Run all dependency checks.&#34;&#34;&#34;
     self._check_python_version()
     self._check_pillow()
     self._check_heic_support()
     self._check_ocr()
     self._check_clip_vision()
+    self._check_scene_probe()
+    self._check_similarity()
     self._check_database()
     self._check_geocoding()
     self._check_error_tracking()
     self._check_document_processing()
+    self._check_name_validator()
     self._checked = True
     return self</code></pre>
 </details>
 <div class="desc"><p>Run all dependency checks.</p></div>
 </dd>
 <dt id="src.SystemHealthChecker.to_dict"><code class="name flex">
-<span>def <span class="ident">to_dict</span></span>(<span>self) ‑> dict</span>
+<span>def <span class="ident">to_dict</span></span>(<span>self) ‑> Dict[str, <a title="src.health_check.FeatureStatusDict" href="health_check.html#src.health_check.FeatureStatusDict">FeatureStatusDict</a>]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_dict(self) -&gt; dict:
+<pre><code class="python">def to_dict(self) -&gt; Dict[str, FeatureStatusDict]:
     &#34;&#34;&#34;Export status as dictionary.&#34;&#34;&#34;
     if not self._checked:
         self.run_all_checks()
@@ -5064,7 +5322,7 @@ checker.print_status()</p>
             &#34;available&#34;: f.available,
             &#34;version&#34;: f.version,
             &#34;error&#34;: f.error,
-            &#34;impact&#34;: f.impact
+            &#34;impact&#34;: f.impact,
         }
         for name, f in self.features.items()
     }</code></pre>
@@ -5173,7 +5431,7 @@ checker.print_status()</p>
             return (self.end_time - self.start_time).total_seconds()
         return (datetime.now() - self.start_time).total_seconds()
 
-    def to_dict(self) -&gt; Dict[str, Any]:
+    def to_dict(self) -&gt; ReportDict:
         &#34;&#34;&#34;Convert to dictionary.&#34;&#34;&#34;
         return {
             &#34;schema_type&#34;: self.schema_type,
@@ -5190,8 +5448,6 @@ checker.print_status()</p>
 
     def print_summary(self) -&gt; None:
         &#34;&#34;&#34;Print validation summary.&#34;&#34;&#34;
-        stats = self.get_statistics()
-
         if self.messages:
             for msg in self.messages:
                 print(f&#34;  {msg}&#34;)
@@ -5205,8 +5461,9 @@ checker.print_status()</p>
 <p>Tracks validation messages, statistics, and provides
 detailed reporting capabilities.</p>
 <p>Initialize validation report.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>schema_type</code></strong></dt>
 <dd>Schema.org type being validated</dd>
 </dl></div>
@@ -5267,8 +5524,9 @@ detailed reporting capabilities.</p>
     )</code></pre>
 </details>
 <div class="desc"><p>Add validation message.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>level</code></strong></dt>
 <dd>Message level</dd>
 <dt><strong><code>message</code></strong></dt>
@@ -5424,8 +5682,6 @@ detailed reporting capabilities.</p>
 </summary>
 <pre><code class="python">def print_summary(self) -&gt; None:
     &#34;&#34;&#34;Print validation summary.&#34;&#34;&#34;
-    stats = self.get_statistics()
-
     if self.messages:
         for msg in self.messages:
             print(f&#34;  {msg}&#34;)</code></pre>
@@ -5433,14 +5689,14 @@ detailed reporting capabilities.</p>
 <div class="desc"><p>Print validation summary.</p></div>
 </dd>
 <dt id="src.ValidationReport.to_dict"><code class="name flex">
-<span>def <span class="ident">to_dict</span></span>(<span>self) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">to_dict</span></span>(<span>self) ‑> <a title="src.validator.ReportDict" href="validator.html#src.validator.ReportDict">ReportDict</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_dict(self) -&gt; Dict[str, Any]:
+<pre><code class="python">def to_dict(self) -&gt; ReportDict:
     &#34;&#34;&#34;Convert to dictionary.&#34;&#34;&#34;
     return {
         &#34;schema_type&#34;: self.schema_type,
@@ -5506,8 +5762,9 @@ detailed reporting capabilities.</p>
 <div class="desc"><p>Generator for video files.</p>
 <p>Supports: VideoObject, MovieClip</p>
 <p>Initialize video generator.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>video_type</code></strong></dt>
 <dd>Specific video type (VideoObject, MovieClip)</dd>
 <dt><strong><code>entity_id</code></strong></dt>
@@ -5593,6 +5850,9 @@ detailed reporting capabilities.</p>
 <li><code><a title="src.ml" href="ml/index.html">src.ml</a></code></li>
 <li><code><a title="src.organizers" href="organizers/index.html">src.organizers</a></code></li>
 <li><code><a title="src.pipeline" href="pipeline/index.html">src.pipeline</a></code></li>
+<li><code><a title="src.schema_types" href="schema_types.html">src.schema_types</a></code></li>
+<li><code><a title="src.scoring" href="scoring/index.html">src.scoring</a></code></li>
+<li><code><a title="src.similarity" href="similarity/index.html">src.similarity</a></code></li>
 <li><code><a title="src.storage" href="storage/index.html">src.storage</a></code></li>
 <li><code><a title="src.utils" href="utils/index.html">src.utils</a></code></li>
 <li><code><a title="src.validator" href="validator.html">src.validator</a></code></li>

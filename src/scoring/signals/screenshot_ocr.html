@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>src.scoring.signals.screenshot_ocr API documentation</title>
+<meta name="description" content="ScreenshotOcrSignal — screenshot OCR keyword routing (§4 row 10) …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>src.scoring.signals.screenshot_ocr</code></h1>
+</header>
+<section id="section-intro">
+<p>ScreenshotOcrSignal — screenshot OCR keyword routing (§4 row 10).</p>
+<p>Extracted from <code>ContentOrganizer._classify_screenshot_ocr</code> step 1 (the OCR
+keyword routing). Step 2 — CLIP enhancement for images OCR could not
+classify — belongs to the CLIP-flavored signals in the unified world; the
+legacy method keeps it (plus its prints and fall-through) bit-for-bit and
+delegates only the step-1 branch decisions to :func:<code><a title="src.scoring.signals.screenshot_ocr.route_screenshot_ocr" href="#src.scoring.signals.screenshot_ocr.route_screenshot_ocr">route_screenshot_ocr()</a></code>.</p>
+<p>OCR backend note: the shared <code>classify_by_ocr</code> runs its own
+screenshot-tuned extraction (<code>extract_screenshot_text</code>: easyocr-preferring
+with docTR fallback and dark-background preprocessing) rather than
+<code>ctx.ensure_ocr()</code> — intentional parity with the legacy tier, which never
+used the document OCR path for screenshots.</p>
+<p>Fallback guarantee: legacy always returned <em>something</em> for screenshot-named
+files; the signal mirrors that by ALWAYS emitting a weak
+<code>media/photos_screenshots_other</code> fallback so screenshot-named files land
+somewhere, while staying weak enough for CLIP/text signals to outscore.</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="src.scoring.signals.screenshot_ocr.is_screenshot_named"><code class="name flex">
+<span>def <span class="ident">is_screenshot_named</span></span>(<span>stem: str) ‑> bool</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_screenshot_named(stem: str) -&gt; bool:
+    &#34;&#34;&#34;True when a lowercased stem names a raw (un-renamed) screenshot.&#34;&#34;&#34;
+    return (
+        stem.startswith(SCREENSHOT_STEM_PREFIX)
+        or SCREEN_SHOT_TOKEN in stem
+        or (SCREENSHOT_STEM_PREFIX in stem and not _RENAMED_SCREENSHOT_PREFIX_RE.match(stem))
+    )</code></pre>
+</details>
+<div class="desc"><p>True when a lowercased stem names a raw (un-renamed) screenshot.</p></div>
+</dd>
+<dt id="src.scoring.signals.screenshot_ocr.route_screenshot_ocr"><code class="name flex">
+<span>def <span class="ident">route_screenshot_ocr</span></span>(<span>ocr_category: str, ocr_confidence: float, screenshot_keys: Iterable[str]) ‑> Tuple[str, str] | None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def route_screenshot_ocr(
+    ocr_category: str,
+    ocr_confidence: float,
+    screenshot_keys: Iterable[str],
+) -&gt; Optional[Tuple[str, str]]:
+    &#34;&#34;&#34;Step-1 OCR routing decision: ``(category, subcategory)`` or ``None``.
+
+    - keyword ratio below ``SCREENSHOT_OCR_KEYWORD_THRESHOLD`` → ``None``
+      (legacy falls back to CLIP);
+    - category in ``screenshot_keys`` → screenshot subfolder under media;
+    - &#34;_&#34;-bearing schema-taxonomy category → cross-category reclassification
+      ``(prefix, full_label)``;
+    - anything else → ``None`` (legacy falls through to step 2).
+    &#34;&#34;&#34;
+    if ocr_confidence &lt; SCREENSHOT_OCR_KEYWORD_THRESHOLD:
+        return None
+    if ocr_category in screenshot_keys:
+        return (MEDIA_CATEGORY, f&#34;{SCREENSHOT_SUBCATEGORY_PREFIX}{ocr_category}&#34;)
+    if CATEGORY_SEPARATOR in ocr_category:
+        return (ocr_category.split(CATEGORY_SEPARATOR)[0], ocr_category)
+    return None</code></pre>
+</details>
+<div class="desc"><p>Step-1 OCR routing decision: <code>(category, subcategory)</code> or <code>None</code>.</p>
+<ul>
+<li>keyword ratio below <code>SCREENSHOT_OCR_KEYWORD_THRESHOLD</code> → <code>None</code>
+(legacy falls back to CLIP);</li>
+<li>category in <code>screenshot_keys</code> → screenshot subfolder under media;</li>
+<li>"_"-bearing schema-taxonomy category → cross-category reclassification
+<code>(prefix, full_label)</code>;</li>
+<li>anything else → <code>None</code> (legacy falls through to step 2).</li>
+</ul></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="src.scoring.signals.screenshot_ocr.ScreenshotOcrSignal"><code class="flex name class">
+<span>class <span class="ident">ScreenshotOcrSignal</span></span>
+<span>(</span><span>screenshot_classifier: Any = None,<br>screenshots_dict: Optional[Mapping[str, object]] = None,<br>ocr_classify: Optional[Callable[..., _OcrClassifyResult]] = None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ScreenshotOcrSignal:
+    &#34;&#34;&#34;Screenshot-named images → OCR keyword routing + weak fallback.&#34;&#34;&#34;
+
+    name = &#34;screenshot_ocr&#34;
+    weight = W_UI
+    cost_tier = &#34;mid&#34;
+
+    def __init__(
+        self,
+        screenshot_classifier: Any = None,
+        screenshots_dict: Optional[Mapping[str, object]] = None,
+        ocr_classify: Optional[Callable[..., _OcrClassifyResult]] = None,
+    ) -&gt; None:
+        # ContentClassifier for schema-taxonomy OCR fallback (may be None).
+        self._screenshot_classifier = screenshot_classifier
+        # Screenshot subfolder mapping — only its keys drive routing.
+        self._screenshot_keys = screenshots_dict if screenshots_dict is not None else {}
+        self._ocr_classify = ocr_classify if ocr_classify is not None else _default_ocr_classify
+
+    def applies_to(self, ctx: FileContext) -&gt; bool:
+        return ctx.is_image and is_screenshot_named(ctx.path.stem.lower())
+
+    def run(self, ctx: FileContext) -&gt; List[CategoryScore]:
+        scores: List[CategoryScore] = []
+        result = None
+        if self._ocr_classify is not None:
+            # Reuse the shared OCR extraction (ctx.ensure_ocr) rather than
+            # running a second easyocr pass: an image the identity/KIE signals
+            # already OCR&#39;d is not re-read here. A None OCR result means &#34;OCR ran
+            # and found nothing&#34; and is passed as &#34;&#34; so classify_by_ocr does not
+            # re-extract; only a wholly OCR-less context (no provider) leaves it
+            # to classify_by_ocr&#39;s own extraction path.
+            ocr = ctx.ensure_ocr()
+            ocr_text = ocr.text if ocr is not None else &#34;&#34;
+            result = self._ocr_classify(
+                ctx.path, content_classifier=self._screenshot_classifier, text=ocr_text
+            )
+        if result:
+            ocr_category, ocr_confidence, _all_scores, _text = result
+            routed = route_screenshot_ocr(ocr_category, ocr_confidence, self._screenshot_keys)
+            if routed is not None:
+                category, subcategory = routed
+                scores.append(
+                    CategoryScore(
+                        category=category,
+                        subcategory=subcategory,
+                        confidence=UI_KEYWORD_CONFIDENCE,
+                        signal_name=self.name,
+                        evidence={
+                            EVIDENCE_KEYWORD_RATIO: ocr_confidence,
+                            EVIDENCE_OCR_CATEGORY: ocr_category,
+                        },
+                    )
+                )
+        # Always emitted: screenshot-named files must land somewhere (legacy
+        # guarantee), but weakly enough for CLIP/text signals to outscore.
+        scores.append(
+            CategoryScore(
+                category=MEDIA_CATEGORY,
+                subcategory=SCREENSHOT_FALLBACK_SUBCATEGORY,
+                confidence=UI_FALLBACK_CONFIDENCE,
+                signal_name=self.name,
+                evidence={EVIDENCE_FALLBACK: True},
+            )
+        )
+        return scores</code></pre>
+</details>
+<div class="desc"><p>Screenshot-named images → OCR keyword routing + weak fallback.</p></div>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.scoring.signals.screenshot_ocr.ScreenshotOcrSignal.cost_tier"><code class="name">var <span class="ident">cost_tier</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.signals.screenshot_ocr.ScreenshotOcrSignal.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.signals.screenshot_ocr.ScreenshotOcrSignal.weight"><code class="name">var <span class="ident">weight</span></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="src.scoring.signals.screenshot_ocr.ScreenshotOcrSignal.applies_to"><code class="name flex">
+<span>def <span class="ident">applies_to</span></span>(<span>self, ctx: FileContext) ‑> bool</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def applies_to(self, ctx: FileContext) -&gt; bool:
+    return ctx.is_image and is_screenshot_named(ctx.path.stem.lower())</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="src.scoring.signals.screenshot_ocr.ScreenshotOcrSignal.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self, ctx: FileContext) ‑> List[CategoryScore]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self, ctx: FileContext) -&gt; List[CategoryScore]:
+    scores: List[CategoryScore] = []
+    result = None
+    if self._ocr_classify is not None:
+        # Reuse the shared OCR extraction (ctx.ensure_ocr) rather than
+        # running a second easyocr pass: an image the identity/KIE signals
+        # already OCR&#39;d is not re-read here. A None OCR result means &#34;OCR ran
+        # and found nothing&#34; and is passed as &#34;&#34; so classify_by_ocr does not
+        # re-extract; only a wholly OCR-less context (no provider) leaves it
+        # to classify_by_ocr&#39;s own extraction path.
+        ocr = ctx.ensure_ocr()
+        ocr_text = ocr.text if ocr is not None else &#34;&#34;
+        result = self._ocr_classify(
+            ctx.path, content_classifier=self._screenshot_classifier, text=ocr_text
+        )
+    if result:
+        ocr_category, ocr_confidence, _all_scores, _text = result
+        routed = route_screenshot_ocr(ocr_category, ocr_confidence, self._screenshot_keys)
+        if routed is not None:
+            category, subcategory = routed
+            scores.append(
+                CategoryScore(
+                    category=category,
+                    subcategory=subcategory,
+                    confidence=UI_KEYWORD_CONFIDENCE,
+                    signal_name=self.name,
+                    evidence={
+                        EVIDENCE_KEYWORD_RATIO: ocr_confidence,
+                        EVIDENCE_OCR_CATEGORY: ocr_category,
+                    },
+                )
+            )
+    # Always emitted: screenshot-named files must land somewhere (legacy
+    # guarantee), but weakly enough for CLIP/text signals to outscore.
+    scores.append(
+        CategoryScore(
+            category=MEDIA_CATEGORY,
+            subcategory=SCREENSHOT_FALLBACK_SUBCATEGORY,
+            confidence=UI_FALLBACK_CONFIDENCE,
+            signal_name=self.name,
+            evidence={EVIDENCE_FALLBACK: True},
+        )
+    )
+    return scores</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="src.scoring.signals" href="index.html">src.scoring.signals</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="src.scoring.signals.screenshot_ocr.is_screenshot_named" href="#src.scoring.signals.screenshot_ocr.is_screenshot_named">is_screenshot_named</a></code></li>
+<li><code><a title="src.scoring.signals.screenshot_ocr.route_screenshot_ocr" href="#src.scoring.signals.screenshot_ocr.route_screenshot_ocr">route_screenshot_ocr</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="src.scoring.signals.screenshot_ocr.ScreenshotOcrSignal" href="#src.scoring.signals.screenshot_ocr.ScreenshotOcrSignal">ScreenshotOcrSignal</a></code></h4>
+<ul class="">
+<li><code><a title="src.scoring.signals.screenshot_ocr.ScreenshotOcrSignal.applies_to" href="#src.scoring.signals.screenshot_ocr.ScreenshotOcrSignal.applies_to">applies_to</a></code></li>
+<li><code><a title="src.scoring.signals.screenshot_ocr.ScreenshotOcrSignal.cost_tier" href="#src.scoring.signals.screenshot_ocr.ScreenshotOcrSignal.cost_tier">cost_tier</a></code></li>
+<li><code><a title="src.scoring.signals.screenshot_ocr.ScreenshotOcrSignal.name" href="#src.scoring.signals.screenshot_ocr.ScreenshotOcrSignal.name">name</a></code></li>
+<li><code><a title="src.scoring.signals.screenshot_ocr.ScreenshotOcrSignal.run" href="#src.scoring.signals.screenshot_ocr.ScreenshotOcrSignal.run">run</a></code></li>
+<li><code><a title="src.scoring.signals.screenshot_ocr.ScreenshotOcrSignal.weight" href="#src.scoring.signals.screenshot_ocr.ScreenshotOcrSignal.weight">weight</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

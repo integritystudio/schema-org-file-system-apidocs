@@ -131,6 +131,7 @@ of files actually moved.</p></div>
                 person_name,
                 role=PERSON_INDEX_ROLE,
                 session=session,
+                validate=False,  # directory names are human-curated (trusted)
             ):
                 edges += 1
         session.commit()
@@ -228,7 +229,7 @@ Person/{Name}/ dir; a resume/CV filename is a conservative fallback
 (e.g. RESUME1-ChynaStrange.pdf). Files with neither signal are omitted.</p></div>
 </dd>
 <dt id="src.storage.person_migration.index_person_files"><code class="name flex">
-<span>def <span class="ident">index_person_files</span></span>(<span>manifest_path: pathlib.Path = PosixPath('person-migrate-manifest.json'),<br>db_path: pathlib.Path | str = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'),<br>person_root: pathlib.Path = PosixPath('/Users/alyshialedlie/Documents/Person'),<br>apply: bool = False,<br>verbose: bool = True) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">index_person_files</span></span>(<span>manifest_path: pathlib.Path = PosixPath('person-migrate-manifest.json'),<br>db_path: str | pathlib.Path = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'),<br>person_root: pathlib.Path = PosixPath('/Users/alyshialedlie/Documents/Person'),<br>apply: bool = False,<br>verbose: bool = True) ‑> <a title="src.storage.person_migration.PersonIndexSummary" href="#src.storage.person_migration.PersonIndexSummary">PersonIndexSummary</a></span>
 </code></dt>
 <dd>
 <details class="source">
@@ -241,7 +242,7 @@ Person/{Name}/ dir; a resume/CV filename is a conservative fallback
     person_root: Path = DEFAULT_PERSON_ROOT,
     apply: bool = False,
     verbose: bool = True,
-) -&gt; Dict[str, Any]:
+) -&gt; PersonIndexSummary:
     &#34;&#34;&#34;Register migrated files in the graph with person edges (no file moves).
 
     Dry-run by default: reports the per-person attribution without touching the
@@ -273,7 +274,7 @@ Person/{Name}/ dir; a resume/CV filename is a conservative fallback
             &#34;people&#34;: per_person,
         }
 
-    edges = apply_person_index(index, db_path)
+    edges = apply_person_index(index, str(db_path))
     if verbose:
         print(f&#34;\n  Wrote {edges} person edges across {len(per_person)} people&#34;)
 
@@ -304,7 +305,7 @@ the person-view symlink tree.</p></div>
 <div class="desc"></div>
 </dd>
 <dt id="src.storage.person_migration.migrate_person_files"><code class="name flex">
-<span>def <span class="ident">migrate_person_files</span></span>(<span>person_root: pathlib.Path = PosixPath('/Users/alyshialedlie/Documents/Person'),<br>documents_root: pathlib.Path = PosixPath('/Users/alyshialedlie/Documents'),<br>db_path: str | None = None,<br>manifest_path: pathlib.Path = PosixPath('person-migrate-manifest.json'),<br>apply: bool = False,<br>verbose: bool = True) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">migrate_person_files</span></span>(<span>person_root: pathlib.Path = PosixPath('/Users/alyshialedlie/Documents/Person'),<br>documents_root: pathlib.Path = PosixPath('/Users/alyshialedlie/Documents'),<br>db_path: str | None = None,<br>manifest_path: pathlib.Path = PosixPath('person-migrate-manifest.json'),<br>apply: bool = False,<br>verbose: bool = True) ‑> <a title="src.storage.person_migration.MigrationSummary" href="#src.storage.person_migration.MigrationSummary">MigrationSummary</a></span>
 </code></dt>
 <dd>
 <details class="source">
@@ -318,7 +319,7 @@ the person-view symlink tree.</p></div>
     manifest_path: Path = DEFAULT_MANIFEST_PATH,
     apply: bool = False,
     verbose: bool = True,
-) -&gt; Dict[str, Any]:
+) -&gt; MigrationSummary:
     &#34;&#34;&#34;
     Migrate legacy on-disk Person/ files into Personal/{subcat}/ folders.
 
@@ -382,7 +383,7 @@ Always writes the manifest (even in dry-run) so it can be inspected
 before deciding to apply.</p></div>
 </dd>
 <dt id="src.storage.person_migration.rollback_person_migration"><code class="name flex">
-<span>def <span class="ident">rollback_person_migration</span></span>(<span>manifest_path: pathlib.Path, db_path: str | None = None, verbose: bool = True) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">rollback_person_migration</span></span>(<span>manifest_path: pathlib.Path, db_path: str | None = None, verbose: bool = True) ‑> Dict[str, int]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -393,7 +394,7 @@ before deciding to apply.</p></div>
     manifest_path: Path,
     db_path: Optional[str] = None,
     verbose: bool = True,
-) -&gt; Dict[str, Any]:
+) -&gt; Dict[str, int]:
     &#34;&#34;&#34;
     Reverse a prior apply run using the manifest it wrote. Moves every file
     from its recorded `dst` back to its recorded `src` -- never recomputes
@@ -484,7 +485,7 @@ class MigrationEntry:
     file_id: Optional[str] = None
     flagged: bool = False
 
-    def to_dict(self) -&gt; Dict[str, Any]:
+    def to_dict(self) -&gt; MigrationEntryDict:
         return {
             &#34;src&#34;: self.src,
             &#34;dst&#34;: self.dst,
@@ -534,40 +535,40 @@ def from_dict(data: Dict[str, Any]) -&gt; &#34;MigrationEntry&#34;:
 <dl>
 <dt id="src.storage.person_migration.MigrationEntry.dst"><code class="name">var <span class="ident">dst</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.storage.person_migration.MigrationEntry.file_id"><code class="name">var <span class="ident">file_id</span> : str | None</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.storage.person_migration.MigrationEntry.flagged"><code class="name">var <span class="ident">flagged</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.storage.person_migration.MigrationEntry.src"><code class="name">var <span class="ident">src</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.storage.person_migration.MigrationEntry.subcat"><code class="name">var <span class="ident">subcat</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.storage.person_migration.MigrationEntry.subcat_source"><code class="name">var <span class="ident">subcat_source</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
 <dt id="src.storage.person_migration.MigrationEntry.to_dict"><code class="name flex">
-<span>def <span class="ident">to_dict</span></span>(<span>self) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">to_dict</span></span>(<span>self) ‑> <a title="src.storage.person_migration.MigrationEntryDict" href="#src.storage.person_migration.MigrationEntryDict">MigrationEntryDict</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_dict(self) -&gt; Dict[str, Any]:
+<pre><code class="python">def to_dict(self) -&gt; MigrationEntryDict:
     return {
         &#34;src&#34;: self.src,
         &#34;dst&#34;: self.dst,
@@ -578,6 +579,151 @@ def from_dict(data: Dict[str, Any]) -&gt; &#34;MigrationEntry&#34;:
     }</code></pre>
 </details>
 <div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.storage.person_migration.MigrationEntryDict"><code class="flex name class">
+<span>class <span class="ident">MigrationEntryDict</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MigrationEntryDict(TypedDict):
+    &#34;&#34;&#34;``MigrationEntry.to_dict()`` shape.&#34;&#34;&#34;
+    src: str
+    dst: str
+    subcat: str
+    subcat_source: str
+    file_id: Optional[str]
+    flagged: bool</code></pre>
+</details>
+<div class="desc"><p><code><a title="src.storage.person_migration.MigrationEntry.to_dict" href="#src.storage.person_migration.MigrationEntry.to_dict">MigrationEntry.to_dict()</a></code> shape.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.storage.person_migration.MigrationEntryDict.dst"><code class="name">var <span class="ident">dst</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.person_migration.MigrationEntryDict.file_id"><code class="name">var <span class="ident">file_id</span> : str | None</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.person_migration.MigrationEntryDict.flagged"><code class="name">var <span class="ident">flagged</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.person_migration.MigrationEntryDict.src"><code class="name">var <span class="ident">src</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.person_migration.MigrationEntryDict.subcat"><code class="name">var <span class="ident">subcat</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.person_migration.MigrationEntryDict.subcat_source"><code class="name">var <span class="ident">subcat_source</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.storage.person_migration.MigrationSummary"><code class="flex name class">
+<span>class <span class="ident">MigrationSummary</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MigrationSummary(TypedDict, total=False):
+    &#34;&#34;&#34;``migrate_person_files()`` shape; ``planned`` on dry-run,
+    ``migrated`` on apply.&#34;&#34;&#34;
+    dry_run: bool
+    planned: int
+    migrated: int
+    flagged: int
+    manifest_path: str
+    entries: List[MigrationEntryDict]</code></pre>
+</details>
+<div class="desc"><p><code><a title="src.storage.person_migration.migrate_person_files" href="#src.storage.person_migration.migrate_person_files">migrate_person_files()</a></code> shape; <code>planned</code> on dry-run,
+<code>migrated</code> on apply.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.storage.person_migration.MigrationSummary.dry_run"><code class="name">var <span class="ident">dry_run</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.person_migration.MigrationSummary.entries"><code class="name">var <span class="ident">entries</span> : List[<a title="src.storage.person_migration.MigrationEntryDict" href="#src.storage.person_migration.MigrationEntryDict">MigrationEntryDict</a>]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.person_migration.MigrationSummary.flagged"><code class="name">var <span class="ident">flagged</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.person_migration.MigrationSummary.manifest_path"><code class="name">var <span class="ident">manifest_path</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.person_migration.MigrationSummary.migrated"><code class="name">var <span class="ident">migrated</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.person_migration.MigrationSummary.planned"><code class="name">var <span class="ident">planned</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.storage.person_migration.PersonIndexSummary"><code class="flex name class">
+<span>class <span class="ident">PersonIndexSummary</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PersonIndexSummary(TypedDict, total=False):
+    &#34;&#34;&#34;``index_person_files()`` shape; ``edges`` only on apply.&#34;&#34;&#34;
+    dry_run: bool
+    attributed: int
+    edges: int
+    people: Dict[str, int]</code></pre>
+</details>
+<div class="desc"><p><code><a title="src.storage.person_migration.index_person_files" href="#src.storage.person_migration.index_person_files">index_person_files()</a></code> shape; <code>edges</code> only on apply.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.storage.person_migration.PersonIndexSummary.attributed"><code class="name">var <span class="ident">attributed</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.person_migration.PersonIndexSummary.dry_run"><code class="name">var <span class="ident">dry_run</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.person_migration.PersonIndexSummary.edges"><code class="name">var <span class="ident">edges</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.storage.person_migration.PersonIndexSummary.people"><code class="name">var <span class="ident">people</span> : Dict[str, int]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 </dd>
@@ -620,6 +766,37 @@ def from_dict(data: Dict[str, Any]) -&gt; &#34;MigrationEntry&#34;:
 <li><code><a title="src.storage.person_migration.MigrationEntry.subcat" href="#src.storage.person_migration.MigrationEntry.subcat">subcat</a></code></li>
 <li><code><a title="src.storage.person_migration.MigrationEntry.subcat_source" href="#src.storage.person_migration.MigrationEntry.subcat_source">subcat_source</a></code></li>
 <li><code><a title="src.storage.person_migration.MigrationEntry.to_dict" href="#src.storage.person_migration.MigrationEntry.to_dict">to_dict</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.storage.person_migration.MigrationEntryDict" href="#src.storage.person_migration.MigrationEntryDict">MigrationEntryDict</a></code></h4>
+<ul class="two-column">
+<li><code><a title="src.storage.person_migration.MigrationEntryDict.dst" href="#src.storage.person_migration.MigrationEntryDict.dst">dst</a></code></li>
+<li><code><a title="src.storage.person_migration.MigrationEntryDict.file_id" href="#src.storage.person_migration.MigrationEntryDict.file_id">file_id</a></code></li>
+<li><code><a title="src.storage.person_migration.MigrationEntryDict.flagged" href="#src.storage.person_migration.MigrationEntryDict.flagged">flagged</a></code></li>
+<li><code><a title="src.storage.person_migration.MigrationEntryDict.src" href="#src.storage.person_migration.MigrationEntryDict.src">src</a></code></li>
+<li><code><a title="src.storage.person_migration.MigrationEntryDict.subcat" href="#src.storage.person_migration.MigrationEntryDict.subcat">subcat</a></code></li>
+<li><code><a title="src.storage.person_migration.MigrationEntryDict.subcat_source" href="#src.storage.person_migration.MigrationEntryDict.subcat_source">subcat_source</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.storage.person_migration.MigrationSummary" href="#src.storage.person_migration.MigrationSummary">MigrationSummary</a></code></h4>
+<ul class="two-column">
+<li><code><a title="src.storage.person_migration.MigrationSummary.dry_run" href="#src.storage.person_migration.MigrationSummary.dry_run">dry_run</a></code></li>
+<li><code><a title="src.storage.person_migration.MigrationSummary.entries" href="#src.storage.person_migration.MigrationSummary.entries">entries</a></code></li>
+<li><code><a title="src.storage.person_migration.MigrationSummary.flagged" href="#src.storage.person_migration.MigrationSummary.flagged">flagged</a></code></li>
+<li><code><a title="src.storage.person_migration.MigrationSummary.manifest_path" href="#src.storage.person_migration.MigrationSummary.manifest_path">manifest_path</a></code></li>
+<li><code><a title="src.storage.person_migration.MigrationSummary.migrated" href="#src.storage.person_migration.MigrationSummary.migrated">migrated</a></code></li>
+<li><code><a title="src.storage.person_migration.MigrationSummary.planned" href="#src.storage.person_migration.MigrationSummary.planned">planned</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.storage.person_migration.PersonIndexSummary" href="#src.storage.person_migration.PersonIndexSummary">PersonIndexSummary</a></code></h4>
+<ul class="">
+<li><code><a title="src.storage.person_migration.PersonIndexSummary.attributed" href="#src.storage.person_migration.PersonIndexSummary.attributed">attributed</a></code></li>
+<li><code><a title="src.storage.person_migration.PersonIndexSummary.dry_run" href="#src.storage.person_migration.PersonIndexSummary.dry_run">dry_run</a></code></li>
+<li><code><a title="src.storage.person_migration.PersonIndexSummary.edges" href="#src.storage.person_migration.PersonIndexSummary.edges">edges</a></code></li>
+<li><code><a title="src.storage.person_migration.PersonIndexSummary.people" href="#src.storage.person_migration.PersonIndexSummary.people">people</a></code></li>
 </ul>
 </li>
 </ul>

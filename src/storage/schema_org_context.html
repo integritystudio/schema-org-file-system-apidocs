@@ -49,7 +49,7 @@ Person, Location).</p>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="src.storage.schema_org_context.export_context"><code class="name flex">
-<span>def <span class="ident">export_context</span></span>(<span>output_path: pathlib.Path | str, pretty: bool = True) ‑> None</span>
+<span>def <span class="ident">export_context</span></span>(<span>output_path: str | pathlib.Path, pretty: bool = True) ‑> None</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -70,8 +70,9 @@ Person, Location).</p>
     )</code></pre>
 </details>
 <div class="desc"><p>Save the JSON-LD @context document to a file.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>output_path</code></strong></dt>
 <dd>Destination file path.</dd>
 <dt><strong><code>pretty</code></strong></dt>
@@ -79,14 +80,14 @@ Person, Location).</p>
 </dl></div>
 </dd>
 <dt id="src.storage.schema_org_context.get_context_document"><code class="name flex">
-<span>def <span class="ident">get_context_document</span></span>(<span>) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">get_context_document</span></span>(<span>) ‑> Dict[str, Dict[str, str]]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_context_document() -&gt; Dict[str, Any]:
+<pre><code class="python">def get_context_document() -&gt; Dict[str, Dict[str, str]]:
     &#34;&#34;&#34;Return the JSON-LD @context document as a Python dict.
 
     Returns:
@@ -95,8 +96,9 @@ Person, Location).</p>
     return _CONTEXT_DOCUMENT</code></pre>
 </details>
 <div class="desc"><p>Return the JSON-LD @context document as a Python dict.</p>
-<h2 id="returns">Returns</h2>
-<p>Dict containing the standalone @context document.</p></div>
+<p>Returns
+-----=
+Dict containing the standalone @context document.</p></div>
 </dd>
 </dl>
 </section>

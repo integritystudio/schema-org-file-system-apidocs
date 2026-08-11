@@ -49,7 +49,7 @@ el.replaceWith(d);
 <dl>
 <dt id="src.pipeline.file_processor.FileProcessor"><code class="flex name class">
 <span>class <span class="ident">FileProcessor</span></span>
-<span>(</span><span>base_path: pathlib.Path,<br>dry_run: bool = False,<br>db_path: str | None = None,<br>cost_calculator: Any | None = None,<br>graph_store: Any | None = None,<br>enricher: Any | None = None,<br>validator: Any | None = None,<br>registry: Any | None = None,<br>rename_analyzer: Any | None = None,<br>organizer: Any | None = None)</span>
+<span>(</span><span>base_path: pathlib.Path,<br>dry_run: bool = False,<br>db_path: str | None = None,<br>cost_calculator: CostROICalculator | None = None,<br>graph_store: GraphStore | None = None,<br>enricher: <a title="src.enrichment.MetadataEnricher" href="../enrichment.html#src.enrichment.MetadataEnricher">MetadataEnricher</a> | None = None,<br>validator: <a title="src.validator.SchemaValidator" href="../validator.html#src.validator.SchemaValidator">SchemaValidator</a> | None = None,<br>registry: <a title="src.integration.SchemaRegistry" href="../integration.html#src.integration.SchemaRegistry">SchemaRegistry</a> | None = None,<br>rename_analyzer: Any | None = None,<br>organizer: Any | None = None)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -87,11 +87,11 @@ el.replaceWith(d);
         base_path: Path,
         dry_run: bool = False,
         db_path: Optional[str] = None,
-        cost_calculator: Optional[Any] = None,
-        graph_store: Optional[Any] = None,
-        enricher: Optional[Any] = None,
-        validator: Optional[Any] = None,
-        registry: Optional[Any] = None,
+        cost_calculator: Optional[&#34;CostROICalculator&#34;] = None,
+        graph_store: Optional[&#34;GraphStore&#34;] = None,
+        enricher: Optional[MetadataEnricher] = None,
+        validator: Optional[SchemaValidator] = None,
+        registry: Optional[SchemaRegistry] = None,
         rename_analyzer: Optional[Any] = None,
         organizer: Optional[Any] = None,
     ) -&gt; None:
@@ -101,7 +101,12 @@ el.replaceWith(d);
         self.cost_calculator = cost_calculator
 
         self.graph_store = graph_store
-        if self.graph_store is None and GRAPH_STORE_AVAILABLE and GraphStore is not None and db_path:
+        if (
+            self.graph_store is None
+            and GRAPH_STORE_AVAILABLE
+            and GraphStore is not None
+            and db_path
+        ):
             self.graph_store = GraphStore(db_path=db_path)
 
         self.enricher = enricher if enricher is not None else MetadataEnricher()
@@ -137,9 +142,11 @@ el.replaceWith(d);
         actual_path = str(file_path.absolute())
         description = self._content_description(file_path)
 
-        # Create generator based on type
-        if schema_type == &#34;ImageObject&#34;:
-            generator: Any = ImageGenerator(schema_type)
+        # Create generator based on type. Scene types (Room family, House,
+        # Place) are image-shaped: ImageGenerator emits the assigned @type
+        # while keeping contentUrl/width/height.
+        if schema_type in _IMAGE_SCHEMA_TYPES:
+            generator: SchemaOrgBase = ImageGenerator(schema_type)
             generator.set_property(&#34;name&#34;, file_path.name, PropertyType.TEXT)
             generator.set_property(&#34;contentUrl&#34;, file_url, PropertyType.URL)
             generator.set_property(&#34;encodingFormat&#34;, mime_type or &#34;image/png&#34;, PropertyType.TEXT)
@@ -252,6 +259,8 @@ el.replaceWith(d);
         ocr_confidence: Optional[float] = None,
         detected_language: Optional[str] = None,
         kie_result: Any = None,
+        scoring_decision: Optional[Dict[str, Any]] = None,
+        session_id: Optional[str] = None,
     ) -&gt; None:
         &#34;&#34;&#34;
         Persist file and its relationships to the graph store with canonical IDs.
@@ -263,11 +272,33 @@ el.replaceWith(d);
         - Person records with canonical_id (UUID v5 from name)
         - Location record with canonical_id (UUID v5 from name)
         - Relationships between file and entities
+
+        ``scoring_decision`` (a JSON-serializable dict produced by the unified
+        scorer, UNIFIED_SCORING_PLAN §5.4) is stored verbatim on the file&#39;s
+        category association as ``file_categories.signal_evidence``; None
+        (legacy runs) persists NULL.
+
+        ``session_id`` links the file to its ``organization_sessions`` row so the
+        timeline can group files by run; None (the default, e.g. single-file
+        calls with no active batch session) leaves ``files.session_id`` NULL.
         &#34;&#34;&#34;
         if not self.graph_store:
             return
         try:
             session = self.graph_store.get_session()
+
+            # Redact PII from extracted text before persistence for sensitive
+            # categories (medical, personal/identification, personal/records).
+            # Covers both top-level category triggers (TEXT_REDACTION_CATEGORIES)
+            # and specific (category, subcategory) pairs (e.g. personal/identification
+            # for driver&#39;s licenses).  Redact both persistence surfaces: the
+            # extracted_text column and the schema_data[&#34;text&#34;] property (a local
+            # copy — the caller&#39;s schema dict is not mutated).
+            if should_redact_text(category, subcategory) and extracted_text:
+                extracted_text = redact_pii_text(extracted_text, people_names)
+                if schema.get(&#34;text&#34;):
+                    schema = dict(schema)
+                    schema[&#34;text&#34;] = redact_pii_text(schema[&#34;text&#34;], people_names)
 
             # Get file stats
             stat = (
@@ -275,7 +306,7 @@ el.replaceWith(d);
             )
 
             # Merge KIE-extracted Schema.org properties into schema dict.
-            kie_fields_json = None
+            kie_fields_json: Optional[&#34;KieFields&#34;] = None
             if kie_result is not None:
                 try:
                     kie_schema = kie_result_to_schema_org(kie_result)
@@ -308,17 +339,37 @@ el.replaceWith(d);
                 kie_fields=kie_fields_json,
                 status=FileStatus.ORGANIZED,
                 organized_at=datetime.now(),
+                session_id=session_id,
             )
 
             file_id = file_record.id
 
-            # Add category relationship
-            self.graph_store.add_file_to_category(
+            # Replace category edges on re-run: clear any stale edges from a
+            # previous classification before attaching the fresh result.  Without
+            # this, add_file_to_category only appends, leaving a file with both
+            # the old and new categories simultaneously — corrupting the
+            # calibration oracle (backtest_scoring reads categories[0]).
+            if file_record.categories:
+                for old_cat in list(file_record.categories):
+                    file_record.categories.remove(old_cat)
+                    # ORM remove event maintains old_cat.file_count.
+                session.flush()
+
+            # Add category relationship (with scoring evidence when present).
+            # A False return means the edge was NOT created — the file would be
+            # persisted with no category at all, invisible to category queries,
+            # the dashboard, and JSON-LD category edges. Never ignore it.
+            if not self.graph_store.add_file_to_category(
                 file_id=file_id,
                 category_name=category,
                 subcategory_name=subcategory,
                 session=session,
-            )
+                signal_evidence=scoring_decision,
+            ):
+                print(
+                    f&#34;  ⚠ Category edge NOT created for {file_path.name}: &#34;
+                    f&#34;{category}/{subcategory} — file persisted without a category&#34;
+                )
 
             # Add company relationship if detected
             if company_name:
@@ -340,11 +391,12 @@ el.replaceWith(d);
             # structured &#34;location&#34; dict or the flat get_metadata_summary()
             # shape (&#34;location_name&#34; + &#34;gps_coordinates&#34;), which is what
             # ContentOrganizer actually produces.
-            location_info = (image_metadata or {}).get(&#34;location&#34;)
-            if not location_info and (image_metadata or {}).get(&#34;location_name&#34;):
-                coords = image_metadata.get(&#34;gps_coordinates&#34;) or (None, None)
+            metadata = image_metadata or {}
+            location_info = metadata.get(&#34;location&#34;)
+            if not location_info and metadata.get(&#34;location_name&#34;):
+                coords = metadata.get(&#34;gps_coordinates&#34;) or (None, None)
                 location_info = {
-                    &#34;display_name&#34;: image_metadata[&#34;location_name&#34;],
+                    &#34;display_name&#34;: metadata[&#34;location_name&#34;],
                     &#34;latitude&#34;: coords[0],
                     &#34;longitude&#34;: coords[1],
                 }
@@ -394,7 +446,7 @@ el.replaceWith(d);
 
         conf = result.get(&#34;confidence&#34;)
         conf_str = f&#34; ({conf:.0%})&#34; if conf is not None else &#34;&#34;
-        new_path = resolve_collision(file_path.parent / new_name)
+        new_path: Path = cast(Path, resolve_collision(file_path.parent / new_name))
 
         if dry_run:
             print(f&#34;  → Would rename: {file_path.name} → {new_path.name}{conf_str}&#34;)
@@ -409,6 +461,7 @@ el.replaceWith(d);
         file_path: Path,
         dry_run: bool = False,
         force: bool = False,
+        session_id: Optional[str] = None,
     ) -&gt; Dict[str, Any]:
         &#34;&#34;&#34;
         Organize a single file based on content.
@@ -504,11 +557,36 @@ el.replaceWith(d);
                 result[&#34;category&#34;] = category
                 result[&#34;subcategory&#34;] = subcategory
                 organizer.stats[&#34;already_organized&#34;] += 1
+                # Still reconcile graph edges even though the file isn&#39;t moving:
+                # a previous run may have left a stale category edge, or the
+                # file may have no DB row at all (filed manually / by the
+                # DB-free name/type organizers).  Skip during dry-run — no
+                # mutation intended.
+                if not dry_run and self.graph_store:
+                    self._persist_to_graph_store(
+                        file_path=file_path,
+                        dest_path=dest_path,
+                        category=category,
+                        subcategory=subcategory,
+                        schema=schema,
+                        extracted_text=extracted_text,
+                        company_name=company_name,
+                        people_names=people_names,
+                        image_metadata=image_metadata,
+                        ocr_confidence=organizer._last_file_ocr_confidence,
+                        detected_language=organizer._last_file_detected_language,
+                        kie_result=organizer._last_file_state.get(&#34;kie_result&#34;),
+                        scoring_decision=organizer._last_file_state.get(&#34;scoring_decision&#34;),
+                        session_id=session_id,
+                    )
                 return result
 
-            # Move file if not dry run
+            # Move file if not dry run; guard against same-source/dest (force=True
+            # on a file already at its destination should update the graph without
+            # attempting a no-op move that may fail on some filesystems).
             if not dry_run:
-                shutil.move(str(physical_path), str(dest_path))
+                if physical_path != dest_path:
+                    shutil.move(str(physical_path), str(dest_path))
 
                 # Register schema
                 schema[&#34;url&#34;] = f&#34;file://{dest_path.absolute()}&#34;
@@ -539,6 +617,10 @@ el.replaceWith(d);
                         ocr_confidence=organizer._last_file_ocr_confidence,
                         detected_language=organizer._last_file_detected_language,
                         kie_result=organizer._last_file_state.get(&#34;kie_result&#34;),
+                        # Absent on legacy runs (the unified adapter populates
+                        # it) -&gt; None -&gt; file_categories.signal_evidence NULL.
+                        scoring_decision=organizer._last_file_state.get(&#34;scoring_decision&#34;),
+                        session_id=session_id,
                     )
 
             result[&#34;status&#34;] = &#34;organized&#34; if not dry_run else &#34;would_organize&#34;
@@ -604,7 +686,7 @@ el.replaceWith(d);
             for rec in critical_recs[:3]:
                 print(f&#34;   • {rec[&#39;message&#39;]}&#34;)
 
-    def get_cost_report(self) -&gt; Optional[Dict[str, Any]]:
+    def get_cost_report(self) -&gt; Optional[&#34;CostReport&#34;]:
         &#34;&#34;&#34;
         Get the full cost and ROI report.
 
@@ -650,8 +732,9 @@ and cost/report utilities.</p>
 <code>ContentOrganizer</code>/<code>ContentBasedFileOrganizer</code>): <code>should_skip_file</code>,
 <code>detect_file_category</code>, <code>get_destination_path</code>, <code>generate_schema</code>,
 per-file OCR/KIE state, and the <code>stats</code> counter all live there.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>base_path</code></strong></dt>
 <dd>Base path for organized files.</dd>
 <dt><strong><code>dry_run</code></strong></dt>
@@ -699,9 +782,11 @@ classification. May also be attached later via <code>_organizer</code>.</dd>
     actual_path = str(file_path.absolute())
     description = self._content_description(file_path)
 
-    # Create generator based on type
-    if schema_type == &#34;ImageObject&#34;:
-        generator: Any = ImageGenerator(schema_type)
+    # Create generator based on type. Scene types (Room family, House,
+    # Place) are image-shaped: ImageGenerator emits the assigned @type
+    # while keeping contentUrl/width/height.
+    if schema_type in _IMAGE_SCHEMA_TYPES:
+        generator: SchemaOrgBase = ImageGenerator(schema_type)
         generator.set_property(&#34;name&#34;, file_path.name, PropertyType.TEXT)
         generator.set_property(&#34;contentUrl&#34;, file_url, PropertyType.URL)
         generator.set_property(&#34;encodingFormat&#34;, mime_type or &#34;image/png&#34;, PropertyType.TEXT)
@@ -803,14 +888,14 @@ classification. May also be attached later via <code>_organizer</code>.</dd>
 <div class="desc"><p>Generate Schema.org metadata for a file with extracted content.</p></div>
 </dd>
 <dt id="src.pipeline.file_processor.FileProcessor.get_cost_report"><code class="name flex">
-<span>def <span class="ident">get_cost_report</span></span>(<span>self) ‑> Dict[str, Any] | None</span>
+<span>def <span class="ident">get_cost_report</span></span>(<span>self) ‑> CostReport | None</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_cost_report(self) -&gt; Optional[Dict[str, Any]]:
+<pre><code class="python">def get_cost_report(self) -&gt; Optional[&#34;CostReport&#34;]:
     &#34;&#34;&#34;
     Get the full cost and ROI report.
 
@@ -822,11 +907,12 @@ classification. May also be attached later via <code>_organizer</code>.</dd>
     return self.cost_calculator.generate_report()</code></pre>
 </details>
 <div class="desc"><p>Get the full cost and ROI report.</p>
-<h2 id="returns">Returns</h2>
-<p>Cost report dictionary or None if cost tracking is disabled.</p></div>
+<p>Returns
+-----=
+Cost report dictionary or None if cost tracking is disabled.</p></div>
 </dd>
 <dt id="src.pipeline.file_processor.FileProcessor.organize_file"><code class="name flex">
-<span>def <span class="ident">organize_file</span></span>(<span>self, file_path: pathlib.Path, dry_run: bool = False, force: bool = False) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">organize_file</span></span>(<span>self,<br>file_path: pathlib.Path,<br>dry_run: bool = False,<br>force: bool = False,<br>session_id: str | None = None) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -838,6 +924,7 @@ classification. May also be attached later via <code>_organizer</code>.</dd>
     file_path: Path,
     dry_run: bool = False,
     force: bool = False,
+    session_id: Optional[str] = None,
 ) -&gt; Dict[str, Any]:
     &#34;&#34;&#34;
     Organize a single file based on content.
@@ -933,11 +1020,36 @@ classification. May also be attached later via <code>_organizer</code>.</dd>
             result[&#34;category&#34;] = category
             result[&#34;subcategory&#34;] = subcategory
             organizer.stats[&#34;already_organized&#34;] += 1
+            # Still reconcile graph edges even though the file isn&#39;t moving:
+            # a previous run may have left a stale category edge, or the
+            # file may have no DB row at all (filed manually / by the
+            # DB-free name/type organizers).  Skip during dry-run — no
+            # mutation intended.
+            if not dry_run and self.graph_store:
+                self._persist_to_graph_store(
+                    file_path=file_path,
+                    dest_path=dest_path,
+                    category=category,
+                    subcategory=subcategory,
+                    schema=schema,
+                    extracted_text=extracted_text,
+                    company_name=company_name,
+                    people_names=people_names,
+                    image_metadata=image_metadata,
+                    ocr_confidence=organizer._last_file_ocr_confidence,
+                    detected_language=organizer._last_file_detected_language,
+                    kie_result=organizer._last_file_state.get(&#34;kie_result&#34;),
+                    scoring_decision=organizer._last_file_state.get(&#34;scoring_decision&#34;),
+                    session_id=session_id,
+                )
             return result
 
-        # Move file if not dry run
+        # Move file if not dry run; guard against same-source/dest (force=True
+        # on a file already at its destination should update the graph without
+        # attempting a no-op move that may fail on some filesystems).
         if not dry_run:
-            shutil.move(str(physical_path), str(dest_path))
+            if physical_path != dest_path:
+                shutil.move(str(physical_path), str(dest_path))
 
             # Register schema
             schema[&#34;url&#34;] = f&#34;file://{dest_path.absolute()}&#34;
@@ -968,6 +1080,10 @@ classification. May also be attached later via <code>_organizer</code>.</dd>
                     ocr_confidence=organizer._last_file_ocr_confidence,
                     detected_language=organizer._last_file_detected_language,
                     kie_result=organizer._last_file_state.get(&#34;kie_result&#34;),
+                    # Absent on legacy runs (the unified adapter populates
+                    # it) -&gt; None -&gt; file_categories.signal_evidence NULL.
+                    scoring_decision=organizer._last_file_state.get(&#34;scoring_decision&#34;),
+                    session_id=session_id,
                 )
 
         result[&#34;status&#34;] = &#34;organized&#34; if not dry_run else &#34;would_organize&#34;
@@ -992,8 +1108,9 @@ classification. May also be attached later via <code>_organizer</code>.</dd>
 <p>Requires <code>_organizer</code> to be set (constructor <code>organizer=</code> or
 attached afterwards): classification and destination routing are
 delegated to it.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_path</code></strong></dt>
 <dd>Path to the file.</dd>
 <dt><strong><code>dry_run</code></strong></dt>
@@ -1001,8 +1118,9 @@ delegated to it.</p>
 <dt><strong><code>force</code></strong></dt>
 <dd>If True, re-organize even if already in correct location.</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Dictionary with organization details.</p></div>
+<p>Returns
+-----=
+Dictionary with organization details.</p></div>
 </dd>
 <dt id="src.pipeline.file_processor.FileProcessor.save_cost_report"><code class="name flex">
 <span>def <span class="ident">save_cost_report</span></span>(<span>self, output_path: str | None = None) ‑> None</span>
@@ -1031,8 +1149,9 @@ delegated to it.</p>
     print(f&#34;Cost report saved to: {output_path}&#34;)</code></pre>
 </details>
 <div class="desc"><p>Save the cost report to a JSON file.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>output_path</code></strong></dt>
 <dd>Path to save the report (auto-generated if None).</dd>
 </dl></div>

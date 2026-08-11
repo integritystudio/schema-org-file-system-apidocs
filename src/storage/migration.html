@@ -59,34 +59,18 @@ and key-value store.</p>
     &#34;&#34;&#34;Run the migration.&#34;&#34;&#34;
     import argparse
 
-    parser = argparse.ArgumentParser(description=&#39;Migrate JSON results to database&#39;)
-    parser.add_argument(
-        &#39;--db-path&#39;,
-        default=DEFAULT_DB_PATH,
-        help=&#39;Database path&#39;
-    )
-    parser.add_argument(
-        &#39;--results-dir&#39;,
-        default=&#39;results&#39;,
-        help=&#39;Results directory&#39;
-    )
-    parser.add_argument(
-        &#39;--verify&#39;,
-        action=&#39;store_true&#39;,
-        help=&#39;Verify migration after completion&#39;
-    )
-    parser.add_argument(
-        &#39;--quiet&#39;,
-        action=&#39;store_true&#39;,
-        help=&#39;Suppress progress output&#39;
-    )
+    parser = argparse.ArgumentParser(description=&#34;Migrate JSON results to database&#34;)
+    parser.add_argument(&#34;--db-path&#34;, default=DEFAULT_DB_PATH, help=&#34;Database path&#34;)
+    parser.add_argument(&#34;--results-dir&#34;, default=&#34;results&#34;, help=&#34;Results directory&#34;)
+    parser.add_argument(&#34;--verify&#34;, action=&#34;store_true&#34;, help=&#34;Verify migration after completion&#34;)
+    parser.add_argument(&#34;--quiet&#34;, action=&#34;store_true&#34;, help=&#34;Suppress progress output&#34;)
 
     args = parser.parse_args()
 
     migrator = JSONMigrator(args.db_path, args.results_dir)
 
     # Run migration
-    stats = migrator.migrate_all(verbose=not args.quiet)
+    migrator.migrate_all(verbose=not args.quiet)
 
     # Verify if requested
     if args.verify:
@@ -97,14 +81,16 @@ and key-value store.</p>
 <div class="desc"><p>Run the migration.</p></div>
 </dd>
 <dt id="src.storage.migration.run_migration"><code class="name flex">
-<span>def <span class="ident">run_migration</span></span>(<span>db_path: pathlib.Path | str = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'),<br>dry_run: bool = False) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">run_migration</span></span>(<span>db_path: str | pathlib.Path = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'),<br>dry_run: bool = False) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def run_migration(db_path: Union[str, Path] = DEFAULT_DB_PATH, dry_run: bool = False) -&gt; Dict[str, Any]:
+<pre><code class="python">def run_migration(
+    db_path: Union[str, Path] = DEFAULT_DB_PATH, dry_run: bool = False
+) -&gt; Dict[str, Any]:
     &#34;&#34;&#34;
     Run ID generation migration to add canonical_id to all entities.
 
@@ -126,11 +112,11 @@ and key-value store.</p>
 
     # Namespace UUIDs for deterministic ID generation (must match models.py)
     NAMESPACES = {
-        &#39;file&#39;: uuid.UUID(&#39;f4e8a9c0-1234-5678-9abc-def012345678&#39;),
-        &#39;category&#39;: uuid.UUID(&#39;c4e8a9c0-2345-6789-abcd-ef0123456789&#39;),
-        &#39;company&#39;: uuid.UUID(&#39;c0e1a2b3-4567-89ab-cdef-012345678901&#39;),
-        &#39;person&#39;: uuid.UUID(&#39;d1e2a3b4-5678-9abc-def0-123456789012&#39;),
-        &#39;location&#39;: uuid.UUID(&#39;e2e3a4b5-6789-abcd-ef01-234567890123&#39;),
+        &#34;file&#34;: uuid.UUID(&#34;f4e8a9c0-1234-5678-9abc-def012345678&#34;),
+        &#34;category&#34;: uuid.UUID(&#34;c4e8a9c0-2345-6789-abcd-ef0123456789&#34;),
+        &#34;company&#34;: uuid.UUID(&#34;c0e1a2b3-4567-89ab-cdef-012345678901&#34;),
+        &#34;person&#34;: uuid.UUID(&#34;d1e2a3b4-5678-9abc-def0-123456789012&#34;),
+        &#34;location&#34;: uuid.UUID(&#34;e2e3a4b5-6789-abcd-ef01-234567890123&#34;),
     }
 
     def generate_canonical_id(namespace: str, name: str) -&gt; str:
@@ -149,17 +135,16 @@ and key-value store.</p>
     def table_exists(conn: sqlite3.Connection, table: str) -&gt; bool:
         &#34;&#34;&#34;Check if a table exists.&#34;&#34;&#34;
         cursor = conn.execute(
-            &#34;SELECT name FROM sqlite_master WHERE type=&#39;table&#39; AND name=?&#34;,
-            (table,)
+            &#34;SELECT name FROM sqlite_master WHERE type=&#39;table&#39; AND name=?&#34;, (table,)
         )
         return cursor.fetchone() is not None
 
     db_file = Path(db_path)
     if not db_file.exists():
         print(f&#34;Error: Database not found at {db_path}&#34;)
-        return {&#39;error&#39;: &#39;Database not found&#39;}
+        return {&#34;error&#34;: &#34;Database not found&#34;}
 
-    stats = defaultdict(int)
+    stats: defaultdict[str, int] = defaultdict(int)
     conn = sqlite3.connect(str(db_path))
 
     try:
@@ -168,11 +153,11 @@ and key-value store.</p>
         print(&#34;-&#34; * SEPARATOR_WIDTH_SMALL)
 
         tables_to_migrate = [
-            (&#39;files&#39;, &#39;VARCHAR(100)&#39;),
-            (&#39;categories&#39;, &#39;VARCHAR(36)&#39;),
-            (&#39;companies&#39;, &#39;VARCHAR(36)&#39;),
-            (&#39;people&#39;, &#39;VARCHAR(36)&#39;),
-            (&#39;locations&#39;, &#39;VARCHAR(36)&#39;),
+            (&#34;files&#34;, &#34;VARCHAR(100)&#34;),
+            (&#34;categories&#34;, &#34;VARCHAR(36)&#34;),
+            (&#34;companies&#34;, &#34;VARCHAR(36)&#34;),
+            (&#34;people&#34;, &#34;VARCHAR(36)&#34;),
+            (&#34;locations&#34;, &#34;VARCHAR(36)&#34;),
         ]
 
         for table, col_type in tables_to_migrate:
@@ -180,18 +165,18 @@ and key-value store.</p>
                 print(f&#34;  Table {table} does not exist, skipping&#34;)
                 continue
 
-            if not column_exists(conn, table, &#39;canonical_id&#39;):
+            if not column_exists(conn, table, &#34;canonical_id&#34;):
                 if dry_run:
                     print(f&#34;  [DRY RUN] Would add canonical_id to {table}&#34;)
                 else:
                     conn.execute(f&#34;ALTER TABLE {table} ADD COLUMN canonical_id {col_type}&#34;)
                     print(f&#34;  Added canonical_id to {table}&#34;)
-                stats[&#39;columns_added&#39;] += 1
+                stats[&#34;columns_added&#34;] += 1
             else:
                 print(f&#34;  canonical_id already exists in {table}&#34;)
 
             # Add source_ids column if not exists
-            if not column_exists(conn, table, &#39;source_ids&#39;):
+            if not column_exists(conn, table, &#34;source_ids&#34;):
                 if dry_run:
                     print(f&#34;  [DRY RUN] Would add source_ids to {table}&#34;)
                 else:
@@ -199,15 +184,17 @@ and key-value store.</p>
                     print(f&#34;  Added source_ids to {table}&#34;)
 
             # Add merged_into_id for entity tables (not files)
-            if table != &#39;files&#39; and not column_exists(conn, table, &#39;merged_into_id&#39;):
+            if table != &#34;files&#34; and not column_exists(conn, table, &#34;merged_into_id&#34;):
                 if dry_run:
                     print(f&#34;  [DRY RUN] Would add merged_into_id to {table}&#34;)
                 else:
-                    conn.execute(f&#34;ALTER TABLE {table} ADD COLUMN merged_into_id INTEGER REFERENCES {table}(id)&#34;)
+                    conn.execute(
+                        f&#34;ALTER TABLE {table} ADD COLUMN merged_into_id INTEGER REFERENCES {table}(id)&#34;
+                    )
                     print(f&#34;  Added merged_into_id to {table}&#34;)
 
         # Create merge_events table if not exists
-        if not table_exists(conn, &#39;merge_events&#39;):
+        if not table_exists(conn, &#34;merge_events&#34;):
             if dry_run:
                 print(&#34;  [DRY RUN] Would create merge_events table&#34;)
             else:
@@ -231,6 +218,30 @@ and key-value store.</p>
                 &#34;&#34;&#34;)
                 print(&#34;  Created merge_events table&#34;)
 
+        # Person-name validation columns (PERSON_NAME_VALIDATION_PLAN Phase 2).
+        # Additive; legacy rows keep validation_scores=&#39;{}&#39; (the &#34;never
+        # validated&#34; marker) and review_status backfilled to &#39;auto_accepted&#39;.
+        if table_exists(conn, &#34;people&#34;):
+            person_validation_columns = [
+                (&#34;review_status&#34;, &#34;VARCHAR(20) DEFAULT &#39;auto_accepted&#39;&#34;),
+                (&#34;detection_confidence&#34;, &#34;FLOAT&#34;),
+                (&#34;validation_scores&#34;, &#34;JSON DEFAULT &#39;{}&#39;&#34;),
+                (&#34;validated_at&#34;, &#34;DATETIME&#34;),
+            ]
+            for col_name, col_def in person_validation_columns:
+                if column_exists(conn, &#34;people&#34;, col_name):
+                    continue
+                if dry_run:
+                    print(f&#34;  [DRY RUN] Would add {col_name} to people&#34;)
+                else:
+                    conn.execute(f&#34;ALTER TABLE people ADD COLUMN {col_name} {col_def}&#34;)
+                    print(f&#34;  Added {col_name} to people&#34;)
+                stats[&#34;columns_added&#34;] += 1
+            if not dry_run:
+                conn.execute(
+                    &#34;UPDATE people SET review_status=&#39;auto_accepted&#39; &#34; &#34;WHERE review_status IS NULL&#34;
+                )
+
         if not dry_run:
             conn.commit()
 
@@ -239,80 +250,97 @@ and key-value store.</p>
         print(&#34;-&#34; * SEPARATOR_WIDTH_SMALL)
 
         # Backfill files (use urn:sha256:{id} format)
-        if table_exists(conn, &#39;files&#39;):
+        if table_exists(conn, &#34;files&#34;):
             cursor = conn.execute(&#34;SELECT id, original_path FROM files WHERE canonical_id IS NULL&#34;)
             rows = cursor.fetchall()
             if rows:
                 print(f&#34;  Backfilling {len(rows)} files...&#34;)
                 for file_id, _ in rows:
-                    canonical_id = f&#34;urn:sha256:{file_id}&#34;
+                    canonical_id = file_iri(file_id)
                     if not dry_run:
-                        conn.execute(&#34;UPDATE files SET canonical_id = ? WHERE id = ?&#34;, (canonical_id, file_id))
-                    stats[&#39;files_backfilled&#39;] += 1
+                        conn.execute(
+                            &#34;UPDATE files SET canonical_id = ? WHERE id = ?&#34;,
+                            (canonical_id, file_id),
+                        )
+                    stats[&#34;files_backfilled&#34;] += 1
                 if not dry_run:
                     conn.commit()
             else:
                 print(&#34;  No files need backfilling&#34;)
 
         # Backfill categories (use full_path for deterministic ID)
-        if table_exists(conn, &#39;categories&#39;):
-            cursor = conn.execute(&#34;SELECT id, full_path, name FROM categories WHERE canonical_id IS NULL&#34;)
+        if table_exists(conn, &#34;categories&#34;):
+            cursor = conn.execute(
+                &#34;SELECT id, full_path, name FROM categories WHERE canonical_id IS NULL&#34;
+            )
             rows = cursor.fetchall()
             if rows:
                 print(f&#34;  Backfilling {len(rows)} categories...&#34;)
                 for cat_id, full_path, name in rows:
-                    canonical_id = generate_canonical_id(&#39;category&#39;, full_path or name)
+                    canonical_id = generate_canonical_id(&#34;category&#34;, full_path or name)
                     if not dry_run:
-                        conn.execute(&#34;UPDATE categories SET canonical_id = ? WHERE id = ?&#34;, (canonical_id, cat_id))
-                    stats[&#39;categories_backfilled&#39;] += 1
+                        conn.execute(
+                            &#34;UPDATE categories SET canonical_id = ? WHERE id = ?&#34;,
+                            (canonical_id, cat_id),
+                        )
+                    stats[&#34;categories_backfilled&#34;] += 1
                 if not dry_run:
                     conn.commit()
             else:
                 print(&#34;  No categories need backfilling&#34;)
 
         # Backfill companies
-        if table_exists(conn, &#39;companies&#39;):
+        if table_exists(conn, &#34;companies&#34;):
             cursor = conn.execute(&#34;SELECT id, name FROM companies WHERE canonical_id IS NULL&#34;)
             rows = cursor.fetchall()
             if rows:
                 print(f&#34;  Backfilling {len(rows)} companies...&#34;)
                 for comp_id, name in rows:
-                    canonical_id = generate_canonical_id(&#39;company&#39;, name)
+                    canonical_id = generate_canonical_id(&#34;company&#34;, name)
                     if not dry_run:
-                        conn.execute(&#34;UPDATE companies SET canonical_id = ? WHERE id = ?&#34;, (canonical_id, comp_id))
-                    stats[&#39;companies_backfilled&#39;] += 1
+                        conn.execute(
+                            &#34;UPDATE companies SET canonical_id = ? WHERE id = ?&#34;,
+                            (canonical_id, comp_id),
+                        )
+                    stats[&#34;companies_backfilled&#34;] += 1
                 if not dry_run:
                     conn.commit()
             else:
                 print(&#34;  No companies need backfilling&#34;)
 
         # Backfill people
-        if table_exists(conn, &#39;people&#39;):
+        if table_exists(conn, &#34;people&#34;):
             cursor = conn.execute(&#34;SELECT id, name FROM people WHERE canonical_id IS NULL&#34;)
             rows = cursor.fetchall()
             if rows:
                 print(f&#34;  Backfilling {len(rows)} people...&#34;)
                 for person_id, name in rows:
-                    canonical_id = generate_canonical_id(&#39;person&#39;, name)
+                    canonical_id = generate_canonical_id(&#34;person&#34;, name)
                     if not dry_run:
-                        conn.execute(&#34;UPDATE people SET canonical_id = ? WHERE id = ?&#34;, (canonical_id, person_id))
-                    stats[&#39;people_backfilled&#39;] += 1
+                        conn.execute(
+                            &#34;UPDATE people SET canonical_id = ? WHERE id = ?&#34;,
+                            (canonical_id, person_id),
+                        )
+                    stats[&#34;people_backfilled&#34;] += 1
                 if not dry_run:
                     conn.commit()
             else:
                 print(&#34;  No people need backfilling&#34;)
 
         # Backfill locations
-        if table_exists(conn, &#39;locations&#39;):
+        if table_exists(conn, &#34;locations&#34;):
             cursor = conn.execute(&#34;SELECT id, name FROM locations WHERE canonical_id IS NULL&#34;)
             rows = cursor.fetchall()
             if rows:
                 print(f&#34;  Backfilling {len(rows)} locations...&#34;)
                 for loc_id, name in rows:
-                    canonical_id = generate_canonical_id(&#39;location&#39;, name)
+                    canonical_id = generate_canonical_id(&#34;location&#34;, name)
                     if not dry_run:
-                        conn.execute(&#34;UPDATE locations SET canonical_id = ? WHERE id = ?&#34;, (canonical_id, loc_id))
-                    stats[&#39;locations_backfilled&#39;] += 1
+                        conn.execute(
+                            &#34;UPDATE locations SET canonical_id = ? WHERE id = ?&#34;,
+                            (canonical_id, loc_id),
+                        )
+                    stats[&#34;locations_backfilled&#34;] += 1
                 if not dry_run:
                     conn.commit()
             else:
@@ -335,8 +363,7 @@ and key-value store.</p>
                 continue
             # Check if index exists
             cursor = conn.execute(
-                &#34;SELECT name FROM sqlite_master WHERE type=&#39;index&#39; AND name=?&#34;,
-                (index_name,)
+                &#34;SELECT name FROM sqlite_master WHERE type=&#39;index&#39; AND name=?&#34;, (index_name,)
             )
             if cursor.fetchone():
                 print(f&#34;  Index {index_name} already exists&#34;)
@@ -348,7 +375,7 @@ and key-value store.</p>
                 try:
                     conn.execute(f&#34;CREATE INDEX IF NOT EXISTS {index_name} ON {table}({column})&#34;)
                     print(f&#34;  Created index {index_name}&#34;)
-                    stats[&#39;indexes_created&#39;] += 1
+                    stats[&#34;indexes_created&#34;] += 1
                 except sqlite3.OperationalError as e:
                     print(f&#34;  Warning creating index {index_name}: {e}&#34;)
 
@@ -359,7 +386,7 @@ and key-value store.</p>
         print(&#34;\n&#34; + &#34;=&#34; * SEPARATOR_WIDTH_SMALL)
         print(&#34;Migration Summary&#34;)
         print(&#34;=&#34; * SEPARATOR_WIDTH_SMALL)
-        total_backfilled = sum(v for k, v in stats.items() if &#39;backfilled&#39; in k)
+        total_backfilled = sum(v for k, v in stats.items() if &#34;backfilled&#34; in k)
         print(f&#34;  Records backfilled: {total_backfilled}&#34;)
         print(f&#34;  Indexes created: {stats.get(&#39;indexes_created&#39;, 0)}&#34;)
         if dry_run:
@@ -375,15 +402,54 @@ and key-value store.</p>
 1. Adds canonical_id columns if they don't exist
 2. Backfills canonical_id for existing records using deterministic UUID v5
 3. Creates the merge_events table if needed</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>db_path</code></strong></dt>
 <dd>Path to SQLite database</dd>
 <dt><strong><code>dry_run</code></strong></dt>
 <dd>If True, show what would be done without making changes</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Migration statistics</p></div>
+<p>Returns
+-----=
+Migration statistics</p></div>
+</dd>
+<dt id="src.storage.migration.run_migration_with_banner"><code class="name flex">
+<span>def <span class="ident">run_migration_with_banner</span></span>(<span>db_path: str | pathlib.Path = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'),<br>dry_run: bool = False) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run_migration_with_banner(
+    db_path: Union[str, Path] = DEFAULT_DB_PATH,
+    dry_run: bool = False,
+) -&gt; None:
+    &#34;&#34;&#34;Print the ID-generation migration banner, run the migration, then print the completion line.
+
+    Single-sources the banner text (header separator, title, footer separator, and completion
+    message) so callers in both ``src/cli.py`` and ``scripts/`` stay in sync.
+
+    :param db_path: Path to the SQLite database.
+    :param dry_run: If True, passes ``dry_run=True`` to :func:`run_migration` and prints a
+        dry-run notice instead of the completion message.
+    &#34;&#34;&#34;
+    print(f&#34;\n{&#39;=&#39;*60}&#34;)
+    print(&#34;Running ID Generation Migration&#34;)
+    print(f&#34;{&#39;=&#39;*60}\n&#34;)
+    run_migration(db_path, dry_run=dry_run)
+    if dry_run:
+        print(&#34;\n[DRY RUN] No changes were made.&#34;)
+    else:
+        print(&#34;\nMigration complete. Canonical IDs have been generated for existing records.&#34;)</code></pre>
+</details>
+<div class="desc"><p>Print the ID-generation migration banner, run the migration, then print the completion line.</p>
+<p>Single-sources the banner text (header separator, title, footer separator, and completion
+message) so callers in both <code>src/cli.py</code> and <code>scripts/</code> stay in sync.</p>
+<p>:param db_path: Path to the SQLite database.
+:param dry_run: If True, passes <code>dry_run=True</code> to :func:<code><a title="src.storage.migration.run_migration" href="#src.storage.migration.run_migration">run_migration()</a></code> and prints a
+dry-run notice instead of the completion message.</p></div>
 </dd>
 </dl>
 </section>
@@ -392,7 +458,7 @@ and key-value store.</p>
 <dl>
 <dt id="src.storage.migration.JSONMigrator"><code class="flex name class">
 <span>class <span class="ident">JSONMigrator</span></span>
-<span>(</span><span>db_path: pathlib.Path | str = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'),<br>results_dir: str = 'results')</span>
+<span>(</span><span>db_path: str | pathlib.Path = PosixPath('/Users/alyshialedlie/schema-org-file-system/results/file_organization.db'),<br>results_dir: str = 'results')</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -409,11 +475,7 @@ and key-value store.</p>
     - Model evaluation reports (model_evaluation.json)
     &#34;&#34;&#34;
 
-    def __init__(
-        self,
-        db_path: Union[str, Path] = DEFAULT_DB_PATH,
-        results_dir: str = &#39;results&#39;
-    ):
+    def __init__(self, db_path: Union[str, Path] = DEFAULT_DB_PATH, results_dir: str = &#34;results&#34;):
         &#34;&#34;&#34;
         Initialize the migrator.
 
@@ -427,9 +489,9 @@ and key-value store.</p>
         self.kv_store = KeyValueStorage(db_path)
 
         # Statistics
-        self.stats = defaultdict(int)
+        self.stats: defaultdict[str, int] = defaultdict(int)
 
-    def migrate_all(self, verbose: bool = True) -&gt; Dict[str, Any]:
+    def migrate_all(self, verbose: bool = True) -&gt; Dict[str, int]:
         &#34;&#34;&#34;
         Migrate all JSON files in the results directory.
 
@@ -445,7 +507,7 @@ and key-value store.</p>
             print(&#34;=&#34; * SEPARATOR_WIDTH_MEDIUM)
 
         # Find all JSON files
-        json_files = sorted(self.results_dir.glob(&#39;*.json&#39;))
+        json_files = sorted(self.results_dir.glob(&#34;*.json&#34;))
 
         if verbose:
             print(f&#34;\nFound {len(json_files)} JSON files&#34;)
@@ -456,9 +518,9 @@ and key-value store.</p>
         other_files = []
 
         for f in json_files:
-            if &#39;content_organization_report&#39; in f.name:
+            if &#34;content_organization_report&#34; in f.name:
                 organization_reports.append(f)
-            elif &#39;cost&#39; in f.name.lower():
+            elif &#34;cost&#34; in f.name.lower():
                 cost_reports.append(f)
             else:
                 other_files.append(f)
@@ -477,7 +539,7 @@ and key-value store.</p>
                     self._migrate_organization_report(f, verbose)
                 except Exception as e:
                     print(f&#34;  Error migrating {f.name}: {e}&#34;)
-                    self.stats[&#39;errors&#39;] += 1
+                    self.stats[&#34;errors&#34;] += 1
 
         # Migrate cost reports
         if cost_reports:
@@ -488,7 +550,7 @@ and key-value store.</p>
                     self._migrate_cost_report(f, verbose)
                 except Exception as e:
                     print(f&#34;  Error migrating {f.name}: {e}&#34;)
-                    self.stats[&#39;errors&#39;] += 1
+                    self.stats[&#34;errors&#34;] += 1
 
         # Store other files in key-value store
         if other_files:
@@ -499,7 +561,7 @@ and key-value store.</p>
                     self._store_generic_json(f, verbose)
                 except Exception as e:
                     print(f&#34;  Error storing {f.name}: {e}&#34;)
-                    self.stats[&#39;errors&#39;] += 1
+                    self.stats[&#34;errors&#34;] += 1
 
         # Print summary
         if verbose:
@@ -518,13 +580,13 @@ and key-value store.</p>
         if verbose:
             print(f&#34;\n  Processing: {file_path.name}&#34;)
 
-        with open(file_path, &#39;r&#39;) as f:
+        with open(file_path, &#34;r&#34;) as f:
             data = json.load(f)
 
         # Extract timestamp from filename
-        timestamp_str = file_path.stem.replace(&#39;content_organization_report_&#39;, &#39;&#39;)
+        timestamp_str = file_path.stem.replace(&#34;content_organization_report_&#34;, &#34;&#34;)
         try:
-            session_timestamp = datetime.strptime(timestamp_str, &#39;%Y%m%d_%H%M%S&#39;)
+            session_timestamp = datetime.strptime(timestamp_str, &#34;%Y%m%d_%H%M%S&#34;)
         except ValueError:
             session_timestamp = utcnow()
 
@@ -536,18 +598,18 @@ and key-value store.</p>
                 id=hashlib.sha256(str(file_path).encode()).hexdigest()[:SHA256_HEX_LENGTH],
                 started_at=session_timestamp,
                 completed_at=session_timestamp,
-                dry_run=data.get(&#39;dry_run&#39;, False),
-                total_files=data.get(&#39;total_files&#39;, 0),
-                organized_count=data.get(&#39;organized&#39;, 0),
-                skipped_count=data.get(&#39;skipped&#39;, 0),
-                error_count=data.get(&#39;errors&#39;, 0)
+                dry_run=data.get(&#34;dry_run&#34;, False),
+                total_files=data.get(&#34;total_files&#34;, 0),
+                organized_count=data.get(&#34;organized&#34;, 0),
+                skipped_count=data.get(&#34;skipped&#34;, 0),
+                error_count=data.get(&#34;errors&#34;, 0),
             )
             session.merge(org_session)
             session.commit()
-            self.stats[&#39;sessions&#39;] += 1
+            self.stats[&#34;sessions&#34;] += 1
 
             # Migrate individual file results in batches
-            results = data.get(&#39;results&#39;, [])
+            results = data.get(&#34;results&#34;, [])
             batch_size = 100
             for i, result in enumerate(results):
                 with session.no_autoflush:
@@ -570,12 +632,7 @@ and key-value store.</p>
         finally:
             session.close()
 
-    def _migrate_file_result(
-        self,
-        result: Dict[str, Any],
-        session_id: str,
-        db_session: Session
-    ):
+    def _migrate_file_result(self, result: Dict[str, Any], session_id: str, db_session: Session):
         &#34;&#34;&#34;
         Migrate a single file result.
 
@@ -584,7 +641,7 @@ and key-value store.</p>
             session_id: Organization session ID
             db_session: Database session
         &#34;&#34;&#34;
-        source_path = result.get(&#39;source&#39;, &#39;&#39;)
+        source_path = result.get(&#34;source&#34;, &#34;&#34;)
         if not source_path:
             return
 
@@ -592,16 +649,16 @@ and key-value store.</p>
 
         # Map status
         status_map = {
-            &#39;organized&#39;: FileStatus.ORGANIZED,
-            &#39;would_organize&#39;: FileStatus.ORGANIZED,  # Dry run
-            &#39;skipped&#39;: FileStatus.SKIPPED,
-            &#39;error&#39;: FileStatus.ERROR,
-            &#39;already_organized&#39;: FileStatus.ALREADY_ORGANIZED
+            &#34;organized&#34;: FileStatus.ORGANIZED,
+            &#34;would_organize&#34;: FileStatus.ORGANIZED,  # Dry run
+            &#34;skipped&#34;: FileStatus.SKIPPED,
+            &#34;error&#34;: FileStatus.ERROR,
+            &#34;already_organized&#34;: FileStatus.ALREADY_ORGANIZED,
         }
-        status = status_map.get(result.get(&#39;status&#39;), FileStatus.PENDING)
+        status = status_map.get(result.get(&#34;status&#34;, &#34;&#34;), FileStatus.PENDING)
 
         # Extract schema data
-        schema_data = result.get(&#39;schema&#39;, {})
+        schema_data = result.get(&#34;schema&#34;, {})
 
         # Create or update file
         file = db_session.query(File).filter(File.id == file_id).first()
@@ -611,111 +668,98 @@ and key-value store.</p>
                 id=file_id,
                 filename=Path(source_path).name,
                 original_path=source_path,
-                current_path=result.get(&#39;destination&#39;),
+                current_path=result.get(&#34;destination&#34;),
                 status=status,
-                organization_reason=result.get(&#39;reason&#39;),
-                extracted_text_length=result.get(&#39;extracted_text_length&#39;, 0),
-                schema_type=schema_data.get(&#39;@type&#39;),
+                organization_reason=result.get(&#34;reason&#34;),
+                extracted_text_length=result.get(&#34;extracted_text_length&#34;, 0),
+                schema_type=schema_data.get(&#34;@type&#34;),
                 schema_data=schema_data,
-                session_id=session_id
+                session_id=session_id,
             )
 
             # Image metadata
-            image_meta = result.get(&#39;image_metadata&#39;, {})
+            image_meta = result.get(&#34;image_metadata&#34;, {})
             if image_meta:
-                if image_meta.get(&#39;datetime&#39;):
+                if image_meta.get(&#34;datetime&#34;):
                     try:
-                        file.exif_datetime = datetime.fromisoformat(image_meta[&#39;datetime&#39;])
+                        file.exif_datetime = datetime.fromisoformat(image_meta[&#34;datetime&#34;])
                     except (ValueError, TypeError):
                         pass
 
-                coords = image_meta.get(&#39;gps_coordinates&#39;)
+                coords = image_meta.get(&#34;gps_coordinates&#34;)
                 if coords and len(coords) == 2:
                     file.gps_latitude = coords[0]
                     file.gps_longitude = coords[1]
 
             db_session.add(file)
             db_session.flush()  # Ensure file ID is committed before relationships
-            self.stats[&#39;files&#39;] += 1
+            self.stats[&#34;files&#34;] += 1
         else:
             # Update existing
-            file.current_path = result.get(&#39;destination&#39;) or file.current_path
+            file.current_path = result.get(&#34;destination&#34;) or file.current_path
             file.status = status
             db_session.flush()  # Ensure updates are visible
 
         # Add category relationship
-        category = result.get(&#39;category&#39;)
-        subcategory = result.get(&#39;subcategory&#39;)
+        category = result.get(&#34;category&#34;)
+        subcategory = result.get(&#34;subcategory&#34;)
 
-        if category and category != &#39;uncategorized&#39;:
+        if category and category != &#34;uncategorized&#34;:
             self.graph_store.add_file_to_category(
                 file_id, category, subcategory, session=db_session
             )
-            self.stats[&#39;categories&#39;] += 1
+            self.stats[&#34;categories&#34;] += 1
 
         # Add company relationship
-        company_name = result.get(&#39;company_name&#39;)
+        company_name = result.get(&#34;company_name&#34;)
         if company_name:
-            self.graph_store.add_file_to_company(
-                file_id, company_name, session=db_session
-            )
-            self.stats[&#39;companies&#39;] += 1
+            self.graph_store.add_file_to_company(file_id, company_name, session=db_session)
+            self.stats[&#34;companies&#34;] += 1
 
         # Add people relationships
-        people_names = result.get(&#39;people_names&#39;, [])
+        people_names = result.get(&#34;people_names&#34;, [])
         for person_name in people_names:
             if person_name:
                 self._add_person_to_file(file_id, person_name, db_session)
-                self.stats[&#39;people&#39;] += 1
+                self.stats[&#34;people&#34;] += 1
 
         # Add location if GPS data available
-        image_meta = result.get(&#39;image_metadata&#39;, {})
-        location_name = image_meta.get(&#39;location_name&#39;)
-        coords = image_meta.get(&#39;gps_coordinates&#39;)
+        image_meta = result.get(&#34;image_metadata&#34;, {})
+        location_name = image_meta.get(&#34;location_name&#34;)
+        coords = image_meta.get(&#34;gps_coordinates&#34;)
 
         if location_name or coords:
-            self._add_location_to_file(
-                file_id, location_name, coords, db_session
-            )
-            self.stats[&#39;locations&#39;] += 1
+            self._add_location_to_file(file_id, location_name, coords, db_session)
+            self.stats[&#34;locations&#34;] += 1
 
         # Store schema metadata - skip if file doesn&#39;t exist yet to avoid FK errors
         # Schema metadata will be stored directly in the File table&#39;s schema_data field instead
         # This avoids the complex FK relationship during migration
 
-    def _add_person_to_file(
-        self,
-        file_id: str,
-        person_name: str,
-        db_session: Session
-    ):
+    def _add_person_to_file(self, file_id: str, person_name: str, db_session: Session):
         &#34;&#34;&#34;Add a person to a file.&#34;&#34;&#34;
         if not person_name:
             return
 
         normalized = Person.normalize_name(person_name)
-        person = db_session.query(Person)\
-            .filter(Person.normalized_name == normalized).first()
+        person = db_session.query(Person).filter(Person.normalized_name == normalized).first()
 
         if not person:
-            person = Person(
-                name=person_name,
-                normalized_name=normalized
-            )
+            person = Person(name=person_name, normalized_name=normalized)
             db_session.add(person)
             db_session.flush()
 
         file = db_session.query(File).filter(File.id == file_id).first()
         if file and person and person not in file.people:
             file.people.append(person)
-            person.file_count += 1
+            # ORM append event maintains person.file_count.
 
     def _add_location_to_file(
         self,
         file_id: str,
         location_name: Optional[str],
         coords: Optional[List[float]],
-        db_session: Session
+        db_session: Session,
     ):
         &#34;&#34;&#34;Add a location to a file.&#34;&#34;&#34;
         lat = coords[0] if coords and len(coords) &gt;= 2 else None
@@ -730,10 +774,7 @@ and key-value store.</p>
             name = &#34;Unknown&#34;
 
         location = self.graph_store.get_or_create_location(
-            name=name,
-            latitude=lat,
-            longitude=lon,
-            session=db_session
+            name=name, latitude=lat, longitude=lon, session=db_session
         )
 
         if location is None:
@@ -742,7 +783,7 @@ and key-value store.</p>
         file = db_session.query(File).filter(File.id == file_id).first()
         if file and location not in file.locations:
             file.locations.append(location)
-            location.file_count += 1
+            # ORM append event maintains location.file_count.
 
     def _migrate_cost_report(self, file_path: Path, verbose: bool = True):
         &#34;&#34;&#34;
@@ -755,64 +796,47 @@ and key-value store.</p>
         if verbose:
             print(f&#34;\n  Processing: {file_path.name}&#34;)
 
-        with open(file_path, &#39;r&#39;) as f:
+        with open(file_path, &#34;r&#34;) as f:
             data = json.load(f)
 
         # Store cost summary in key-value store
-        metadata = data.get(&#39;metadata&#39;, {})
-        report_id = metadata.get(&#39;generated_at&#39;, file_path.stem)
+        metadata = data.get(&#34;metadata&#34;, {})
+        report_id = metadata.get(&#34;generated_at&#34;, file_path.stem)
 
         # Store cost summary
-        cost_summary = data.get(&#39;cost_summary&#39;, {})
+        cost_summary = data.get(&#34;cost_summary&#34;, {})
         if cost_summary:
             self.kv_store.hset(
-                f&#34;cost_report:{report_id}&#34;,
-                &#39;summary&#39;,
-                cost_summary,
-                namespace=&#39;stats&#39;
+                f&#34;cost_report:{report_id}&#34;, &#34;summary&#34;, cost_summary, namespace=&#34;stats&#34;
             )
 
         # Store ROI summary
-        roi_summary = data.get(&#39;roi_summary&#39;, {})
+        roi_summary = data.get(&#34;roi_summary&#34;, {})
         if roi_summary:
-            self.kv_store.hset(
-                f&#34;cost_report:{report_id}&#34;,
-                &#39;roi&#39;,
-                roi_summary,
-                namespace=&#39;stats&#39;
-            )
+            self.kv_store.hset(f&#34;cost_report:{report_id}&#34;, &#34;roi&#34;, roi_summary, namespace=&#34;stats&#34;)
 
         # Store feature breakdown
-        feature_breakdown = cost_summary.get(&#39;feature_breakdown&#39;, {})
+        feature_breakdown = cost_summary.get(&#34;feature_breakdown&#34;, {})
         for feature_name, feature_data in feature_breakdown.items():
             self.kv_store.hset(
-                f&#34;feature_stats:{feature_name}&#34;,
-                report_id,
-                feature_data,
-                namespace=&#39;stats&#39;
+                f&#34;feature_stats:{feature_name}&#34;, report_id, feature_data, namespace=&#34;stats&#34;
             )
 
         # Store projections
-        projections = data.get(&#39;projections&#39;, {})
+        projections = data.get(&#34;projections&#34;, {})
         if projections:
             self.kv_store.hset(
-                f&#34;cost_report:{report_id}&#34;,
-                &#39;projections&#39;,
-                projections,
-                namespace=&#39;stats&#39;
+                f&#34;cost_report:{report_id}&#34;, &#34;projections&#34;, projections, namespace=&#34;stats&#34;
             )
 
         # Store recommendations
-        recommendations = data.get(&#39;recommendations&#39;, [])
+        recommendations = data.get(&#34;recommendations&#34;, [])
         if recommendations:
             self.kv_store.hset(
-                f&#34;cost_report:{report_id}&#34;,
-                &#39;recommendations&#39;,
-                recommendations,
-                namespace=&#39;stats&#39;
+                f&#34;cost_report:{report_id}&#34;, &#34;recommendations&#34;, recommendations, namespace=&#34;stats&#34;
             )
 
-        self.stats[&#39;cost_reports&#39;] += 1
+        self.stats[&#34;cost_reports&#34;] += 1
 
         if verbose:
             print(f&#34;    - Stored cost summary and {len(feature_breakdown)} feature stats&#34;)
@@ -828,18 +852,14 @@ and key-value store.</p>
         if verbose:
             print(f&#34;\n  Processing: {file_path.name}&#34;)
 
-        with open(file_path, &#39;r&#39;) as f:
+        with open(file_path, &#34;r&#34;) as f:
             data = json.load(f)
 
         # Store the entire JSON as a single key
         key = f&#34;json_file:{file_path.stem}&#34;
-        self.kv_store.set(
-            key,
-            data,
-            namespace=&#39;metadata&#39;
-        )
+        self.kv_store.set(key, data, namespace=&#34;metadata&#34;)
 
-        self.stats[&#39;other_files&#39;] += 1
+        self.stats[&#34;other_files&#34;] += 1
 
         if verbose:
             print(f&#34;    - Stored as key: {key}&#34;)
@@ -858,7 +878,7 @@ and key-value store.</p>
         print(f&#34;  Errors:                 {self.stats[&#39;errors&#39;]}&#34;)
         print(&#34;=&#34; * SEPARATOR_WIDTH_MEDIUM)
 
-    def verify_migration(self, verbose: bool = True) -&gt; Dict[str, Any]:
+    def verify_migration(self, verbose: bool = True) -&gt; Dict[str, int]:
         &#34;&#34;&#34;
         Verify the migration by comparing counts.
 
@@ -868,27 +888,27 @@ and key-value store.</p>
         if verbose:
             print(f&#34;\n{&#39;Verifying Migration&#39;:=^60}&#34;)
 
-        results = {}
+        results: Dict[str, int] = {}
 
         # Count JSON files
-        json_files = list(self.results_dir.glob(&#39;content_organization_report_*.json&#39;))
+        json_files = list(self.results_dir.glob(&#34;content_organization_report_*.json&#34;))
         total_json_files = 0
         total_json_records = 0
 
         for f in json_files:
-            with open(f, &#39;r&#39;) as fp:
+            with open(f, &#34;r&#34;) as fp:
                 data = json.load(fp)
-                total_json_files += data.get(&#39;total_files&#39;, 0)
-                total_json_records += len(data.get(&#39;results&#39;, []))
+                total_json_files += data.get(&#34;total_files&#34;, 0)
+                total_json_records += len(data.get(&#34;results&#34;, []))
 
         # Count database records
         db_stats = self.graph_store.get_statistics()
 
-        results[&#39;json_files&#39;] = len(json_files)
-        results[&#39;json_records&#39;] = total_json_records
-        results[&#39;db_files&#39;] = db_stats[&#39;total_files&#39;]
-        results[&#39;db_categories&#39;] = db_stats[&#39;total_categories&#39;]
-        results[&#39;db_companies&#39;] = db_stats[&#39;total_companies&#39;]
+        results[&#34;json_files&#34;] = len(json_files)
+        results[&#34;json_records&#34;] = total_json_records
+        results[&#34;db_files&#34;] = db_stats[&#34;total_files&#34;]
+        results[&#34;db_categories&#34;] = db_stats[&#34;total_categories&#34;]
+        results[&#34;db_companies&#34;] = db_stats[&#34;total_companies&#34;]
 
         if verbose:
             print(f&#34;  JSON organization reports: {len(json_files)}&#34;)
@@ -898,10 +918,10 @@ and key-value store.</p>
             print(f&#34;  Database companies:        {db_stats[&#39;total_companies&#39;]}&#34;)
 
             # Check match
-            if db_stats[&#39;total_files&#39;] &gt;= total_json_records * MIGRATION_VERIFICATION_THRESHOLD:
-                print(f&#34;\n  ✓ Migration appears successful&#34;)
+            if db_stats[&#34;total_files&#34;] &gt;= total_json_records * MIGRATION_VERIFICATION_THRESHOLD:
+                print(&#34;\n  ✓ Migration appears successful&#34;)
             else:
-                print(f&#34;\n  ⚠ Some records may not have migrated&#34;)
+                print(&#34;\n  ⚠ Some records may not have migrated&#34;)
 
         return results</code></pre>
 </details>
@@ -911,8 +931,9 @@ and key-value store.</p>
 - Cost reports (cost_report_</em>.json, cost_roi_report.json)
 - Model evaluation reports (model_evaluation.json)</p>
 <p>Initialize the migrator.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>db_path</code></strong></dt>
 <dd>Path to database</dd>
 <dt><strong><code>results_dir</code></strong></dt>
@@ -921,14 +942,14 @@ and key-value store.</p>
 <h3>Methods</h3>
 <dl>
 <dt id="src.storage.migration.JSONMigrator.migrate_all"><code class="name flex">
-<span>def <span class="ident">migrate_all</span></span>(<span>self, verbose: bool = True) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">migrate_all</span></span>(<span>self, verbose: bool = True) ‑> Dict[str, int]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def migrate_all(self, verbose: bool = True) -&gt; Dict[str, Any]:
+<pre><code class="python">def migrate_all(self, verbose: bool = True) -&gt; Dict[str, int]:
     &#34;&#34;&#34;
     Migrate all JSON files in the results directory.
 
@@ -944,7 +965,7 @@ and key-value store.</p>
         print(&#34;=&#34; * SEPARATOR_WIDTH_MEDIUM)
 
     # Find all JSON files
-    json_files = sorted(self.results_dir.glob(&#39;*.json&#39;))
+    json_files = sorted(self.results_dir.glob(&#34;*.json&#34;))
 
     if verbose:
         print(f&#34;\nFound {len(json_files)} JSON files&#34;)
@@ -955,9 +976,9 @@ and key-value store.</p>
     other_files = []
 
     for f in json_files:
-        if &#39;content_organization_report&#39; in f.name:
+        if &#34;content_organization_report&#34; in f.name:
             organization_reports.append(f)
-        elif &#39;cost&#39; in f.name.lower():
+        elif &#34;cost&#34; in f.name.lower():
             cost_reports.append(f)
         else:
             other_files.append(f)
@@ -976,7 +997,7 @@ and key-value store.</p>
                 self._migrate_organization_report(f, verbose)
             except Exception as e:
                 print(f&#34;  Error migrating {f.name}: {e}&#34;)
-                self.stats[&#39;errors&#39;] += 1
+                self.stats[&#34;errors&#34;] += 1
 
     # Migrate cost reports
     if cost_reports:
@@ -987,7 +1008,7 @@ and key-value store.</p>
                 self._migrate_cost_report(f, verbose)
             except Exception as e:
                 print(f&#34;  Error migrating {f.name}: {e}&#34;)
-                self.stats[&#39;errors&#39;] += 1
+                self.stats[&#34;errors&#34;] += 1
 
     # Store other files in key-value store
     if other_files:
@@ -998,7 +1019,7 @@ and key-value store.</p>
                 self._store_generic_json(f, verbose)
             except Exception as e:
                 print(f&#34;  Error storing {f.name}: {e}&#34;)
-                self.stats[&#39;errors&#39;] += 1
+                self.stats[&#34;errors&#34;] += 1
 
     # Print summary
     if verbose:
@@ -1007,23 +1028,25 @@ and key-value store.</p>
     return dict(self.stats)</code></pre>
 </details>
 <div class="desc"><p>Migrate all JSON files in the results directory.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>verbose</code></strong></dt>
 <dd>Print progress messages</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Migration statistics</p></div>
+<p>Returns
+-----=
+Migration statistics</p></div>
 </dd>
 <dt id="src.storage.migration.JSONMigrator.verify_migration"><code class="name flex">
-<span>def <span class="ident">verify_migration</span></span>(<span>self, verbose: bool = True) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">verify_migration</span></span>(<span>self, verbose: bool = True) ‑> Dict[str, int]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def verify_migration(self, verbose: bool = True) -&gt; Dict[str, Any]:
+<pre><code class="python">def verify_migration(self, verbose: bool = True) -&gt; Dict[str, int]:
     &#34;&#34;&#34;
     Verify the migration by comparing counts.
 
@@ -1033,27 +1056,27 @@ and key-value store.</p>
     if verbose:
         print(f&#34;\n{&#39;Verifying Migration&#39;:=^60}&#34;)
 
-    results = {}
+    results: Dict[str, int] = {}
 
     # Count JSON files
-    json_files = list(self.results_dir.glob(&#39;content_organization_report_*.json&#39;))
+    json_files = list(self.results_dir.glob(&#34;content_organization_report_*.json&#34;))
     total_json_files = 0
     total_json_records = 0
 
     for f in json_files:
-        with open(f, &#39;r&#39;) as fp:
+        with open(f, &#34;r&#34;) as fp:
             data = json.load(fp)
-            total_json_files += data.get(&#39;total_files&#39;, 0)
-            total_json_records += len(data.get(&#39;results&#39;, []))
+            total_json_files += data.get(&#34;total_files&#34;, 0)
+            total_json_records += len(data.get(&#34;results&#34;, []))
 
     # Count database records
     db_stats = self.graph_store.get_statistics()
 
-    results[&#39;json_files&#39;] = len(json_files)
-    results[&#39;json_records&#39;] = total_json_records
-    results[&#39;db_files&#39;] = db_stats[&#39;total_files&#39;]
-    results[&#39;db_categories&#39;] = db_stats[&#39;total_categories&#39;]
-    results[&#39;db_companies&#39;] = db_stats[&#39;total_companies&#39;]
+    results[&#34;json_files&#34;] = len(json_files)
+    results[&#34;json_records&#34;] = total_json_records
+    results[&#34;db_files&#34;] = db_stats[&#34;total_files&#34;]
+    results[&#34;db_categories&#34;] = db_stats[&#34;total_categories&#34;]
+    results[&#34;db_companies&#34;] = db_stats[&#34;total_companies&#34;]
 
     if verbose:
         print(f&#34;  JSON organization reports: {len(json_files)}&#34;)
@@ -1063,16 +1086,17 @@ and key-value store.</p>
         print(f&#34;  Database companies:        {db_stats[&#39;total_companies&#39;]}&#34;)
 
         # Check match
-        if db_stats[&#39;total_files&#39;] &gt;= total_json_records * MIGRATION_VERIFICATION_THRESHOLD:
-            print(f&#34;\n  ✓ Migration appears successful&#34;)
+        if db_stats[&#34;total_files&#34;] &gt;= total_json_records * MIGRATION_VERIFICATION_THRESHOLD:
+            print(&#34;\n  ✓ Migration appears successful&#34;)
         else:
-            print(f&#34;\n  ⚠ Some records may not have migrated&#34;)
+            print(&#34;\n  ⚠ Some records may not have migrated&#34;)
 
     return results</code></pre>
 </details>
 <div class="desc"><p>Verify the migration by comparing counts.</p>
-<h2 id="returns">Returns</h2>
-<p>Verification results</p></div>
+<p>Returns
+-----=
+Verification results</p></div>
 </dd>
 </dl>
 </dd>
@@ -1093,6 +1117,7 @@ and key-value store.</p>
 <ul class="">
 <li><code><a title="src.storage.migration.main" href="#src.storage.migration.main">main</a></code></li>
 <li><code><a title="src.storage.migration.run_migration" href="#src.storage.migration.run_migration">run_migration</a></code></li>
+<li><code><a title="src.storage.migration.run_migration_with_banner" href="#src.storage.migration.run_migration_with_banner">run_migration_with_banner</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

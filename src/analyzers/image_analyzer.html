@@ -51,7 +51,7 @@ el.replaceWith(d);
 <dl>
 <dt id="src.analyzers.image_analyzer.ImageContentAnalyzer"><code class="flex name class">
 <span>class <span class="ident">ImageContentAnalyzer</span></span>
-<span>(</span><span>cost_calculator: Any = None)</span>
+<span>(</span><span>cost_calculator: CostROICalculator | None = None)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -61,14 +61,14 @@ el.replaceWith(d);
 <pre><code class="python">class ImageContentAnalyzer:
     &#34;&#34;&#34;Analyzes image content using computer vision.&#34;&#34;&#34;
 
-    def __init__(self, cost_calculator: Any = None) -&gt; None:
+    def __init__(self, cost_calculator: Optional[&#34;CostROICalculator&#34;] = None) -&gt; None:
         self.vision_available = _CV2_AVAILABLE and (CLIP_AVAILABLE or CLIP_CACHE_AVAILABLE)
         self.face_cascade = None
         self.cost_calculator = cost_calculator
 
         if _CV2_AVAILABLE:
             try:
-                cascade_path = cv2.data.haarcascades + &#34;haarcascade_frontalface_default.xml&#34;
+                cascade_path = cv2.data.haarcascades + &#34;haarcascade_frontalface_default.xml&#34;  # type: ignore[attr-defined]
                 self.face_cascade = cv2.CascadeClassifier(cascade_path)
             except Exception as e:
                 print(f&#34;Warning: Could not load face cascade: {e}&#34;)
@@ -179,14 +179,13 @@ el.replaceWith(d);
 
         interior_score = max(scores.get(cat, 0) for cat in _INTERIOR_CATEGORIES)
         people_score = scores.get(&#34;a photo of people&#34;, 0)
-        screenshot_score = scores.get(&#34;a screenshot&#34;, 0)
+        screenshot_score = scores.get(_SCREENSHOT_LABEL, 0)
 
         is_interior = interior_score &gt; _INTERIOR_SCORE_THRESHOLD
-        clip_has_people = people_score &gt; _PEOPLE_SCORE_THRESHOLD
         has_people = (people_score &gt; _PEOPLE_SCORE_LOW_THRESHOLD or has_faces) and not (
             screenshot_score &gt; _SCREENSHOT_SCORE_THRESHOLD
         )
-        is_home_interior_no_people = is_interior and not (clip_has_people or has_faces)
+        is_home_interior_no_people = is_interior and not has_people
 
         return (has_people, is_home_interior_no_people, scores)
 
@@ -207,7 +206,7 @@ el.replaceWith(d);
 
         people_score = scores.get(&#34;a photo of people&#34;, 0)
         has_faces = self.detect_people(image_path)
-        screenshot_score = scores.get(&#34;a screenshot&#34;, 0)
+        screenshot_score = scores.get(_SCREENSHOT_LABEL, 0)
         is_screenshot = screenshot_score &gt; _SCREENSHOT_SCORE_THRESHOLD
 
         has_people = (people_score &gt; _PEOPLE_SCORE_LOW_THRESHOLD or has_faces) and not is_screenshot
@@ -245,20 +244,20 @@ el.replaceWith(d);
 
     interior_score = max(scores.get(cat, 0) for cat in _INTERIOR_CATEGORIES)
     people_score = scores.get(&#34;a photo of people&#34;, 0)
-    screenshot_score = scores.get(&#34;a screenshot&#34;, 0)
+    screenshot_score = scores.get(_SCREENSHOT_LABEL, 0)
 
     is_interior = interior_score &gt; _INTERIOR_SCORE_THRESHOLD
-    clip_has_people = people_score &gt; _PEOPLE_SCORE_THRESHOLD
     has_people = (people_score &gt; _PEOPLE_SCORE_LOW_THRESHOLD or has_faces) and not (
         screenshot_score &gt; _SCREENSHOT_SCORE_THRESHOLD
     )
-    is_home_interior_no_people = is_interior and not (clip_has_people or has_faces)
+    is_home_interior_no_people = is_interior and not has_people
 
     return (has_people, is_home_interior_no_people, scores)</code></pre>
 </details>
 <div class="desc"><p>Run CLIP inference once and return both organization-relevant flags.</p>
-<h2 id="returns">Returns</h2>
-<p>Tuple of (has_people, is_home_interior_no_people, scores)</p></div>
+<p>Returns
+-----=
+Tuple of (has_people, is_home_interior_no_people, scores)</p></div>
 </dd>
 <dt id="src.analyzers.image_analyzer.ImageContentAnalyzer.classify_image_content"><code class="name flex">
 <span>def <span class="ident">classify_image_content</span></span>(<span>self, image_path: pathlib.Path) ‑> Dict[str, float]</span>
@@ -293,8 +292,9 @@ el.replaceWith(d);
         return {}</code></pre>
 </details>
 <div class="desc"><p>Classify image content using CLIP zero-shot classification.</p>
-<h2 id="returns">Returns</h2>
-<p>Dictionary of category -&gt; confidence score</p></div>
+<p>Returns
+-----=
+Dictionary of category -&gt; confidence score</p></div>
 </dd>
 <dt id="src.analyzers.image_analyzer.ImageContentAnalyzer.detect_people"><code class="name flex">
 <span>def <span class="ident">detect_people</span></span>(<span>self, image_path: pathlib.Path) ‑> bool</span>
@@ -335,8 +335,9 @@ el.replaceWith(d);
             return False</code></pre>
 </details>
 <div class="desc"><p>Detect if there are people in the image using face detection.</p>
-<h2 id="returns">Returns</h2>
-<p>True if people detected, False otherwise</p></div>
+<p>Returns
+-----=
+True if people detected, False otherwise</p></div>
 </dd>
 <dt id="src.analyzers.image_analyzer.ImageContentAnalyzer.has_people_in_photo"><code class="name flex">
 <span>def <span class="ident">has_people_in_photo</span></span>(<span>self, image_path: pathlib.Path) ‑> Tuple[bool, Dict[str, float]]</span>
@@ -363,7 +364,7 @@ el.replaceWith(d);
 
     people_score = scores.get(&#34;a photo of people&#34;, 0)
     has_faces = self.detect_people(image_path)
-    screenshot_score = scores.get(&#34;a screenshot&#34;, 0)
+    screenshot_score = scores.get(_SCREENSHOT_LABEL, 0)
     is_screenshot = screenshot_score &gt; _SCREENSHOT_SCORE_THRESHOLD
 
     has_people = (people_score &gt; _PEOPLE_SCORE_LOW_THRESHOLD or has_faces) and not is_screenshot
@@ -371,8 +372,9 @@ el.replaceWith(d);
     return (has_people, scores)</code></pre>
 </details>
 <div class="desc"><p>Check if image contains people (for social photos).</p>
-<h2 id="returns">Returns</h2>
-<p>Tuple of (has_people, classification_scores)</p></div>
+<p>Returns
+-----=
+Tuple of (has_people, classification_scores)</p></div>
 </dd>
 <dt id="src.analyzers.image_analyzer.ImageContentAnalyzer.is_home_interior_no_people"><code class="name flex">
 <span>def <span class="ident">is_home_interior_no_people</span></span>(<span>self, image_path: pathlib.Path) ‑> Tuple[bool, Dict[str, float]]</span>
@@ -407,8 +409,9 @@ el.replaceWith(d);
     return (is_interior and not has_people, scores)</code></pre>
 </details>
 <div class="desc"><p>Check if image is a home interior without people.</p>
-<h2 id="returns">Returns</h2>
-<p>Tuple of (is_interior_no_people, classification_scores)</p></div>
+<p>Returns
+-----=
+Tuple of (is_interior_no_people, classification_scores)</p></div>
 </dd>
 </dl>
 </dd>

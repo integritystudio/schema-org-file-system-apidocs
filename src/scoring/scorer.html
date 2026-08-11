@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>src.scoring.scorer API documentation</title>
+<meta name="description" content="Scorer: run registered signals in cost-tier waves and aggregate …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>src.scoring.scorer</code></h1>
+</header>
+<section id="section-intro">
+<p>Scorer: run registered signals in cost-tier waves and aggregate.</p>
+<p>UNIFIED_SCORING_PLAN §3.3. Generalizes the shipped two-signal
+<code>_merge_clip_text_scores</code> image scorer to N signals × all files:</p>
+<ul>
+<li>Signals run in waves (cheap → mid → heavy, registry order within a wave);
+later waves are skipped once the best aggregate reaches
+<code>EARLY_EXIT_CONFIDENCE</code>.</li>
+<li><code>score(cat, sub) = Σ over signals (signal.weight × confidence)</code> for
+matching keys; duplicate (cat, sub) entries from the same signal dedupe by
+max confidence. The legacy agreement boost is subsumed by summation.</li>
+<li>Deterministic tie-breaking: higher aggregate → more distinct contributing
+signals → higher cost-tier among contributors → earliest registry order →
+first emission.</li>
+<li>Decisions below <code>MIN_DECISION_CONFIDENCE</code> (aggregate) or
+<code>MIN_DECISION_MARGIN</code> (lead over the best runner-up in a <em>different</em>
+category) route to <code>LOW_CONFIDENCE_FALLBACK</code> with the state recorded for
+telemetry. The margin is category-level: same-category subcategory rivals do
+not gate the commit (BACKLOG Phase-3 item #3).</li>
+</ul>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="src.scoring.scorer.Scorer"><code class="flex name class">
+<span>class <span class="ident">Scorer</span></span>
+<span>(</span><span>signals: Sequence[Signal],<br>*,<br>early_exit_confidence: float = 0.95,<br>min_decision_confidence: float = 0.35,<br>min_decision_margin: float = 0.1)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Scorer:
+    &#34;&#34;&#34;Aggregates per-signal CategoryScores into one ClassificationDecision.&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        signals: Sequence[Signal],
+        *,
+        early_exit_confidence: float = EARLY_EXIT_CONFIDENCE,
+        min_decision_confidence: float = MIN_DECISION_CONFIDENCE,
+        min_decision_margin: float = MIN_DECISION_MARGIN,
+    ) -&gt; None:
+        self._signals: List[Signal] = list(signals)
+        self._early_exit_confidence = early_exit_confidence
+        self._min_decision_confidence = min_decision_confidence
+        self._min_decision_margin = min_decision_margin
+
+        seen: Dict[str, int] = {}
+        for index, signal in enumerate(self._signals):
+            if signal.cost_tier not in COST_TIER_PRIORITY:
+                raise ValueError(
+                    f&#34;Signal {signal.name!r} has unknown cost_tier {signal.cost_tier!r}&#34;
+                )
+            if signal.name in seen:
+                raise ValueError(f&#34;Duplicate signal name {signal.name!r} in registry&#34;)
+            seen[signal.name] = index
+        # name → (registry index, weight, cost tier); registry order is the
+        # deterministic fallback for tie-breaking and entity precedence.
+        self._by_name: Dict[str, Tuple[int, float, str]] = {
+            signal.name: (index, signal.weight, signal.cost_tier)
+            for index, signal in enumerate(self._signals)
+        }
+
+    # ------------------------------------------------------------------ #
+    # Public API                                                           #
+    # ------------------------------------------------------------------ #
+
+    def classify(self, ctx: &#34;FileContext&#34;) -&gt; ClassificationDecision:
+        collected = self._run_waves(ctx)
+        return self._decide(ctx, collected)
+
+    # ------------------------------------------------------------------ #
+    # Wave execution                                                       #
+    # ------------------------------------------------------------------ #
+
+    def _run_waves(self, ctx: &#34;FileContext&#34;) -&gt; List[CategoryScore]:
+        collected: List[CategoryScore] = []
+        for tier_index, tier in enumerate(COST_TIER_ORDER):
+            for signal in self._signals:
+                if signal.cost_tier != tier:
+                    continue
+                try:
+                    if not signal.applies_to(ctx):
+                        continue
+                    scores = signal.run(ctx) or []
+                    deduped = self._dedupe_within_signal(signal, scores)
+                except Exception as exc:  # one broken signal must not kill the file
+                    print(f&#34;  Signal {signal.name} error: {exc}&#34;)
+                    continue
+                collected.extend(deduped)
+            is_last_tier = tier_index == len(COST_TIER_ORDER) - 1
+            if not is_last_tier and self._best_total(collected) &gt;= self._early_exit_confidence:
+                break
+        return collected
+
+    @staticmethod
+    def _dedupe_within_signal(
+        signal: Signal, scores: Iterable[CategoryScore]
+    ) -&gt; List[CategoryScore]:
+        &#34;&#34;&#34;Keep one entry per (cat, sub) for a single signal — max confidence.&#34;&#34;&#34;
+        best: Dict[CategoryKey, CategoryScore] = {}
+        order: List[CategoryKey] = []
+        for score in scores:
+            if score.signal_name != signal.name:
+                raise ValueError(
+                    f&#34;Signal {signal.name!r} emitted a CategoryScore tagged &#34;
+                    f&#34;{score.signal_name!r}&#34;
+                )
+            key = (score.category, score.subcategory)
+            if key not in best:
+                best[key] = score
+                order.append(key)
+            elif score.confidence &gt; best[key].confidence:
+                best[key] = score
+        return [best[key] for key in order]
+
+    def _best_total(self, collected: List[CategoryScore]) -&gt; float:
+        totals = self._aggregate(collected)[0]
+        return max(totals.values()) if totals else 0.0
+
+    # ------------------------------------------------------------------ #
+    # Aggregation + decision                                               #
+    # ------------------------------------------------------------------ #
+
+    def _aggregate(
+        self, collected: List[CategoryScore]
+    ) -&gt; Tuple[
+        Dict[CategoryKey, float], Dict[CategoryKey, Dict[str, float]], Dict[CategoryKey, int]
+    ]:
+        &#34;&#34;&#34;Raw weighted sums, per-candidate contributor map, first-seen order.&#34;&#34;&#34;
+        totals: Dict[CategoryKey, float] = {}
+        contributors: Dict[CategoryKey, Dict[str, float]] = {}
+        first_seen: Dict[CategoryKey, int] = {}
+        for position, score in enumerate(collected):
+            _, weight, _ = self._by_name[score.signal_name]
+            confidence = min(max(score.confidence, 0.0), 1.0)
+            weighted = weight * confidence
+            key = (score.category, score.subcategory)
+            totals[key] = totals.get(key, 0.0) + weighted
+            contributors.setdefault(key, {})[score.signal_name] = weighted
+            first_seen.setdefault(key, position)
+        return totals, contributors, first_seen
+
+    def _decide(self, ctx: &#34;FileContext&#34;, collected: List[CategoryScore]) -&gt; ClassificationDecision:
+        totals, contributors, first_seen = self._aggregate(collected)
+
+        if not totals:
+            fallback_category, fallback_subcategory = LOW_CONFIDENCE_FALLBACK
+            return ClassificationDecision(
+                category=fallback_category,
+                subcategory=fallback_subcategory,
+                schema_type=ctx.schema_type,
+                confidence=0.0,
+                margin=0.0,
+                winning_signals=[],
+                all_scores=collected,
+                company_name=self._merge_company(collected, winning_names=()),
+                people_names=self._merge_people(collected),
+                decision_state=&#34;low_confidence&#34;,
+            )
+
+        def sort_key(key: CategoryKey) -&gt; Tuple[float, int, int, int, int]:
+            candidate_contributors = contributors[key]
+            best_tier = max(
+                COST_TIER_PRIORITY[self._by_name[name][2]] for name in candidate_contributors
+            )
+            earliest_registry = min(self._by_name[name][0] for name in candidate_contributors)
+            return (
+                totals[key],
+                len(candidate_contributors),
+                best_tier,
+                -earliest_registry,
+                -first_seen[key],
+            )
+
+        winner = max(totals, key=sort_key)
+        raw_total = totals[winner]
+        # The margin gate adjudicates the CATEGORY (folder) decision. A
+        # runner-up sharing the winner&#39;s category is not category ambiguity —
+        # a file whose top candidates are all e.g. personal/* is unambiguously
+        # personal, so the winning subcategory commits instead of falling back
+        # (BACKLOG Phase-3 item #3). Only a rival in a DIFFERENT category
+        # counts against the margin; same-category subcategory competition is
+        # settled by the argmax winner above.
+        winner_category = winner[0]
+        cross_category_totals = [
+            total for key, total in totals.items() if key[0] != winner_category
+        ]
+        runner_up = max(cross_category_totals, default=None)
+        margin = raw_total - runner_up if runner_up is not None else raw_total
+
+        winning_names = tuple(sorted(contributors[winner], key=lambda name: self._by_name[name][0]))
+
+        if raw_total &lt; self._min_decision_confidence:
+            decision_state = &#34;low_confidence&#34;
+            category, subcategory = LOW_CONFIDENCE_FALLBACK
+        elif margin &lt; self._min_decision_margin:
+            decision_state = &#34;low_margin&#34;
+            category, subcategory = LOW_CONFIDENCE_FALLBACK
+        else:
+            decision_state = &#34;committed&#34;
+            category, subcategory = winner
+
+        schema_type = ctx.schema_type
+        if decision_state == &#34;committed&#34;:
+            schema_type = (
+                self._schema_type_override(collected, winner, winning_names) or schema_type
+            )
+
+        return ClassificationDecision(
+            category=category,
+            subcategory=subcategory,
+            schema_type=schema_type,
+            confidence=min(raw_total, 1.0),
+            margin=margin,
+            winning_signals=list(winning_names),
+            all_scores=collected,
+            company_name=self._merge_company(collected, winning_names),
+            people_names=self._merge_people(collected),
+            decision_state=decision_state,
+        )
+
+    # ------------------------------------------------------------------ #
+    # Entity + schema-type assembly (§4 &#34;entity side-channel&#34;)             #
+    # ------------------------------------------------------------------ #
+
+    def _iter_registry_order(self, collected: List[CategoryScore]) -&gt; List[CategoryScore]:
+        return sorted(
+            collected,
+            key=lambda score: (self._by_name[score.signal_name][0],),
+        )
+
+    def _merge_company(
+        self, collected: List[CategoryScore], winning_names: Tuple[str, ...]
+    ) -&gt; Optional[str]:
+        &#34;&#34;&#34;First non-empty company: winner contributors first, registry order.&#34;&#34;&#34;
+        ordered = self._iter_registry_order(collected)
+        for scores in (
+            [s for s in ordered if s.signal_name in winning_names],
+            ordered,
+        ):
+            for score in scores:
+                company = score.evidence.get(EVIDENCE_COMPANY)
+                if company:
+                    return cast(Optional[str], company)
+        return None
+
+    def _merge_people(self, collected: List[CategoryScore]) -&gt; List[str]:
+        &#34;&#34;&#34;Ordered union of people across ALL signals (Option C: person
+        attribution is a graph relationship, independent of the winner).&#34;&#34;&#34;
+        people: List[str] = []
+        for score in self._iter_registry_order(collected):
+            for name in score.evidence.get(EVIDENCE_PEOPLE) or []:
+                if name and name not in people:
+                    people.append(name)
+        return people
+
+    def _schema_type_override(
+        self,
+        collected: List[CategoryScore],
+        winner: CategoryKey,
+        winning_names: Tuple[str, ...],
+    ) -&gt; Optional[str]:
+        &#34;&#34;&#34;schema_type from the winner&#39;s contributors, registry order.&#34;&#34;&#34;
+        for score in self._iter_registry_order(collected):
+            if score.signal_name not in winning_names:
+                continue
+            if (score.category, score.subcategory) != winner:
+                continue
+            override = score.evidence.get(EVIDENCE_SCHEMA_TYPE)
+            if override:
+                return cast(Optional[str], override)
+        return None</code></pre>
+</details>
+<div class="desc"><p>Aggregates per-signal CategoryScores into one ClassificationDecision.</p></div>
+<h3>Methods</h3>
+<dl>
+<dt id="src.scoring.scorer.Scorer.classify"><code class="name flex">
+<span>def <span class="ident">classify</span></span>(<span>self, ctx: "'FileContext'") ‑> ClassificationDecision</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def classify(self, ctx: &#34;FileContext&#34;) -&gt; ClassificationDecision:
+    collected = self._run_waves(ctx)
+    return self._decide(ctx, collected)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="src.scoring" href="index.html">src.scoring</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="src.scoring.scorer.Scorer" href="#src.scoring.scorer.Scorer">Scorer</a></code></h4>
+<ul class="">
+<li><code><a title="src.scoring.scorer.Scorer.classify" href="#src.scoring.scorer.Scorer.classify">classify</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

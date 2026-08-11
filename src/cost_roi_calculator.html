@@ -103,8 +103,8 @@ Tracks usage, estimates costs, and provides optimization recommendations.</p>
     calculator.print_summary()
 
     # Generate and save report
-    report = calculator.generate_report(&#39;results/cost_roi_report.json&#39;)
-    print(f&#34;\nFull report saved to: results/cost_roi_report.json&#34;)
+    calculator.generate_report(&#39;results/cost_roi_report.json&#39;)
+    print(&#34;\nFull report saved to: results/cost_roi_report.json&#34;)
 
     # Show projection for larger runs
     print(f&#34;\n{&#39;COST PROJECTIONS&#39;:=^70}&#34;)
@@ -123,6 +123,62 @@ Tracks usage, estimates costs, and provides optimization recommendations.</p>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="src.cost_roi_calculator.CostEstimate"><code class="flex name class">
+<span>class <span class="ident">CostEstimate</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CostEstimate(TypedDict):
+    &#34;&#34;&#34;``estimate_cost_for_files()`` shape.&#34;&#34;&#34;
+    file_count: int
+    total_estimated_cost: float
+    total_estimated_time_sec: float
+    total_estimated_time_human: str
+    total_estimated_value: float
+    estimated_roi: float
+    feature_estimates: Dict[str, FeatureEstimate]</code></pre>
+</details>
+<div class="desc"><p><code>estimate_cost_for_files()</code> shape.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.cost_roi_calculator.CostEstimate.estimated_roi"><code class="name">var <span class="ident">estimated_roi</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.CostEstimate.feature_estimates"><code class="name">var <span class="ident">feature_estimates</span> : Dict[str, <a title="src.cost_roi_calculator.FeatureEstimate" href="#src.cost_roi_calculator.FeatureEstimate">FeatureEstimate</a>]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.CostEstimate.file_count"><code class="name">var <span class="ident">file_count</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.CostEstimate.total_estimated_cost"><code class="name">var <span class="ident">total_estimated_cost</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.CostEstimate.total_estimated_time_human"><code class="name">var <span class="ident">total_estimated_time_human</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.CostEstimate.total_estimated_time_sec"><code class="name">var <span class="ident">total_estimated_time_sec</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.CostEstimate.total_estimated_value"><code class="name">var <span class="ident">total_estimated_value</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
 <dt id="src.cost_roi_calculator.CostROICalculator"><code class="flex name class">
 <span>class <span class="ident">CostROICalculator</span></span>
 <span>(</span><span>config_path: Optional[str] = None)</span>
@@ -488,6 +544,7 @@ Tracks usage, estimates costs, and provides optimization recommendations.</p>
         cost_per_file = cost_summary.avg_cost_per_file
         value_per_file = (config.manual_time_saved_sec / 3600) * self.MANUAL_HOURLY_RATE * config.files_correctly_classified
 
+        break_even_files: int | float
         if cost_per_file &gt; 0 and value_per_file &gt; cost_per_file:
             break_even_files = 1  # Already profitable per file
         elif cost_per_file &gt; 0:
@@ -507,7 +564,7 @@ Tracks usage, estimates costs, and provides optimization recommendations.</p>
             break_even_files=break_even_files
         )
 
-    def calculate_total_cost(self) -&gt; Dict[str, Any]:
+    def calculate_total_cost(self) -&gt; TotalCostReport:
         &#34;&#34;&#34;
         Calculate total cost across all features.
 
@@ -531,7 +588,7 @@ Tracks usage, estimates costs, and provides optimization recommendations.</p>
             success_rate=(&#34;success&#34;, &#34;mean&#34;),
         )
 
-        feature_costs: Dict[str, Any] = {}
+        feature_costs: Dict[str, CostSummaryDict] = {}
         total_cost = 0.0
         total_files = 0
         total_time = 0.0
@@ -553,7 +610,7 @@ Tracks usage, estimates costs, and provides optimization recommendations.</p>
                 success_rate=float(row[&#34;success_rate&#34;]),
                 total_files_processed=files,
             )
-            feature_costs[feature_name] = asdict(summary)
+            feature_costs[feature_name] = cast(CostSummaryDict, asdict(summary))
             total_cost += feat_cost
             total_files += files
             total_time += proc_time
@@ -566,7 +623,7 @@ Tracks usage, estimates costs, and provides optimization recommendations.</p>
             &#39;feature_breakdown&#39;: feature_costs
         }
 
-    def calculate_total_roi(self) -&gt; Dict[str, Any]:
+    def calculate_total_roi(self) -&gt; TotalROIReport:
         &#34;&#34;&#34;
         Calculate total ROI across all features.
 
@@ -576,7 +633,7 @@ Tracks usage, estimates costs, and provides optimization recommendations.</p>
         df = self._records_df()
         feature_names = list(self.cost_configs.keys()) if df.empty else list(df[&#34;feature_name&#34;].unique())
 
-        feature_rois: Dict[str, Any] = {}
+        feature_rois: Dict[str, ROIMetricsDict] = {}
         total_cost = 0.0
         total_value = 0.0
         total_hours_saved = 0.0
@@ -584,7 +641,7 @@ Tracks usage, estimates costs, and provides optimization recommendations.</p>
         for feature_name in feature_names:
             roi = self.calculate_roi(feature_name)
             if roi.total_cost &gt; 0 or roi.total_value &gt; 0:
-                feature_rois[feature_name] = asdict(roi)
+                feature_rois[feature_name] = cast(ROIMetricsDict, asdict(roi))
                 total_cost += roi.total_cost
                 total_value += roi.total_value
                 total_hours_saved += roi.manual_hours_saved
@@ -600,14 +657,14 @@ Tracks usage, estimates costs, and provides optimization recommendations.</p>
             &#39;feature_breakdown&#39;: feature_rois
         }
 
-    def get_optimization_recommendations(self) -&gt; List[Dict[str, Any]]:
+    def get_optimization_recommendations(self) -&gt; List[Recommendation]:
         &#34;&#34;&#34;
         Analyze usage and provide cost optimization recommendations.
 
         Returns:
             List of recommendations
         &#34;&#34;&#34;
-        recommendations = []
+        recommendations: List[Recommendation] = []
 
         for feature_name in self.cost_configs.keys():
             summary = self.calculate_feature_cost(feature_name)
@@ -670,7 +727,9 @@ Tracks usage, estimates costs, and provides optimization recommendations.</p>
 
         return recommendations
 
-    def estimate_cost_for_files(self, file_count: int, features: Optional[List[str]] = None) -&gt; Dict[str, Any]:
+    def estimate_cost_for_files(
+        self, file_count: int, features: Optional[List[str]] = None
+    ) -&gt; CostEstimate:
         &#34;&#34;&#34;
         Estimate cost for processing a given number of files.
 
@@ -682,7 +741,7 @@ Tracks usage, estimates costs, and provides optimization recommendations.</p>
             Cost estimate breakdown
         &#34;&#34;&#34;
         features = features or list(self.cost_configs.keys())
-        estimates = {}
+        estimates: Dict[str, FeatureEstimate] = {}
         total_cost = 0.0
         total_time = 0.0
         total_value = 0.0
@@ -731,7 +790,7 @@ Tracks usage, estimates costs, and provides optimization recommendations.</p>
         else:
             return f&#34;{seconds/3600:.1f} hours&#34;
 
-    def generate_report(self, output_path: Optional[str] = None) -&gt; Dict[str, Any]:
+    def generate_report(self, output_path: Optional[str] = None) -&gt; CostReport:
         &#34;&#34;&#34;
         Generate a comprehensive cost and ROI report.
 
@@ -741,7 +800,7 @@ Tracks usage, estimates costs, and provides optimization recommendations.</p>
         Returns:
             Complete report dictionary
         &#34;&#34;&#34;
-        report = {
+        report: CostReport = {
             &#39;metadata&#39;: {
                 &#39;generated_at&#39;: datetime.now().isoformat(),
                 &#39;session_start&#39;: self.session_start.isoformat(),
@@ -815,8 +874,9 @@ Tracks usage, estimates costs, and provides optimization recommendations.</p>
 <p>Tracks usage of each feature/model and provides cost analysis
 with ROI calculations based on manual time saved.</p>
 <p>Initialize the cost calculator.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>config_path</code></strong></dt>
 <dd>Optional path to custom cost configuration JSON</dd>
 </dl></div>
@@ -824,11 +884,11 @@ with ROI calculations based on manual time saved.</p>
 <dl>
 <dt id="src.cost_roi_calculator.CostROICalculator.DEFAULT_COST_CONFIGS"><code class="name">var <span class="ident">DEFAULT_COST_CONFIGS</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.CostROICalculator.MANUAL_HOURLY_RATE"><code class="name">var <span class="ident">MANUAL_HOURLY_RATE</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -887,13 +947,15 @@ with ROI calculations based on manual time saved.</p>
     )</code></pre>
 </details>
 <div class="desc"><p>Calculate total cost for a specific feature.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>feature_name</code></strong></dt>
 <dd>Name of the feature</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>CostSummary for the feature</p></div>
+<p>Returns
+-----=
+CostSummary for the feature</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.CostROICalculator.calculate_roi"><code class="name flex">
 <span>def <span class="ident">calculate_roi</span></span>(<span>self, feature_name: str) ‑> <a title="src.cost_roi_calculator.ROIMetrics" href="#src.cost_roi_calculator.ROIMetrics">ROIMetrics</a></span>
@@ -953,6 +1015,7 @@ with ROI calculations based on manual time saved.</p>
     cost_per_file = cost_summary.avg_cost_per_file
     value_per_file = (config.manual_time_saved_sec / 3600) * self.MANUAL_HOURLY_RATE * config.files_correctly_classified
 
+    break_even_files: int | float
     if cost_per_file &gt; 0 and value_per_file &gt; cost_per_file:
         break_even_files = 1  # Already profitable per file
     elif cost_per_file &gt; 0:
@@ -976,23 +1039,25 @@ with ROI calculations based on manual time saved.</p>
 <p>ROI = (Value Generated - Cost) / Cost * 100</p>
 <p>Value is calculated as:
 - Manual time saved * hourly rate * success rate</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>feature_name</code></strong></dt>
 <dd>Name of the feature</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>ROIMetrics for the feature</p></div>
+<p>Returns
+-----=
+ROIMetrics for the feature</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.CostROICalculator.calculate_total_cost"><code class="name flex">
-<span>def <span class="ident">calculate_total_cost</span></span>(<span>self) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">calculate_total_cost</span></span>(<span>self) ‑> <a title="src.cost_roi_calculator.TotalCostReport" href="#src.cost_roi_calculator.TotalCostReport">TotalCostReport</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def calculate_total_cost(self) -&gt; Dict[str, Any]:
+<pre><code class="python">def calculate_total_cost(self) -&gt; TotalCostReport:
     &#34;&#34;&#34;
     Calculate total cost across all features.
 
@@ -1016,7 +1081,7 @@ with ROI calculations based on manual time saved.</p>
         success_rate=(&#34;success&#34;, &#34;mean&#34;),
     )
 
-    feature_costs: Dict[str, Any] = {}
+    feature_costs: Dict[str, CostSummaryDict] = {}
     total_cost = 0.0
     total_files = 0
     total_time = 0.0
@@ -1038,7 +1103,7 @@ with ROI calculations based on manual time saved.</p>
             success_rate=float(row[&#34;success_rate&#34;]),
             total_files_processed=files,
         )
-        feature_costs[feature_name] = asdict(summary)
+        feature_costs[feature_name] = cast(CostSummaryDict, asdict(summary))
         total_cost += feat_cost
         total_files += files
         total_time += proc_time
@@ -1052,18 +1117,19 @@ with ROI calculations based on manual time saved.</p>
     }</code></pre>
 </details>
 <div class="desc"><p>Calculate total cost across all features.</p>
-<h2 id="returns">Returns</h2>
-<p>Dictionary with total cost breakdown</p></div>
+<p>Returns
+-----=
+Dictionary with total cost breakdown</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.CostROICalculator.calculate_total_roi"><code class="name flex">
-<span>def <span class="ident">calculate_total_roi</span></span>(<span>self) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">calculate_total_roi</span></span>(<span>self) ‑> <a title="src.cost_roi_calculator.TotalROIReport" href="#src.cost_roi_calculator.TotalROIReport">TotalROIReport</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def calculate_total_roi(self) -&gt; Dict[str, Any]:
+<pre><code class="python">def calculate_total_roi(self) -&gt; TotalROIReport:
     &#34;&#34;&#34;
     Calculate total ROI across all features.
 
@@ -1073,7 +1139,7 @@ with ROI calculations based on manual time saved.</p>
     df = self._records_df()
     feature_names = list(self.cost_configs.keys()) if df.empty else list(df[&#34;feature_name&#34;].unique())
 
-    feature_rois: Dict[str, Any] = {}
+    feature_rois: Dict[str, ROIMetricsDict] = {}
     total_cost = 0.0
     total_value = 0.0
     total_hours_saved = 0.0
@@ -1081,7 +1147,7 @@ with ROI calculations based on manual time saved.</p>
     for feature_name in feature_names:
         roi = self.calculate_roi(feature_name)
         if roi.total_cost &gt; 0 or roi.total_value &gt; 0:
-            feature_rois[feature_name] = asdict(roi)
+            feature_rois[feature_name] = cast(ROIMetricsDict, asdict(roi))
             total_cost += roi.total_cost
             total_value += roi.total_value
             total_hours_saved += roi.manual_hours_saved
@@ -1098,18 +1164,21 @@ with ROI calculations based on manual time saved.</p>
     }</code></pre>
 </details>
 <div class="desc"><p>Calculate total ROI across all features.</p>
-<h2 id="returns">Returns</h2>
-<p>Dictionary with total ROI breakdown</p></div>
+<p>Returns
+-----=
+Dictionary with total ROI breakdown</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.CostROICalculator.estimate_cost_for_files"><code class="name flex">
-<span>def <span class="ident">estimate_cost_for_files</span></span>(<span>self, file_count: int, features: Optional[List[str]] = None) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">estimate_cost_for_files</span></span>(<span>self, file_count: int, features: Optional[List[str]] = None) ‑> <a title="src.cost_roi_calculator.CostEstimate" href="#src.cost_roi_calculator.CostEstimate">CostEstimate</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def estimate_cost_for_files(self, file_count: int, features: Optional[List[str]] = None) -&gt; Dict[str, Any]:
+<pre><code class="python">def estimate_cost_for_files(
+    self, file_count: int, features: Optional[List[str]] = None
+) -&gt; CostEstimate:
     &#34;&#34;&#34;
     Estimate cost for processing a given number of files.
 
@@ -1121,7 +1190,7 @@ with ROI calculations based on manual time saved.</p>
         Cost estimate breakdown
     &#34;&#34;&#34;
     features = features or list(self.cost_configs.keys())
-    estimates = {}
+    estimates: Dict[str, FeatureEstimate] = {}
     total_cost = 0.0
     total_time = 0.0
     total_value = 0.0
@@ -1162,25 +1231,27 @@ with ROI calculations based on manual time saved.</p>
     }</code></pre>
 </details>
 <div class="desc"><p>Estimate cost for processing a given number of files.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>file_count</code></strong></dt>
 <dd>Number of files to estimate</dd>
 <dt><strong><code>features</code></strong></dt>
 <dd>List of features to use (None for all)</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Cost estimate breakdown</p></div>
+<p>Returns
+-----=
+Cost estimate breakdown</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.CostROICalculator.generate_report"><code class="name flex">
-<span>def <span class="ident">generate_report</span></span>(<span>self, output_path: Optional[str] = None) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">generate_report</span></span>(<span>self, output_path: Optional[str] = None) ‑> <a title="src.cost_roi_calculator.CostReport" href="#src.cost_roi_calculator.CostReport">CostReport</a></span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def generate_report(self, output_path: Optional[str] = None) -&gt; Dict[str, Any]:
+<pre><code class="python">def generate_report(self, output_path: Optional[str] = None) -&gt; CostReport:
     &#34;&#34;&#34;
     Generate a comprehensive cost and ROI report.
 
@@ -1190,7 +1261,7 @@ with ROI calculations based on manual time saved.</p>
     Returns:
         Complete report dictionary
     &#34;&#34;&#34;
-    report = {
+    report: CostReport = {
         &#39;metadata&#39;: {
             &#39;generated_at&#39;: datetime.now().isoformat(),
             &#39;session_start&#39;: self.session_start.isoformat(),
@@ -1217,30 +1288,32 @@ with ROI calculations based on manual time saved.</p>
     return report</code></pre>
 </details>
 <div class="desc"><p>Generate a comprehensive cost and ROI report.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>output_path</code></strong></dt>
 <dd>Optional path to save report JSON</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>Complete report dictionary</p></div>
+<p>Returns
+-----=
+Complete report dictionary</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.CostROICalculator.get_optimization_recommendations"><code class="name flex">
-<span>def <span class="ident">get_optimization_recommendations</span></span>(<span>self) ‑> List[Dict[str, Any]]</span>
+<span>def <span class="ident">get_optimization_recommendations</span></span>(<span>self) ‑> List[<a title="src.cost_roi_calculator.Recommendation" href="#src.cost_roi_calculator.Recommendation">Recommendation</a>]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_optimization_recommendations(self) -&gt; List[Dict[str, Any]]:
+<pre><code class="python">def get_optimization_recommendations(self) -&gt; List[Recommendation]:
     &#34;&#34;&#34;
     Analyze usage and provide cost optimization recommendations.
 
     Returns:
         List of recommendations
     &#34;&#34;&#34;
-    recommendations = []
+    recommendations: List[Recommendation] = []
 
     for feature_name in self.cost_configs.keys():
         summary = self.calculate_feature_cost(feature_name)
@@ -1304,8 +1377,9 @@ with ROI calculations based on manual time saved.</p>
     return recommendations</code></pre>
 </details>
 <div class="desc"><p>Analyze usage and provide cost optimization recommendations.</p>
-<h2 id="returns">Returns</h2>
-<p>List of recommendations</p></div>
+<p>Returns
+-----=
+List of recommendations</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.CostROICalculator.print_summary"><code class="name flex">
 <span>def <span class="ident">print_summary</span></span>(<span>self) ‑> None</span>
@@ -1408,8 +1482,9 @@ with ROI calculations based on manual time saved.</p>
     return record</code></pre>
 </details>
 <div class="desc"><p>Record a usage event for a feature/model.</p>
-<h2 id="args">Args</h2>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>feature_name</code></strong></dt>
 <dd>Name of the feature (must match cost_configs key)</dd>
 <dt><strong><code>processing_time_sec</code></strong></dt>
@@ -1425,8 +1500,60 @@ with ROI calculations based on manual time saved.</p>
 <dt><strong><code>metadata</code></strong></dt>
 <dd>Additional metadata</dd>
 </dl>
-<h2 id="returns">Returns</h2>
-<p>The created UsageRecord</p></div>
+<p>Returns
+-----=
+The created UsageRecord</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.cost_roi_calculator.CostReport"><code class="flex name class">
+<span>class <span class="ident">CostReport</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CostReport(TypedDict):
+    &#34;&#34;&#34;``generate_report()`` shape; projections are added post-literal.&#34;&#34;&#34;
+    metadata: ReportMetadata
+    cost_summary: TotalCostReport
+    roi_summary: TotalROIReport
+    recommendations: List[Recommendation]
+    model_configs: Dict[str, Dict[str, Any]]
+    projections: NotRequired[Dict[str, CostEstimate]]</code></pre>
+</details>
+<div class="desc"><p><code>generate_report()</code> shape; projections are added post-literal.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.cost_roi_calculator.CostReport.cost_summary"><code class="name">var <span class="ident">cost_summary</span> : <a title="src.cost_roi_calculator.TotalCostReport" href="#src.cost_roi_calculator.TotalCostReport">TotalCostReport</a></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.CostReport.metadata"><code class="name">var <span class="ident">metadata</span> : <a title="src.cost_roi_calculator.ReportMetadata" href="#src.cost_roi_calculator.ReportMetadata">ReportMetadata</a></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.CostReport.model_configs"><code class="name">var <span class="ident">model_configs</span> : Dict[str, Dict[str, Any]]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.CostReport.projections"><code class="name">var <span class="ident">projections</span> : Dict[str, <a title="src.cost_roi_calculator.CostEstimate" href="#src.cost_roi_calculator.CostEstimate">CostEstimate</a>]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.CostReport.recommendations"><code class="name">var <span class="ident">recommendations</span> : List[<a title="src.cost_roi_calculator.Recommendation" href="#src.cost_roi_calculator.Recommendation">Recommendation</a>]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.CostReport.roi_summary"><code class="name">var <span class="ident">roi_summary</span> : <a title="src.cost_roi_calculator.TotalROIReport" href="#src.cost_roi_calculator.TotalROIReport">TotalROIReport</a></code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 </dd>
@@ -1455,31 +1582,87 @@ class CostSummary:
 <dl>
 <dt id="src.cost_roi_calculator.CostSummary.avg_cost_per_file"><code class="name">var <span class="ident">avg_cost_per_file</span> : float</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.CostSummary.feature_name"><code class="name">var <span class="ident">feature_name</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.CostSummary.success_rate"><code class="name">var <span class="ident">success_rate</span> : float</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.CostSummary.total_cost"><code class="name">var <span class="ident">total_cost</span> : float</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.CostSummary.total_files_processed"><code class="name">var <span class="ident">total_files_processed</span> : int</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.CostSummary.total_invocations"><code class="name">var <span class="ident">total_invocations</span> : int</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.CostSummary.total_processing_time_sec"><code class="name">var <span class="ident">total_processing_time_sec</span> : float</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.cost_roi_calculator.CostSummaryDict"><code class="flex name class">
+<span>class <span class="ident">CostSummaryDict</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CostSummaryDict(TypedDict):
+    &#34;&#34;&#34;``asdict(CostSummary)`` mirror.&#34;&#34;&#34;
+    feature_name: str
+    total_invocations: int
+    total_processing_time_sec: float
+    total_cost: float
+    avg_cost_per_file: float
+    success_rate: float
+    total_files_processed: int</code></pre>
+</details>
+<div class="desc"><p><code>asdict(<a title="src.cost_roi_calculator.CostSummary" href="#src.cost_roi_calculator.CostSummary">CostSummary</a>)</code> mirror.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.cost_roi_calculator.CostSummaryDict.avg_cost_per_file"><code class="name">var <span class="ident">avg_cost_per_file</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.CostSummaryDict.feature_name"><code class="name">var <span class="ident">feature_name</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.CostSummaryDict.success_rate"><code class="name">var <span class="ident">success_rate</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.CostSummaryDict.total_cost"><code class="name">var <span class="ident">total_cost</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.CostSummaryDict.total_files_processed"><code class="name">var <span class="ident">total_files_processed</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.CostSummaryDict.total_invocations"><code class="name">var <span class="ident">total_invocations</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.CostSummaryDict.total_processing_time_sec"><code class="name">var <span class="ident">total_processing_time_sec</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 </dd>
@@ -1517,15 +1700,21 @@ class CostSummary:
         self.files_processed = files_processed
         self.input_file_size_bytes = input_file_size_bytes
         self.metadata = metadata or {}
-        self.start_time = None
+        self.start_time: Optional[float] = None
         self.success = True
-        self.error_message = None
+        self.error_message: Optional[str] = None
 
     def __enter__(self) -&gt; &#39;CostTracker&#39;:
         self.start_time = time.time()
         return self
 
-    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -&gt; bool:
+    def __exit__(
+        self,
+        exc_type: Optional[type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -&gt; Literal[False]:
+        assert self.start_time is not None  # set in __enter__
         processing_time = time.time() - self.start_time
 
         if exc_type is not None:
@@ -1545,8 +1734,9 @@ class CostSummary:
         return False  # Don&#39;t suppress exceptions</code></pre>
 </details>
 <div class="desc"><p>Context manager for tracking feature usage costs.</p>
-<h2 id="usage">Usage</h2>
-<p>calculator = CostROICalculator()
+<p>Usage
+-----=
+calculator = CostROICalculator()
 with CostTracker(calculator, 'clip_vision', files_processed=1) as tracker:
 # Do the work
 result = analyze_image(image_path)</p>
@@ -1554,7 +1744,7 @@ result = analyze_image(image_path)</p>
 </dd>
 <dt id="src.cost_roi_calculator.CostType"><code class="flex name class">
 <span>class <span class="ident">CostType</span></span>
-<span>(</span><span>*args, **kwds)</span>
+<span>(</span><span>*values)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -1577,19 +1767,65 @@ result = analyze_image(image_path)</p>
 <dl>
 <dt id="src.cost_roi_calculator.CostType.API_CALL"><code class="name">var <span class="ident">API_CALL</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.CostType.COMPUTE"><code class="name">var <span class="ident">COMPUTE</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.CostType.MEMORY"><code class="name">var <span class="ident">MEMORY</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.CostType.STORAGE"><code class="name">var <span class="ident">STORAGE</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.cost_roi_calculator.FeatureEstimate"><code class="flex name class">
+<span>class <span class="ident">FeatureEstimate</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FeatureEstimate(TypedDict):
+    &#34;&#34;&#34;Per-feature slice of ``estimate_cost_for_files()``.&#34;&#34;&#34;
+    estimated_cost: float
+    estimated_time_sec: float
+    estimated_time_human: str
+    estimated_value: float
+    estimated_roi: float</code></pre>
+</details>
+<div class="desc"><p>Per-feature slice of <code>estimate_cost_for_files()</code>.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.cost_roi_calculator.FeatureEstimate.estimated_cost"><code class="name">var <span class="ident">estimated_cost</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.FeatureEstimate.estimated_roi"><code class="name">var <span class="ident">estimated_roi</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.FeatureEstimate.estimated_time_human"><code class="name">var <span class="ident">estimated_time_human</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.FeatureEstimate.estimated_time_sec"><code class="name">var <span class="ident">estimated_time_sec</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.FeatureEstimate.estimated_value"><code class="name">var <span class="ident">estimated_value</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 </dd>
@@ -1622,45 +1858,45 @@ class ModelCostConfig:
 <dl>
 <dt id="src.cost_roi_calculator.ModelCostConfig.avg_processing_time_sec"><code class="name">var <span class="ident">avg_processing_time_sec</span> : float</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.ModelCostConfig.cost_per_unit"><code class="name">var <span class="ident">cost_per_unit</span> : float</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.ModelCostConfig.cost_type"><code class="name">var <span class="ident">cost_type</span> : <a title="src.cost_roi_calculator.CostType" href="#src.cost_roi_calculator.CostType">CostType</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.ModelCostConfig.description"><code class="name">var <span class="ident">description</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.ModelCostConfig.files_correctly_classified"><code class="name">var <span class="ident">files_correctly_classified</span> : float</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.ModelCostConfig.manual_time_saved_sec"><code class="name">var <span class="ident">manual_time_saved_sec</span> : float</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.ModelCostConfig.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.ModelCostConfig.success_rate"><code class="name">var <span class="ident">success_rate</span> : float</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.ModelCostConfig.unit_type"><code class="name">var <span class="ident">unit_type</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 </dd>
 <dt id="src.cost_roi_calculator.ROIMetrics"><code class="flex name class">
 <span>class <span class="ident">ROIMetrics</span></span>
-<span>(</span><span>feature_name: str,<br>total_cost: float,<br>total_value: float,<br>roi_percentage: float,<br>manual_hours_saved: float,<br>cost_per_file: float,<br>value_per_file: float,<br>break_even_files: int)</span>
+<span>(</span><span>feature_name: str,<br>total_cost: float,<br>total_value: float,<br>roi_percentage: float,<br>manual_hours_saved: float,<br>cost_per_file: float,<br>value_per_file: float,<br>break_even_files: int | float)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -1677,42 +1913,287 @@ class ROIMetrics:
     manual_hours_saved: float
     cost_per_file: float
     value_per_file: float
-    break_even_files: int  # Files needed to break even</code></pre>
+    break_even_files: int | float  # Files needed to break even (inf if never)</code></pre>
 </details>
 <div class="desc"><p>ROI metrics for a feature.</p></div>
 <h3>Instance variables</h3>
 <dl>
-<dt id="src.cost_roi_calculator.ROIMetrics.break_even_files"><code class="name">var <span class="ident">break_even_files</span> : int</code></dt>
+<dt id="src.cost_roi_calculator.ROIMetrics.break_even_files"><code class="name">var <span class="ident">break_even_files</span> : int | float</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.ROIMetrics.cost_per_file"><code class="name">var <span class="ident">cost_per_file</span> : float</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.ROIMetrics.feature_name"><code class="name">var <span class="ident">feature_name</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.ROIMetrics.manual_hours_saved"><code class="name">var <span class="ident">manual_hours_saved</span> : float</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.ROIMetrics.roi_percentage"><code class="name">var <span class="ident">roi_percentage</span> : float</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.ROIMetrics.total_cost"><code class="name">var <span class="ident">total_cost</span> : float</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.ROIMetrics.total_value"><code class="name">var <span class="ident">total_value</span> : float</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.ROIMetrics.value_per_file"><code class="name">var <span class="ident">value_per_file</span> : float</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.cost_roi_calculator.ROIMetricsDict"><code class="flex name class">
+<span>class <span class="ident">ROIMetricsDict</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ROIMetricsDict(TypedDict):
+    &#34;&#34;&#34;``asdict(ROIMetrics)`` mirror; ``break_even_files`` may be inf.&#34;&#34;&#34;
+    feature_name: str
+    total_cost: float
+    total_value: float
+    roi_percentage: float
+    manual_hours_saved: float
+    cost_per_file: float
+    value_per_file: float
+    break_even_files: float</code></pre>
+</details>
+<div class="desc"><p><code>asdict(<a title="src.cost_roi_calculator.ROIMetrics" href="#src.cost_roi_calculator.ROIMetrics">ROIMetrics</a>)</code> mirror; <code>break_even_files</code> may be inf.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.cost_roi_calculator.ROIMetricsDict.break_even_files"><code class="name">var <span class="ident">break_even_files</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.ROIMetricsDict.cost_per_file"><code class="name">var <span class="ident">cost_per_file</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.ROIMetricsDict.feature_name"><code class="name">var <span class="ident">feature_name</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.ROIMetricsDict.manual_hours_saved"><code class="name">var <span class="ident">manual_hours_saved</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.ROIMetricsDict.roi_percentage"><code class="name">var <span class="ident">roi_percentage</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.ROIMetricsDict.total_cost"><code class="name">var <span class="ident">total_cost</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.ROIMetricsDict.total_value"><code class="name">var <span class="ident">total_value</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.ROIMetricsDict.value_per_file"><code class="name">var <span class="ident">value_per_file</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.cost_roi_calculator.Recommendation"><code class="flex name class">
+<span>class <span class="ident">Recommendation</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Recommendation(TypedDict):
+    &#34;&#34;&#34;One cost-optimization recommendation.&#34;&#34;&#34;
+    feature: str
+    type: str
+    severity: str
+    message: str
+    potential_savings: float</code></pre>
+</details>
+<div class="desc"><p>One cost-optimization recommendation.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.cost_roi_calculator.Recommendation.feature"><code class="name">var <span class="ident">feature</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.Recommendation.message"><code class="name">var <span class="ident">message</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.Recommendation.potential_savings"><code class="name">var <span class="ident">potential_savings</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.Recommendation.severity"><code class="name">var <span class="ident">severity</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.Recommendation.type"><code class="name">var <span class="ident">type</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.cost_roi_calculator.ReportMetadata"><code class="flex name class">
+<span>class <span class="ident">ReportMetadata</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ReportMetadata(TypedDict):
+    &#34;&#34;&#34;``generate_report()[&#39;metadata&#39;]`` shape.&#34;&#34;&#34;
+    generated_at: str
+    session_start: str
+    session_duration_sec: float
+    total_usage_records: int</code></pre>
+</details>
+<div class="desc"><p><code>generate_report()['metadata']</code> shape.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.cost_roi_calculator.ReportMetadata.generated_at"><code class="name">var <span class="ident">generated_at</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.ReportMetadata.session_duration_sec"><code class="name">var <span class="ident">session_duration_sec</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.ReportMetadata.session_start"><code class="name">var <span class="ident">session_start</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.ReportMetadata.total_usage_records"><code class="name">var <span class="ident">total_usage_records</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.cost_roi_calculator.TotalCostReport"><code class="flex name class">
+<span>class <span class="ident">TotalCostReport</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TotalCostReport(TypedDict):
+    &#34;&#34;&#34;``calculate_total_cost()`` shape.&#34;&#34;&#34;
+    total_cost: float
+    total_files_processed: int
+    total_processing_time_sec: float
+    avg_cost_per_file: float
+    feature_breakdown: Dict[str, CostSummaryDict]</code></pre>
+</details>
+<div class="desc"><p><code>calculate_total_cost()</code> shape.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.cost_roi_calculator.TotalCostReport.avg_cost_per_file"><code class="name">var <span class="ident">avg_cost_per_file</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.TotalCostReport.feature_breakdown"><code class="name">var <span class="ident">feature_breakdown</span> : Dict[str, <a title="src.cost_roi_calculator.CostSummaryDict" href="#src.cost_roi_calculator.CostSummaryDict">CostSummaryDict</a>]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.TotalCostReport.total_cost"><code class="name">var <span class="ident">total_cost</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.TotalCostReport.total_files_processed"><code class="name">var <span class="ident">total_files_processed</span> : int</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.TotalCostReport.total_processing_time_sec"><code class="name">var <span class="ident">total_processing_time_sec</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.cost_roi_calculator.TotalROIReport"><code class="flex name class">
+<span>class <span class="ident">TotalROIReport</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TotalROIReport(TypedDict):
+    &#34;&#34;&#34;``calculate_total_roi()`` shape.&#34;&#34;&#34;
+    total_cost: float
+    total_value: float
+    overall_roi_percentage: float
+    total_manual_hours_saved: float
+    hourly_rate_used: float
+    feature_breakdown: Dict[str, ROIMetricsDict]</code></pre>
+</details>
+<div class="desc"><p><code>calculate_total_roi()</code> shape.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.cost_roi_calculator.TotalROIReport.feature_breakdown"><code class="name">var <span class="ident">feature_breakdown</span> : Dict[str, <a title="src.cost_roi_calculator.ROIMetricsDict" href="#src.cost_roi_calculator.ROIMetricsDict">ROIMetricsDict</a>]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.TotalROIReport.hourly_rate_used"><code class="name">var <span class="ident">hourly_rate_used</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.TotalROIReport.overall_roi_percentage"><code class="name">var <span class="ident">overall_roi_percentage</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.TotalROIReport.total_cost"><code class="name">var <span class="ident">total_cost</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.TotalROIReport.total_manual_hours_saved"><code class="name">var <span class="ident">total_manual_hours_saved</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.cost_roi_calculator.TotalROIReport.total_value"><code class="name">var <span class="ident">total_value</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 </dd>
@@ -1742,35 +2223,35 @@ class UsageRecord:
 <dl>
 <dt id="src.cost_roi_calculator.UsageRecord.error_message"><code class="name">var <span class="ident">error_message</span> : str | None</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.UsageRecord.feature_name"><code class="name">var <span class="ident">feature_name</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.UsageRecord.files_processed"><code class="name">var <span class="ident">files_processed</span> : int</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.UsageRecord.input_file_size_bytes"><code class="name">var <span class="ident">input_file_size_bytes</span> : int</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.UsageRecord.metadata"><code class="name">var <span class="ident">metadata</span> : Dict[str, Any]</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.UsageRecord.processing_time_sec"><code class="name">var <span class="ident">processing_time_sec</span> : float</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.UsageRecord.success"><code class="name">var <span class="ident">success</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 <dt id="src.cost_roi_calculator.UsageRecord.timestamp"><code class="name">var <span class="ident">timestamp</span> : datetime.datetime</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
 </dl>
 </dd>
@@ -1795,6 +2276,18 @@ class UsageRecord:
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
+<h4><code><a title="src.cost_roi_calculator.CostEstimate" href="#src.cost_roi_calculator.CostEstimate">CostEstimate</a></code></h4>
+<ul class="">
+<li><code><a title="src.cost_roi_calculator.CostEstimate.estimated_roi" href="#src.cost_roi_calculator.CostEstimate.estimated_roi">estimated_roi</a></code></li>
+<li><code><a title="src.cost_roi_calculator.CostEstimate.feature_estimates" href="#src.cost_roi_calculator.CostEstimate.feature_estimates">feature_estimates</a></code></li>
+<li><code><a title="src.cost_roi_calculator.CostEstimate.file_count" href="#src.cost_roi_calculator.CostEstimate.file_count">file_count</a></code></li>
+<li><code><a title="src.cost_roi_calculator.CostEstimate.total_estimated_cost" href="#src.cost_roi_calculator.CostEstimate.total_estimated_cost">total_estimated_cost</a></code></li>
+<li><code><a title="src.cost_roi_calculator.CostEstimate.total_estimated_time_human" href="#src.cost_roi_calculator.CostEstimate.total_estimated_time_human">total_estimated_time_human</a></code></li>
+<li><code><a title="src.cost_roi_calculator.CostEstimate.total_estimated_time_sec" href="#src.cost_roi_calculator.CostEstimate.total_estimated_time_sec">total_estimated_time_sec</a></code></li>
+<li><code><a title="src.cost_roi_calculator.CostEstimate.total_estimated_value" href="#src.cost_roi_calculator.CostEstimate.total_estimated_value">total_estimated_value</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="src.cost_roi_calculator.CostROICalculator" href="#src.cost_roi_calculator.CostROICalculator">CostROICalculator</a></code></h4>
 <ul class="">
 <li><code><a title="src.cost_roi_calculator.CostROICalculator.DEFAULT_COST_CONFIGS" href="#src.cost_roi_calculator.CostROICalculator.DEFAULT_COST_CONFIGS">DEFAULT_COST_CONFIGS</a></code></li>
@@ -1811,6 +2304,17 @@ class UsageRecord:
 </ul>
 </li>
 <li>
+<h4><code><a title="src.cost_roi_calculator.CostReport" href="#src.cost_roi_calculator.CostReport">CostReport</a></code></h4>
+<ul class="two-column">
+<li><code><a title="src.cost_roi_calculator.CostReport.cost_summary" href="#src.cost_roi_calculator.CostReport.cost_summary">cost_summary</a></code></li>
+<li><code><a title="src.cost_roi_calculator.CostReport.metadata" href="#src.cost_roi_calculator.CostReport.metadata">metadata</a></code></li>
+<li><code><a title="src.cost_roi_calculator.CostReport.model_configs" href="#src.cost_roi_calculator.CostReport.model_configs">model_configs</a></code></li>
+<li><code><a title="src.cost_roi_calculator.CostReport.projections" href="#src.cost_roi_calculator.CostReport.projections">projections</a></code></li>
+<li><code><a title="src.cost_roi_calculator.CostReport.recommendations" href="#src.cost_roi_calculator.CostReport.recommendations">recommendations</a></code></li>
+<li><code><a title="src.cost_roi_calculator.CostReport.roi_summary" href="#src.cost_roi_calculator.CostReport.roi_summary">roi_summary</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="src.cost_roi_calculator.CostSummary" href="#src.cost_roi_calculator.CostSummary">CostSummary</a></code></h4>
 <ul class="">
 <li><code><a title="src.cost_roi_calculator.CostSummary.avg_cost_per_file" href="#src.cost_roi_calculator.CostSummary.avg_cost_per_file">avg_cost_per_file</a></code></li>
@@ -1823,6 +2327,18 @@ class UsageRecord:
 </ul>
 </li>
 <li>
+<h4><code><a title="src.cost_roi_calculator.CostSummaryDict" href="#src.cost_roi_calculator.CostSummaryDict">CostSummaryDict</a></code></h4>
+<ul class="">
+<li><code><a title="src.cost_roi_calculator.CostSummaryDict.avg_cost_per_file" href="#src.cost_roi_calculator.CostSummaryDict.avg_cost_per_file">avg_cost_per_file</a></code></li>
+<li><code><a title="src.cost_roi_calculator.CostSummaryDict.feature_name" href="#src.cost_roi_calculator.CostSummaryDict.feature_name">feature_name</a></code></li>
+<li><code><a title="src.cost_roi_calculator.CostSummaryDict.success_rate" href="#src.cost_roi_calculator.CostSummaryDict.success_rate">success_rate</a></code></li>
+<li><code><a title="src.cost_roi_calculator.CostSummaryDict.total_cost" href="#src.cost_roi_calculator.CostSummaryDict.total_cost">total_cost</a></code></li>
+<li><code><a title="src.cost_roi_calculator.CostSummaryDict.total_files_processed" href="#src.cost_roi_calculator.CostSummaryDict.total_files_processed">total_files_processed</a></code></li>
+<li><code><a title="src.cost_roi_calculator.CostSummaryDict.total_invocations" href="#src.cost_roi_calculator.CostSummaryDict.total_invocations">total_invocations</a></code></li>
+<li><code><a title="src.cost_roi_calculator.CostSummaryDict.total_processing_time_sec" href="#src.cost_roi_calculator.CostSummaryDict.total_processing_time_sec">total_processing_time_sec</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="src.cost_roi_calculator.CostTracker" href="#src.cost_roi_calculator.CostTracker">CostTracker</a></code></h4>
 </li>
 <li>
@@ -1832,6 +2348,16 @@ class UsageRecord:
 <li><code><a title="src.cost_roi_calculator.CostType.COMPUTE" href="#src.cost_roi_calculator.CostType.COMPUTE">COMPUTE</a></code></li>
 <li><code><a title="src.cost_roi_calculator.CostType.MEMORY" href="#src.cost_roi_calculator.CostType.MEMORY">MEMORY</a></code></li>
 <li><code><a title="src.cost_roi_calculator.CostType.STORAGE" href="#src.cost_roi_calculator.CostType.STORAGE">STORAGE</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.cost_roi_calculator.FeatureEstimate" href="#src.cost_roi_calculator.FeatureEstimate">FeatureEstimate</a></code></h4>
+<ul class="">
+<li><code><a title="src.cost_roi_calculator.FeatureEstimate.estimated_cost" href="#src.cost_roi_calculator.FeatureEstimate.estimated_cost">estimated_cost</a></code></li>
+<li><code><a title="src.cost_roi_calculator.FeatureEstimate.estimated_roi" href="#src.cost_roi_calculator.FeatureEstimate.estimated_roi">estimated_roi</a></code></li>
+<li><code><a title="src.cost_roi_calculator.FeatureEstimate.estimated_time_human" href="#src.cost_roi_calculator.FeatureEstimate.estimated_time_human">estimated_time_human</a></code></li>
+<li><code><a title="src.cost_roi_calculator.FeatureEstimate.estimated_time_sec" href="#src.cost_roi_calculator.FeatureEstimate.estimated_time_sec">estimated_time_sec</a></code></li>
+<li><code><a title="src.cost_roi_calculator.FeatureEstimate.estimated_value" href="#src.cost_roi_calculator.FeatureEstimate.estimated_value">estimated_value</a></code></li>
 </ul>
 </li>
 <li>
@@ -1859,6 +2385,59 @@ class UsageRecord:
 <li><code><a title="src.cost_roi_calculator.ROIMetrics.total_cost" href="#src.cost_roi_calculator.ROIMetrics.total_cost">total_cost</a></code></li>
 <li><code><a title="src.cost_roi_calculator.ROIMetrics.total_value" href="#src.cost_roi_calculator.ROIMetrics.total_value">total_value</a></code></li>
 <li><code><a title="src.cost_roi_calculator.ROIMetrics.value_per_file" href="#src.cost_roi_calculator.ROIMetrics.value_per_file">value_per_file</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.cost_roi_calculator.ROIMetricsDict" href="#src.cost_roi_calculator.ROIMetricsDict">ROIMetricsDict</a></code></h4>
+<ul class="two-column">
+<li><code><a title="src.cost_roi_calculator.ROIMetricsDict.break_even_files" href="#src.cost_roi_calculator.ROIMetricsDict.break_even_files">break_even_files</a></code></li>
+<li><code><a title="src.cost_roi_calculator.ROIMetricsDict.cost_per_file" href="#src.cost_roi_calculator.ROIMetricsDict.cost_per_file">cost_per_file</a></code></li>
+<li><code><a title="src.cost_roi_calculator.ROIMetricsDict.feature_name" href="#src.cost_roi_calculator.ROIMetricsDict.feature_name">feature_name</a></code></li>
+<li><code><a title="src.cost_roi_calculator.ROIMetricsDict.manual_hours_saved" href="#src.cost_roi_calculator.ROIMetricsDict.manual_hours_saved">manual_hours_saved</a></code></li>
+<li><code><a title="src.cost_roi_calculator.ROIMetricsDict.roi_percentage" href="#src.cost_roi_calculator.ROIMetricsDict.roi_percentage">roi_percentage</a></code></li>
+<li><code><a title="src.cost_roi_calculator.ROIMetricsDict.total_cost" href="#src.cost_roi_calculator.ROIMetricsDict.total_cost">total_cost</a></code></li>
+<li><code><a title="src.cost_roi_calculator.ROIMetricsDict.total_value" href="#src.cost_roi_calculator.ROIMetricsDict.total_value">total_value</a></code></li>
+<li><code><a title="src.cost_roi_calculator.ROIMetricsDict.value_per_file" href="#src.cost_roi_calculator.ROIMetricsDict.value_per_file">value_per_file</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.cost_roi_calculator.Recommendation" href="#src.cost_roi_calculator.Recommendation">Recommendation</a></code></h4>
+<ul class="">
+<li><code><a title="src.cost_roi_calculator.Recommendation.feature" href="#src.cost_roi_calculator.Recommendation.feature">feature</a></code></li>
+<li><code><a title="src.cost_roi_calculator.Recommendation.message" href="#src.cost_roi_calculator.Recommendation.message">message</a></code></li>
+<li><code><a title="src.cost_roi_calculator.Recommendation.potential_savings" href="#src.cost_roi_calculator.Recommendation.potential_savings">potential_savings</a></code></li>
+<li><code><a title="src.cost_roi_calculator.Recommendation.severity" href="#src.cost_roi_calculator.Recommendation.severity">severity</a></code></li>
+<li><code><a title="src.cost_roi_calculator.Recommendation.type" href="#src.cost_roi_calculator.Recommendation.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.cost_roi_calculator.ReportMetadata" href="#src.cost_roi_calculator.ReportMetadata">ReportMetadata</a></code></h4>
+<ul class="">
+<li><code><a title="src.cost_roi_calculator.ReportMetadata.generated_at" href="#src.cost_roi_calculator.ReportMetadata.generated_at">generated_at</a></code></li>
+<li><code><a title="src.cost_roi_calculator.ReportMetadata.session_duration_sec" href="#src.cost_roi_calculator.ReportMetadata.session_duration_sec">session_duration_sec</a></code></li>
+<li><code><a title="src.cost_roi_calculator.ReportMetadata.session_start" href="#src.cost_roi_calculator.ReportMetadata.session_start">session_start</a></code></li>
+<li><code><a title="src.cost_roi_calculator.ReportMetadata.total_usage_records" href="#src.cost_roi_calculator.ReportMetadata.total_usage_records">total_usage_records</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.cost_roi_calculator.TotalCostReport" href="#src.cost_roi_calculator.TotalCostReport">TotalCostReport</a></code></h4>
+<ul class="">
+<li><code><a title="src.cost_roi_calculator.TotalCostReport.avg_cost_per_file" href="#src.cost_roi_calculator.TotalCostReport.avg_cost_per_file">avg_cost_per_file</a></code></li>
+<li><code><a title="src.cost_roi_calculator.TotalCostReport.feature_breakdown" href="#src.cost_roi_calculator.TotalCostReport.feature_breakdown">feature_breakdown</a></code></li>
+<li><code><a title="src.cost_roi_calculator.TotalCostReport.total_cost" href="#src.cost_roi_calculator.TotalCostReport.total_cost">total_cost</a></code></li>
+<li><code><a title="src.cost_roi_calculator.TotalCostReport.total_files_processed" href="#src.cost_roi_calculator.TotalCostReport.total_files_processed">total_files_processed</a></code></li>
+<li><code><a title="src.cost_roi_calculator.TotalCostReport.total_processing_time_sec" href="#src.cost_roi_calculator.TotalCostReport.total_processing_time_sec">total_processing_time_sec</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.cost_roi_calculator.TotalROIReport" href="#src.cost_roi_calculator.TotalROIReport">TotalROIReport</a></code></h4>
+<ul class="">
+<li><code><a title="src.cost_roi_calculator.TotalROIReport.feature_breakdown" href="#src.cost_roi_calculator.TotalROIReport.feature_breakdown">feature_breakdown</a></code></li>
+<li><code><a title="src.cost_roi_calculator.TotalROIReport.hourly_rate_used" href="#src.cost_roi_calculator.TotalROIReport.hourly_rate_used">hourly_rate_used</a></code></li>
+<li><code><a title="src.cost_roi_calculator.TotalROIReport.overall_roi_percentage" href="#src.cost_roi_calculator.TotalROIReport.overall_roi_percentage">overall_roi_percentage</a></code></li>
+<li><code><a title="src.cost_roi_calculator.TotalROIReport.total_cost" href="#src.cost_roi_calculator.TotalROIReport.total_cost">total_cost</a></code></li>
+<li><code><a title="src.cost_roi_calculator.TotalROIReport.total_manual_hours_saved" href="#src.cost_roi_calculator.TotalROIReport.total_manual_hours_saved">total_manual_hours_saved</a></code></li>
+<li><code><a title="src.cost_roi_calculator.TotalROIReport.total_value" href="#src.cost_roi_calculator.TotalROIReport.total_value">total_value</a></code></li>
 </ul>
 </li>
 <li>

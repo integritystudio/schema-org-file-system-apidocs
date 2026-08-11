@@ -1,0 +1,1277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>src.scoring API documentation</title>
+<meta name="description" content="Unified scoring engine (docs/architecture/UNIFIED_SCORING_PLAN.md) …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>src.scoring</code></h1>
+</header>
+<section id="section-intro">
+<p>Unified scoring engine (docs/architecture/UNIFIED_SCORING_PLAN.md).</p>
+<p>Replaces the first-match-wins tier chain in
+<code>ContentOrganizer.detect_file_category</code> with a weighted multi-signal
+scorer. The legacy chain and shadow mode were removed in Phase 5.</p>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="src.scoring.context" href="context.html">src.scoring.context</a></code></dt>
+<dd>
+<div class="desc"><p>FileContext: per-file inputs with lazy, memoized extraction …</p></div>
+</dd>
+<dt><code class="name"><a title="src.scoring.registry" href="registry.html">src.scoring.registry</a></code></dt>
+<dd>
+<div class="desc"><p>Ordered signal registry (UNIFIED_SCORING_PLAN §3.4) …</p></div>
+</dd>
+<dt><code class="name"><a title="src.scoring.scorer" href="scorer.html">src.scoring.scorer</a></code></dt>
+<dd>
+<div class="desc"><p>Scorer: run registered signals in cost-tier waves and aggregate …</p></div>
+</dd>
+<dt><code class="name"><a title="src.scoring.signals" href="signals/index.html">src.scoring.signals</a></code></dt>
+<dd>
+<div class="desc"><p>Signal implementations for the unified scorer …</p></div>
+</dd>
+<dt><code class="name"><a title="src.scoring.types" href="types.html">src.scoring.types</a></code></dt>
+<dd>
+<div class="desc"><p>Core interfaces for the unified scoring engine …</p></div>
+</dd>
+<dt><code class="name"><a title="src.scoring.weights" href="weights.html">src.scoring.weights</a></code></dt>
+<dd>
+<div class="desc"><p>Signal priors and decision thresholds — single source of truth …</p></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="src.scoring.build_default_signals"><code class="name flex">
+<span>def <span class="ident">build_default_signals</span></span>(<span>*,<br>classifier: Any = None,<br>screenshot_classifier: Any = None,<br>image_analyzer: Any = None,<br>category_paths: Optional[dict] = None,<br>game_sprite_keywords: Optional[List[str]] = None) ‑> List[<a title="src.scoring.types.Signal" href="types.html#src.scoring.types.Signal">Signal</a>]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def build_default_signals(
+    *,
+    classifier: Any = None,
+    screenshot_classifier: Any = None,
+    image_analyzer: Any = None,
+    category_paths: Optional[dict] = None,
+    game_sprite_keywords: Optional[List[str]] = None,
+) -&gt; List[Signal]:
+    &#34;&#34;&#34;Build the production signal list in §4 order (priors descending).
+
+    Dependency parameters mirror what ``ContentOrganizer`` owns today:
+
+    - ``classifier``: ContentClassifier (keyword scoring + entity extraction).
+      Signals that require it are omitted when it is ``None`` (lightweight /
+      test organizers degrade gracefully instead of erroring per file).
+    - ``screenshot_classifier``: ContentClassifier for screenshot OCR
+      sub-classification (the production script passes the image renamer&#39;s).
+    - ``image_analyzer``: ImageContentAnalyzer; ``PhotoCompositionSignal``
+      gates itself on its availability.
+    - ``category_paths``: the organizer&#39;s (deep-copied) content taxonomy —
+      the screenshots sub-dict keys drive renamed-screenshot/OCR routing.
+    - ``game_sprite_keywords``: the caller&#39;s sprite vocabulary for the
+      filename rules (defaults to the shared constant inside each signal).
+    &#34;&#34;&#34;
+    screenshots_dict: dict = {}
+    if category_paths:
+        screenshots_dict = category_paths.get(&#34;media&#34;, {}).get(&#34;photos&#34;, {}).get(&#34;screenshots&#34;, {})
+
+    signals: List[Signal] = [
+        RenamedScreenshotSignal(screenshots_dict),  # W_RENAMED = 1.2
+        FilenamePatternSignal(list(game_sprite_keywords or [])),  # W_FILENAME = 1.1
+    ]
+    if classifier is not None:
+        signals.append(KieStructuredSignal(classifier))  # W_KIE = 1.1
+        signals.append(IdentityDocumentSignal(classifier))  # W_ID = 1.0
+        signals.append(OrganizationKeywordSignal(classifier))  # W_ORG = 1.0
+    # Always-on (pure regex over extracted text/OCR, no classifier dep).
+    signals.append(EventContentSignal())  # W_EVENT = 1.0
+    # Always-on (stdlib zipfile listing, no classifier dep).
+    signals.append(ArchiveManifestSignal())  # W_ARCHIVE = 0.9
+    if classifier is not None:
+        signals.append(PersonalDocSignal(classifier))  # W_PERSON = 0.9
+        signals.append(LegalContentSignal(classifier))  # W_LEGAL = 0.85
+    # Always-on (no classifier dep) — trained CLIP-embedding scene probe
+    # (MEDIA_EXTERIORS_PLAN; replaced the binary C1 InteriorSignal 2026-07-18).
+    # No-ops when its joblib artifact / sklearn / CLIP is absent.
+    signals.append(SceneSignal())  # W_SCENE = 0.85
+    signals.append(
+        GameAssetSignal(
+            sprite_keywords=game_sprite_keywords,  # None → shared constant
+        )  # W_GAME = 0.8
+    )
+    if classifier is not None:
+        signals.append(TextContentSignal(classifier))  # W_TEXT = 0.8
+    signals.append(
+        ScreenshotOcrSignal(
+            screenshot_classifier=screenshot_classifier,
+            screenshots_dict=screenshots_dict,
+        )  # W_UI = 0.75
+    )
+    signals.append(GraphicDetectionSignal())  # W_GRAPHIC = 0.75
+    signals.append(ClipVisionSignal())  # W_CLIP = 0.7
+    signals.append(MediaHeuristicSignal())  # W_MEDIA = 0.65
+    signals.append(PhotoCompositionSignal(image_analyzer))  # W_PEOPLE_PHOTO = 0.65
+    signals.append(FilepathSignal())  # W_PATH = 0.6
+    signals.append(MimeFallbackSignal())  # W_MIME = 0.4
+    return signals</code></pre>
+</details>
+<div class="desc"><p>Build the production signal list in §4 order (priors descending).</p>
+<p>Dependency parameters mirror what <code>ContentOrganizer</code> owns today:</p>
+<ul>
+<li><code>classifier</code>: ContentClassifier (keyword scoring + entity extraction).
+Signals that require it are omitted when it is <code>None</code> (lightweight /
+test organizers degrade gracefully instead of erroring per file).</li>
+<li><code>screenshot_classifier</code>: ContentClassifier for screenshot OCR
+sub-classification (the production script passes the image renamer's).</li>
+<li><code>image_analyzer</code>: ImageContentAnalyzer; <code>PhotoCompositionSignal</code>
+gates itself on its availability.</li>
+<li><code>category_paths</code>: the organizer's (deep-copied) content taxonomy —
+the screenshots sub-dict keys drive renamed-screenshot/OCR routing.</li>
+<li><code>game_sprite_keywords</code>: the caller's sprite vocabulary for the
+filename rules (defaults to the shared constant inside each signal).</li>
+</ul></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="src.scoring.CategoryScore"><code class="flex name class">
+<span>class <span class="ident">CategoryScore</span></span>
+<span>(</span><span>category: str,<br>subcategory: str,<br>confidence: float,<br>signal_name: str,<br>evidence: Dict[str, Any] = &lt;factory&gt;)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass(frozen=True)
+class CategoryScore:
+    &#34;&#34;&#34;One signal&#39;s vote for a (category, subcategory) with local confidence.&#34;&#34;&#34;
+
+    category: str
+    subcategory: str
+    confidence: float  # signal-local, [0, 1]
+    signal_name: str
+    evidence: Dict[str, Any] = field(default_factory=dict)</code></pre>
+</details>
+<div class="desc"><p>One signal's vote for a (category, subcategory) with local confidence.</p></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="src.scoring.CategoryScore.category"><code class="name">var <span class="ident">category</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.CategoryScore.confidence"><code class="name">var <span class="ident">confidence</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.CategoryScore.evidence"><code class="name">var <span class="ident">evidence</span> : Dict[str, Any]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.CategoryScore.signal_name"><code class="name">var <span class="ident">signal_name</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.CategoryScore.subcategory"><code class="name">var <span class="ident">subcategory</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.scoring.ClassificationDecision"><code class="flex name class">
+<span>class <span class="ident">ClassificationDecision</span></span>
+<span>(</span><span>category: str,<br>subcategory: str,<br>schema_type: str,<br>confidence: float,<br>margin: float,<br>winning_signals: List[str],<br>all_scores: List[<a title="src.scoring.CategoryScore" href="#src.scoring.CategoryScore">CategoryScore</a>],<br>company_name: Optional[str],<br>people_names: List[str],<br>decision_state: str = 'committed')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass(frozen=True)
+class ClassificationDecision:
+    &#34;&#34;&#34;Aggregated scoring outcome for one file (§5.3).
+
+    ``confidence`` is the argmax candidate&#39;s aggregate clamped to [0, 1];
+    thresholds operate on the raw (unclamped) aggregate. ``margin`` is the raw
+    lead over the best runner-up in a *different* category (the raw aggregate
+    itself when no other-category candidate exists) — same-category
+    subcategory rivals do not count, so an unambiguous category commits its
+    best subcategory. ``winning_signals`` always describes the argmax
+    candidate, even when ``decision_state`` routed the file to the fallback
+    bucket.
+    &#34;&#34;&#34;
+
+    category: str
+    subcategory: str
+    schema_type: str
+    confidence: float
+    margin: float
+    winning_signals: List[str]
+    all_scores: List[CategoryScore]
+    company_name: Optional[str]
+    people_names: List[str]
+    decision_state: str = &#34;committed&#34;</code></pre>
+</details>
+<div class="desc"><p>Aggregated scoring outcome for one file (§5.3).</p>
+<p><code>confidence</code> is the argmax candidate's aggregate clamped to [0, 1];
+thresholds operate on the raw (unclamped) aggregate. <code>margin</code> is the raw
+lead over the best runner-up in a <em>different</em> category (the raw aggregate
+itself when no other-category candidate exists) — same-category
+subcategory rivals do not count, so an unambiguous category commits its
+best subcategory. <code>winning_signals</code> always describes the argmax
+candidate, even when <code>decision_state</code> routed the file to the fallback
+bucket.</p></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="src.scoring.ClassificationDecision.all_scores"><code class="name">var <span class="ident">all_scores</span> : List[<a title="src.scoring.types.CategoryScore" href="types.html#src.scoring.types.CategoryScore">CategoryScore</a>]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.ClassificationDecision.category"><code class="name">var <span class="ident">category</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.ClassificationDecision.company_name"><code class="name">var <span class="ident">company_name</span> : str | None</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.ClassificationDecision.confidence"><code class="name">var <span class="ident">confidence</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.ClassificationDecision.decision_state"><code class="name">var <span class="ident">decision_state</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.ClassificationDecision.margin"><code class="name">var <span class="ident">margin</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.ClassificationDecision.people_names"><code class="name">var <span class="ident">people_names</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.ClassificationDecision.schema_type"><code class="name">var <span class="ident">schema_type</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.ClassificationDecision.subcategory"><code class="name">var <span class="ident">subcategory</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.ClassificationDecision.winning_signals"><code class="name">var <span class="ident">winning_signals</span> : List[str]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.scoring.FileContext"><code class="flex name class">
+<span>class <span class="ident">FileContext</span></span>
+<span>(</span><span>path: Path,<br>schema_type: str,<br>mime_type: Optional[str] = None,<br>display_path: Optional[Path] = None,<br>*,<br>text_provider: Optional[Callable[[Path], str]] = None,<br>ocr_provider: Optional[Callable[[Path], Optional[OcrResultLike]]] = None,<br>clip_provider: Optional[Callable[[Path], Optional[Dict[str, float]]]] = None,<br>image_metadata_provider: Optional[Callable[[Path], Dict[str, Any]]] = None,<br>kie_provider: Optional[Callable[[Path], Optional[KieResultLike]]] = None,<br>ocr_confidence_gate: float = 0.3,<br>ocr_clip_topk: Optional[int] = None,<br>clip_text_labels: FrozenSet[str] = frozenset())</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FileContext:
+    &#34;&#34;&#34;Lazily populated per-file inputs shared by all signals (§5.1).&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        path: Path,
+        schema_type: str,
+        mime_type: Optional[str] = None,
+        display_path: Optional[Path] = None,
+        *,
+        text_provider: Optional[Callable[[Path], str]] = None,
+        ocr_provider: Optional[Callable[[Path], Optional[OcrResultLike]]] = None,
+        clip_provider: Optional[Callable[[Path], Optional[Dict[str, float]]]] = None,
+        image_metadata_provider: Optional[Callable[[Path], Dict[str, Any]]] = None,
+        kie_provider: Optional[Callable[[Path], Optional[KieResultLike]]] = None,
+        ocr_confidence_gate: float = OCR_CONFIDENCE_GATE,
+        ocr_clip_topk: Optional[int] = None,
+        clip_text_labels: FrozenSet[str] = frozenset(),
+    ) -&gt; None:
+        self.path = Path(path)
+        self.schema_type = schema_type
+        self.mime_type = mime_type
+        self.display_path = Path(display_path) if display_path is not None else None
+
+        self._text_provider = text_provider
+        self._ocr_provider = ocr_provider
+        self._clip_provider = clip_provider
+        self._image_metadata_provider = image_metadata_provider
+        self._kie_provider = kie_provider
+        self._ocr_confidence_gate = ocr_confidence_gate
+        # CLIP-based OCR gate (opt-in). None disables it (OCR always runs on
+        # images, the historical behavior). When set to an integer K, an image
+        # skips OCR unless a text-bearing label (``clip_text_labels``) ranks in
+        # its top-K CLIP labels. Ranking, not magnitude: cached CLIP scores are
+        # a near-uniform softmax (~0.05/label over 20 labels), so absolute
+        # summed probability can&#39;t separate text images from photos — the
+        # signal is in which labels rank highest (eval: K=3 → 100% text recall,
+        # 35% of photos skip OCR). OCR is the dominant per-file cost.
+        self._ocr_clip_topk = ocr_clip_topk
+        self._clip_text_labels = clip_text_labels
+
+        self._text: Any = _UNSET
+        self._ocr: Any = _UNSET
+        self._clip: Any = _UNSET
+        self._image_metadata: Any = _UNSET
+        self._kie: Any = _UNSET
+        # Telemetry: set when ensure_ocr suppressed OCR via the CLIP gate.
+        self._ocr_gated: bool = False
+
+    # ------------------------------------------------------------------ #
+    # Derived path conveniences                                            #
+    # ------------------------------------------------------------------ #
+
+    @property
+    def pattern_path(self) -&gt; Path:
+        &#34;&#34;&#34;Path whose *name* drives filename classification (display first).&#34;&#34;&#34;
+        return self.display_path or self.path
+
+    @property
+    def is_image(self) -&gt; bool:
+        return self.schema_type == _IMAGE_SCHEMA_TYPE
+
+    # ------------------------------------------------------------------ #
+    # Lazy extractions (each provider runs at most once)                   #
+    # ------------------------------------------------------------------ #
+
+    def ensure_text(self) -&gt; str:
+        &#34;&#34;&#34;Extracted document text (&#39;&#39; when unavailable).
+
+        For images this routes through :meth:`ensure_ocr` so text and OCR are
+        the same extraction — the explicit form of the legacy tier-3.5 →
+        tier-6 cached-OCR coupling.
+        &#34;&#34;&#34;
+        if self._text is _UNSET:
+            if self.is_image:
+                ocr = self.ensure_ocr()
+                self._text = (ocr.text if ocr is not None else &#34;&#34;) or &#34;&#34;
+            elif self._text_provider is None:
+                self._text = &#34;&#34;
+            else:
+                self._text = self._text_provider(self.path) or &#34;&#34;
+        return cast(str, self._text)
+
+    @property
+    def text_length(self) -&gt; int:
+        return len(self.ensure_text())
+
+    def ensure_ocr(self) -&gt; Optional[OcrResultLike]:
+        &#34;&#34;&#34;OCR result (``shared.ocr_classifier.OCRResult``-shaped) or None.
+
+        The provider is *image* OCR (easyocr → docTR image readers), so
+        non-images resolve to None without invoking it — their text comes
+        from ``ensure_text``&#39;s text_provider (PDF/docx/xlsx/plain-text
+        extractors), and feeding them to the image backends only produces
+        backend errors before returning None anyway.
+
+        When the CLIP OCR gate is enabled, an image CLIP confidently reads as
+        a text-free photo skips OCR (returns None) — the OCR CNN pass is the
+        dominant per-file cost, so this is the primary throughput lever on
+        photo-heavy sources. The gate never fires when no OCR provider exists,
+        on non-images, or when CLIP yields no signal (fail-open: run OCR).
+        &#34;&#34;&#34;
+        if self._ocr is _UNSET:
+            if self._ocr_provider is None or not self.is_image:
+                self._ocr = None
+            elif self._skip_ocr_by_clip_gate():
+                self._ocr_gated = True
+                self._ocr = None
+            else:
+                self._ocr = self._ocr_provider(self.path)
+        return cast(Optional[OcrResultLike], self._ocr)
+
+    def _skip_ocr_by_clip_gate(self) -&gt; bool:
+        &#34;&#34;&#34;True when the CLIP gate is enabled and votes &#39;text-free photo&#39;.
+
+        Keeps OCR when any text-bearing label ranks in the top-K CLIP labels;
+        skips otherwise. Fails open (keeps OCR) when the gate is disabled (K
+        is None, 0, or negative), the file is not an image, or CLIP produced
+        no signal. Pass K=0 to disable (e.g. --ocr-clip-topk 0 on CLI).
+        &#34;&#34;&#34;
+        if not self._ocr_clip_topk or self._ocr_clip_topk &lt; 0 or not self.is_image:
+            return False
+        clip = self.ensure_clip()
+        if not clip:  # no CLIP signal → fail open, keep OCR
+            return False
+        top_labels = sorted(clip, key=lambda label: clip[label], reverse=True)[
+            : self._ocr_clip_topk
+        ]
+        return not any(label in self._clip_text_labels for label in top_labels)
+
+    @property
+    def ocr_gated(self) -&gt; bool:
+        &#34;&#34;&#34;Whether the CLIP gate suppressed OCR for this file (telemetry).&#34;&#34;&#34;
+        return self._ocr_gated
+
+    @property
+    def ocr_text(self) -&gt; str:
+        ocr = self.ensure_ocr()
+        return (ocr.text if ocr is not None else &#34;&#34;) or &#34;&#34;
+
+    @property
+    def ocr_confidence(self) -&gt; Optional[float]:
+        ocr = self.ensure_ocr()
+        return ocr.confidence if ocr is not None else None
+
+    @property
+    def ocr_language(self) -&gt; Optional[str]:
+        ocr = self.ensure_ocr()
+        return ocr.language if ocr is not None else None
+
+    def ensure_clip(self) -&gt; Dict[str, float]:
+        &#34;&#34;&#34;CLIP label → score mapping ({} when vision is unavailable).&#34;&#34;&#34;
+        if self._clip is _UNSET:
+            scores = self._clip_provider(self.path) if self._clip_provider else None
+            self._clip = dict(scores) if scores else {}
+        return cast(Dict[str, float], self._clip)
+
+    def ensure_image_metadata(self) -&gt; Dict[str, Any]:
+        &#34;&#34;&#34;EXIF/GPS metadata summary ({} when unavailable or not an image).&#34;&#34;&#34;
+        if self._image_metadata is _UNSET:
+            provider = self._image_metadata_provider
+            metadata = provider(self.path) if (provider and self.is_image) else None
+            self._image_metadata = metadata or {}
+        return cast(Dict[str, Any], self._image_metadata)
+
+    def ensure_kie(self) -&gt; Optional[KieResultLike]:
+        &#34;&#34;&#34;KIE result, gated on reliable OCR (conf ≥ gate), or None.
+
+        Encodes the legacy tier-3.5 dependency explicitly: KIE extraction only
+        runs when OCR produced a confidence at or above
+        ``ocr_confidence_gate`` (low-confidence OCR on a blurry photo must not
+        feed structured extraction).
+        &#34;&#34;&#34;
+        if self._kie is _UNSET:
+            self._kie = None
+            if self._kie_provider is not None:
+                ocr = self.ensure_ocr()
+                confidence = ocr.confidence if ocr is not None else None
+                if confidence is not None and confidence &gt;= self._ocr_confidence_gate:
+                    self._kie = self._kie_provider(self.path)
+        return cast(Optional[KieResultLike], self._kie)
+
+    # ------------------------------------------------------------------ #
+    # Non-forcing accessors (telemetry/persistence must not trigger        #
+    # extraction that no signal asked for)                                 #
+    # ------------------------------------------------------------------ #
+
+    @property
+    def text_if_loaded(self) -&gt; Optional[str]:
+        return None if self._text is _UNSET else self._text
+
+    @property
+    def ocr_if_loaded(self) -&gt; Optional[OcrResultLike]:
+        return None if self._ocr is _UNSET else cast(
+            Optional[OcrResultLike], self._ocr
+        )
+
+    @property
+    def clip_if_loaded(self) -&gt; Optional[Dict[str, float]]:
+        return None if self._clip is _UNSET else self._clip
+
+    @property
+    def image_metadata_if_loaded(self) -&gt; Optional[Dict[str, Any]]:
+        return None if self._image_metadata is _UNSET else self._image_metadata
+
+    @property
+    def kie_if_loaded(self) -&gt; Optional[KieResultLike]:
+        return None if self._kie is _UNSET else cast(
+            Optional[KieResultLike], self._kie
+        )</code></pre>
+</details>
+<div class="desc"><p>Lazily populated per-file inputs shared by all signals (§5.1).</p></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="src.scoring.FileContext.clip_if_loaded"><code class="name">prop <span class="ident">clip_if_loaded</span> : Optional[Dict[str, float]]</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def clip_if_loaded(self) -&gt; Optional[Dict[str, float]]:
+    return None if self._clip is _UNSET else self._clip</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="src.scoring.FileContext.image_metadata_if_loaded"><code class="name">prop <span class="ident">image_metadata_if_loaded</span> : Optional[Dict[str, Any]]</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def image_metadata_if_loaded(self) -&gt; Optional[Dict[str, Any]]:
+    return None if self._image_metadata is _UNSET else self._image_metadata</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="src.scoring.FileContext.is_image"><code class="name">prop <span class="ident">is_image</span> : bool</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_image(self) -&gt; bool:
+    return self.schema_type == _IMAGE_SCHEMA_TYPE</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="src.scoring.FileContext.kie_if_loaded"><code class="name">prop <span class="ident">kie_if_loaded</span> : Optional[KieResultLike]</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def kie_if_loaded(self) -&gt; Optional[KieResultLike]:
+    return None if self._kie is _UNSET else cast(
+        Optional[KieResultLike], self._kie
+    )</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="src.scoring.FileContext.ocr_confidence"><code class="name">prop <span class="ident">ocr_confidence</span> : Optional[float]</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def ocr_confidence(self) -&gt; Optional[float]:
+    ocr = self.ensure_ocr()
+    return ocr.confidence if ocr is not None else None</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="src.scoring.FileContext.ocr_gated"><code class="name">prop <span class="ident">ocr_gated</span> : bool</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def ocr_gated(self) -&gt; bool:
+    &#34;&#34;&#34;Whether the CLIP gate suppressed OCR for this file (telemetry).&#34;&#34;&#34;
+    return self._ocr_gated</code></pre>
+</details>
+<div class="desc"><p>Whether the CLIP gate suppressed OCR for this file (telemetry).</p></div>
+</dd>
+<dt id="src.scoring.FileContext.ocr_if_loaded"><code class="name">prop <span class="ident">ocr_if_loaded</span> : Optional[OcrResultLike]</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def ocr_if_loaded(self) -&gt; Optional[OcrResultLike]:
+    return None if self._ocr is _UNSET else cast(
+        Optional[OcrResultLike], self._ocr
+    )</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="src.scoring.FileContext.ocr_language"><code class="name">prop <span class="ident">ocr_language</span> : Optional[str]</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def ocr_language(self) -&gt; Optional[str]:
+    ocr = self.ensure_ocr()
+    return ocr.language if ocr is not None else None</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="src.scoring.FileContext.ocr_text"><code class="name">prop <span class="ident">ocr_text</span> : str</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def ocr_text(self) -&gt; str:
+    ocr = self.ensure_ocr()
+    return (ocr.text if ocr is not None else &#34;&#34;) or &#34;&#34;</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="src.scoring.FileContext.pattern_path"><code class="name">prop <span class="ident">pattern_path</span> : Path</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def pattern_path(self) -&gt; Path:
+    &#34;&#34;&#34;Path whose *name* drives filename classification (display first).&#34;&#34;&#34;
+    return self.display_path or self.path</code></pre>
+</details>
+<div class="desc"><p>Path whose <em>name</em> drives filename classification (display first).</p></div>
+</dd>
+<dt id="src.scoring.FileContext.text_if_loaded"><code class="name">prop <span class="ident">text_if_loaded</span> : Optional[str]</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def text_if_loaded(self) -&gt; Optional[str]:
+    return None if self._text is _UNSET else self._text</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="src.scoring.FileContext.text_length"><code class="name">prop <span class="ident">text_length</span> : int</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def text_length(self) -&gt; int:
+    return len(self.ensure_text())</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="src.scoring.FileContext.ensure_clip"><code class="name flex">
+<span>def <span class="ident">ensure_clip</span></span>(<span>self) ‑> Dict[str, float]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ensure_clip(self) -&gt; Dict[str, float]:
+    &#34;&#34;&#34;CLIP label → score mapping ({} when vision is unavailable).&#34;&#34;&#34;
+    if self._clip is _UNSET:
+        scores = self._clip_provider(self.path) if self._clip_provider else None
+        self._clip = dict(scores) if scores else {}
+    return cast(Dict[str, float], self._clip)</code></pre>
+</details>
+<div class="desc"><p>CLIP label → score mapping ({} when vision is unavailable).</p></div>
+</dd>
+<dt id="src.scoring.FileContext.ensure_image_metadata"><code class="name flex">
+<span>def <span class="ident">ensure_image_metadata</span></span>(<span>self) ‑> Dict[str, Any]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ensure_image_metadata(self) -&gt; Dict[str, Any]:
+    &#34;&#34;&#34;EXIF/GPS metadata summary ({} when unavailable or not an image).&#34;&#34;&#34;
+    if self._image_metadata is _UNSET:
+        provider = self._image_metadata_provider
+        metadata = provider(self.path) if (provider and self.is_image) else None
+        self._image_metadata = metadata or {}
+    return cast(Dict[str, Any], self._image_metadata)</code></pre>
+</details>
+<div class="desc"><p>EXIF/GPS metadata summary ({} when unavailable or not an image).</p></div>
+</dd>
+<dt id="src.scoring.FileContext.ensure_kie"><code class="name flex">
+<span>def <span class="ident">ensure_kie</span></span>(<span>self) ‑> <a title="src.scoring.context.KieResultLike" href="context.html#src.scoring.context.KieResultLike">KieResultLike</a> | None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ensure_kie(self) -&gt; Optional[KieResultLike]:
+    &#34;&#34;&#34;KIE result, gated on reliable OCR (conf ≥ gate), or None.
+
+    Encodes the legacy tier-3.5 dependency explicitly: KIE extraction only
+    runs when OCR produced a confidence at or above
+    ``ocr_confidence_gate`` (low-confidence OCR on a blurry photo must not
+    feed structured extraction).
+    &#34;&#34;&#34;
+    if self._kie is _UNSET:
+        self._kie = None
+        if self._kie_provider is not None:
+            ocr = self.ensure_ocr()
+            confidence = ocr.confidence if ocr is not None else None
+            if confidence is not None and confidence &gt;= self._ocr_confidence_gate:
+                self._kie = self._kie_provider(self.path)
+    return cast(Optional[KieResultLike], self._kie)</code></pre>
+</details>
+<div class="desc"><p>KIE result, gated on reliable OCR (conf ≥ gate), or None.</p>
+<p>Encodes the legacy tier-3.5 dependency explicitly: KIE extraction only
+runs when OCR produced a confidence at or above
+<code>ocr_confidence_gate</code> (low-confidence OCR on a blurry photo must not
+feed structured extraction).</p></div>
+</dd>
+<dt id="src.scoring.FileContext.ensure_ocr"><code class="name flex">
+<span>def <span class="ident">ensure_ocr</span></span>(<span>self) ‑> <a title="src.scoring.context.OcrResultLike" href="context.html#src.scoring.context.OcrResultLike">OcrResultLike</a> | None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ensure_ocr(self) -&gt; Optional[OcrResultLike]:
+    &#34;&#34;&#34;OCR result (``shared.ocr_classifier.OCRResult``-shaped) or None.
+
+    The provider is *image* OCR (easyocr → docTR image readers), so
+    non-images resolve to None without invoking it — their text comes
+    from ``ensure_text``&#39;s text_provider (PDF/docx/xlsx/plain-text
+    extractors), and feeding them to the image backends only produces
+    backend errors before returning None anyway.
+
+    When the CLIP OCR gate is enabled, an image CLIP confidently reads as
+    a text-free photo skips OCR (returns None) — the OCR CNN pass is the
+    dominant per-file cost, so this is the primary throughput lever on
+    photo-heavy sources. The gate never fires when no OCR provider exists,
+    on non-images, or when CLIP yields no signal (fail-open: run OCR).
+    &#34;&#34;&#34;
+    if self._ocr is _UNSET:
+        if self._ocr_provider is None or not self.is_image:
+            self._ocr = None
+        elif self._skip_ocr_by_clip_gate():
+            self._ocr_gated = True
+            self._ocr = None
+        else:
+            self._ocr = self._ocr_provider(self.path)
+    return cast(Optional[OcrResultLike], self._ocr)</code></pre>
+</details>
+<div class="desc"><p>OCR result (<code>shared.ocr_classifier.OCRResult</code>-shaped) or None.</p>
+<p>The provider is <em>image</em> OCR (easyocr → docTR image readers), so
+non-images resolve to None without invoking it — their text comes
+from <code>ensure_text</code>'s text_provider (PDF/docx/xlsx/plain-text
+extractors), and feeding them to the image backends only produces
+backend errors before returning None anyway.</p>
+<p>When the CLIP OCR gate is enabled, an image CLIP confidently reads as
+a text-free photo skips OCR (returns None) — the OCR CNN pass is the
+dominant per-file cost, so this is the primary throughput lever on
+photo-heavy sources. The gate never fires when no OCR provider exists,
+on non-images, or when CLIP yields no signal (fail-open: run OCR).</p></div>
+</dd>
+<dt id="src.scoring.FileContext.ensure_text"><code class="name flex">
+<span>def <span class="ident">ensure_text</span></span>(<span>self) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ensure_text(self) -&gt; str:
+    &#34;&#34;&#34;Extracted document text (&#39;&#39; when unavailable).
+
+    For images this routes through :meth:`ensure_ocr` so text and OCR are
+    the same extraction — the explicit form of the legacy tier-3.5 →
+    tier-6 cached-OCR coupling.
+    &#34;&#34;&#34;
+    if self._text is _UNSET:
+        if self.is_image:
+            ocr = self.ensure_ocr()
+            self._text = (ocr.text if ocr is not None else &#34;&#34;) or &#34;&#34;
+        elif self._text_provider is None:
+            self._text = &#34;&#34;
+        else:
+            self._text = self._text_provider(self.path) or &#34;&#34;
+    return cast(str, self._text)</code></pre>
+</details>
+<div class="desc"><p>Extracted document text ('' when unavailable).</p>
+<p>For images this routes through :meth:<code>ensure_ocr</code> so text and OCR are
+the same extraction — the explicit form of the legacy tier-3.5 →
+tier-6 cached-OCR coupling.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.scoring.Scorer"><code class="flex name class">
+<span>class <span class="ident">Scorer</span></span>
+<span>(</span><span>signals: Sequence[<a title="src.scoring.Signal" href="#src.scoring.Signal">Signal</a>],<br>*,<br>early_exit_confidence: float = 0.95,<br>min_decision_confidence: float = 0.35,<br>min_decision_margin: float = 0.1)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Scorer:
+    &#34;&#34;&#34;Aggregates per-signal CategoryScores into one ClassificationDecision.&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        signals: Sequence[Signal],
+        *,
+        early_exit_confidence: float = EARLY_EXIT_CONFIDENCE,
+        min_decision_confidence: float = MIN_DECISION_CONFIDENCE,
+        min_decision_margin: float = MIN_DECISION_MARGIN,
+    ) -&gt; None:
+        self._signals: List[Signal] = list(signals)
+        self._early_exit_confidence = early_exit_confidence
+        self._min_decision_confidence = min_decision_confidence
+        self._min_decision_margin = min_decision_margin
+
+        seen: Dict[str, int] = {}
+        for index, signal in enumerate(self._signals):
+            if signal.cost_tier not in COST_TIER_PRIORITY:
+                raise ValueError(
+                    f&#34;Signal {signal.name!r} has unknown cost_tier {signal.cost_tier!r}&#34;
+                )
+            if signal.name in seen:
+                raise ValueError(f&#34;Duplicate signal name {signal.name!r} in registry&#34;)
+            seen[signal.name] = index
+        # name → (registry index, weight, cost tier); registry order is the
+        # deterministic fallback for tie-breaking and entity precedence.
+        self._by_name: Dict[str, Tuple[int, float, str]] = {
+            signal.name: (index, signal.weight, signal.cost_tier)
+            for index, signal in enumerate(self._signals)
+        }
+
+    # ------------------------------------------------------------------ #
+    # Public API                                                           #
+    # ------------------------------------------------------------------ #
+
+    def classify(self, ctx: &#34;FileContext&#34;) -&gt; ClassificationDecision:
+        collected = self._run_waves(ctx)
+        return self._decide(ctx, collected)
+
+    # ------------------------------------------------------------------ #
+    # Wave execution                                                       #
+    # ------------------------------------------------------------------ #
+
+    def _run_waves(self, ctx: &#34;FileContext&#34;) -&gt; List[CategoryScore]:
+        collected: List[CategoryScore] = []
+        for tier_index, tier in enumerate(COST_TIER_ORDER):
+            for signal in self._signals:
+                if signal.cost_tier != tier:
+                    continue
+                try:
+                    if not signal.applies_to(ctx):
+                        continue
+                    scores = signal.run(ctx) or []
+                    deduped = self._dedupe_within_signal(signal, scores)
+                except Exception as exc:  # one broken signal must not kill the file
+                    print(f&#34;  Signal {signal.name} error: {exc}&#34;)
+                    continue
+                collected.extend(deduped)
+            is_last_tier = tier_index == len(COST_TIER_ORDER) - 1
+            if not is_last_tier and self._best_total(collected) &gt;= self._early_exit_confidence:
+                break
+        return collected
+
+    @staticmethod
+    def _dedupe_within_signal(
+        signal: Signal, scores: Iterable[CategoryScore]
+    ) -&gt; List[CategoryScore]:
+        &#34;&#34;&#34;Keep one entry per (cat, sub) for a single signal — max confidence.&#34;&#34;&#34;
+        best: Dict[CategoryKey, CategoryScore] = {}
+        order: List[CategoryKey] = []
+        for score in scores:
+            if score.signal_name != signal.name:
+                raise ValueError(
+                    f&#34;Signal {signal.name!r} emitted a CategoryScore tagged &#34;
+                    f&#34;{score.signal_name!r}&#34;
+                )
+            key = (score.category, score.subcategory)
+            if key not in best:
+                best[key] = score
+                order.append(key)
+            elif score.confidence &gt; best[key].confidence:
+                best[key] = score
+        return [best[key] for key in order]
+
+    def _best_total(self, collected: List[CategoryScore]) -&gt; float:
+        totals = self._aggregate(collected)[0]
+        return max(totals.values()) if totals else 0.0
+
+    # ------------------------------------------------------------------ #
+    # Aggregation + decision                                               #
+    # ------------------------------------------------------------------ #
+
+    def _aggregate(
+        self, collected: List[CategoryScore]
+    ) -&gt; Tuple[
+        Dict[CategoryKey, float], Dict[CategoryKey, Dict[str, float]], Dict[CategoryKey, int]
+    ]:
+        &#34;&#34;&#34;Raw weighted sums, per-candidate contributor map, first-seen order.&#34;&#34;&#34;
+        totals: Dict[CategoryKey, float] = {}
+        contributors: Dict[CategoryKey, Dict[str, float]] = {}
+        first_seen: Dict[CategoryKey, int] = {}
+        for position, score in enumerate(collected):
+            _, weight, _ = self._by_name[score.signal_name]
+            confidence = min(max(score.confidence, 0.0), 1.0)
+            weighted = weight * confidence
+            key = (score.category, score.subcategory)
+            totals[key] = totals.get(key, 0.0) + weighted
+            contributors.setdefault(key, {})[score.signal_name] = weighted
+            first_seen.setdefault(key, position)
+        return totals, contributors, first_seen
+
+    def _decide(self, ctx: &#34;FileContext&#34;, collected: List[CategoryScore]) -&gt; ClassificationDecision:
+        totals, contributors, first_seen = self._aggregate(collected)
+
+        if not totals:
+            fallback_category, fallback_subcategory = LOW_CONFIDENCE_FALLBACK
+            return ClassificationDecision(
+                category=fallback_category,
+                subcategory=fallback_subcategory,
+                schema_type=ctx.schema_type,
+                confidence=0.0,
+                margin=0.0,
+                winning_signals=[],
+                all_scores=collected,
+                company_name=self._merge_company(collected, winning_names=()),
+                people_names=self._merge_people(collected),
+                decision_state=&#34;low_confidence&#34;,
+            )
+
+        def sort_key(key: CategoryKey) -&gt; Tuple[float, int, int, int, int]:
+            candidate_contributors = contributors[key]
+            best_tier = max(
+                COST_TIER_PRIORITY[self._by_name[name][2]] for name in candidate_contributors
+            )
+            earliest_registry = min(self._by_name[name][0] for name in candidate_contributors)
+            return (
+                totals[key],
+                len(candidate_contributors),
+                best_tier,
+                -earliest_registry,
+                -first_seen[key],
+            )
+
+        winner = max(totals, key=sort_key)
+        raw_total = totals[winner]
+        # The margin gate adjudicates the CATEGORY (folder) decision. A
+        # runner-up sharing the winner&#39;s category is not category ambiguity —
+        # a file whose top candidates are all e.g. personal/* is unambiguously
+        # personal, so the winning subcategory commits instead of falling back
+        # (BACKLOG Phase-3 item #3). Only a rival in a DIFFERENT category
+        # counts against the margin; same-category subcategory competition is
+        # settled by the argmax winner above.
+        winner_category = winner[0]
+        cross_category_totals = [
+            total for key, total in totals.items() if key[0] != winner_category
+        ]
+        runner_up = max(cross_category_totals, default=None)
+        margin = raw_total - runner_up if runner_up is not None else raw_total
+
+        winning_names = tuple(sorted(contributors[winner], key=lambda name: self._by_name[name][0]))
+
+        if raw_total &lt; self._min_decision_confidence:
+            decision_state = &#34;low_confidence&#34;
+            category, subcategory = LOW_CONFIDENCE_FALLBACK
+        elif margin &lt; self._min_decision_margin:
+            decision_state = &#34;low_margin&#34;
+            category, subcategory = LOW_CONFIDENCE_FALLBACK
+        else:
+            decision_state = &#34;committed&#34;
+            category, subcategory = winner
+
+        schema_type = ctx.schema_type
+        if decision_state == &#34;committed&#34;:
+            schema_type = (
+                self._schema_type_override(collected, winner, winning_names) or schema_type
+            )
+
+        return ClassificationDecision(
+            category=category,
+            subcategory=subcategory,
+            schema_type=schema_type,
+            confidence=min(raw_total, 1.0),
+            margin=margin,
+            winning_signals=list(winning_names),
+            all_scores=collected,
+            company_name=self._merge_company(collected, winning_names),
+            people_names=self._merge_people(collected),
+            decision_state=decision_state,
+        )
+
+    # ------------------------------------------------------------------ #
+    # Entity + schema-type assembly (§4 &#34;entity side-channel&#34;)             #
+    # ------------------------------------------------------------------ #
+
+    def _iter_registry_order(self, collected: List[CategoryScore]) -&gt; List[CategoryScore]:
+        return sorted(
+            collected,
+            key=lambda score: (self._by_name[score.signal_name][0],),
+        )
+
+    def _merge_company(
+        self, collected: List[CategoryScore], winning_names: Tuple[str, ...]
+    ) -&gt; Optional[str]:
+        &#34;&#34;&#34;First non-empty company: winner contributors first, registry order.&#34;&#34;&#34;
+        ordered = self._iter_registry_order(collected)
+        for scores in (
+            [s for s in ordered if s.signal_name in winning_names],
+            ordered,
+        ):
+            for score in scores:
+                company = score.evidence.get(EVIDENCE_COMPANY)
+                if company:
+                    return cast(Optional[str], company)
+        return None
+
+    def _merge_people(self, collected: List[CategoryScore]) -&gt; List[str]:
+        &#34;&#34;&#34;Ordered union of people across ALL signals (Option C: person
+        attribution is a graph relationship, independent of the winner).&#34;&#34;&#34;
+        people: List[str] = []
+        for score in self._iter_registry_order(collected):
+            for name in score.evidence.get(EVIDENCE_PEOPLE) or []:
+                if name and name not in people:
+                    people.append(name)
+        return people
+
+    def _schema_type_override(
+        self,
+        collected: List[CategoryScore],
+        winner: CategoryKey,
+        winning_names: Tuple[str, ...],
+    ) -&gt; Optional[str]:
+        &#34;&#34;&#34;schema_type from the winner&#39;s contributors, registry order.&#34;&#34;&#34;
+        for score in self._iter_registry_order(collected):
+            if score.signal_name not in winning_names:
+                continue
+            if (score.category, score.subcategory) != winner:
+                continue
+            override = score.evidence.get(EVIDENCE_SCHEMA_TYPE)
+            if override:
+                return cast(Optional[str], override)
+        return None</code></pre>
+</details>
+<div class="desc"><p>Aggregates per-signal CategoryScores into one ClassificationDecision.</p></div>
+<h3>Methods</h3>
+<dl>
+<dt id="src.scoring.Scorer.classify"><code class="name flex">
+<span>def <span class="ident">classify</span></span>(<span>self,<br>ctx: "'<a title="src.scoring.FileContext" href="#src.scoring.FileContext">FileContext</a>'") ‑> <a title="src.scoring.ClassificationDecision" href="#src.scoring.ClassificationDecision">ClassificationDecision</a></span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def classify(self, ctx: &#34;FileContext&#34;) -&gt; ClassificationDecision:
+    collected = self._run_waves(ctx)
+    return self._decide(ctx, collected)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="src.scoring.Signal"><code class="flex name class">
+<span>class <span class="ident">Signal</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@runtime_checkable
+class Signal(Protocol):
+    &#34;&#34;&#34;A registered classification signal (§3.2).
+
+    Implementations must be pure over the context: no I/O outside clients
+    injected at construction, no reliance on organizer instance state.
+    &#34;&#34;&#34;
+
+    name: str
+    weight: float
+    cost_tier: str
+
+    def applies_to(self, ctx: &#34;FileContext&#34;) -&gt; bool: ...
+
+    def run(self, ctx: &#34;FileContext&#34;) -&gt; List[&#34;CategoryScore&#34;]: ...</code></pre>
+</details>
+<div class="desc"><p>A registered classification signal (§3.2).</p>
+<p>Implementations must be pure over the context: no I/O outside clients
+injected at construction, no reliance on organizer instance state.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>typing.Protocol</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="src.scoring.Signal.cost_tier"><code class="name">var <span class="ident">cost_tier</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.Signal.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="src.scoring.Signal.weight"><code class="name">var <span class="ident">weight</span> : float</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="src.scoring.Signal.applies_to"><code class="name flex">
+<span>def <span class="ident">applies_to</span></span>(<span>self,<br>ctx: "'<a title="src.scoring.FileContext" href="#src.scoring.FileContext">FileContext</a>'") ‑> bool</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def applies_to(self, ctx: &#34;FileContext&#34;) -&gt; bool: ...</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="src.scoring.Signal.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self,<br>ctx: "'<a title="src.scoring.FileContext" href="#src.scoring.FileContext">FileContext</a>'") ‑> List['<a title="src.scoring.CategoryScore" href="#src.scoring.CategoryScore">CategoryScore</a>']</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self, ctx: &#34;FileContext&#34;) -&gt; List[&#34;CategoryScore&#34;]: ...</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="src" href="../index.html">src</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="src.scoring.context" href="context.html">src.scoring.context</a></code></li>
+<li><code><a title="src.scoring.registry" href="registry.html">src.scoring.registry</a></code></li>
+<li><code><a title="src.scoring.scorer" href="scorer.html">src.scoring.scorer</a></code></li>
+<li><code><a title="src.scoring.signals" href="signals/index.html">src.scoring.signals</a></code></li>
+<li><code><a title="src.scoring.types" href="types.html">src.scoring.types</a></code></li>
+<li><code><a title="src.scoring.weights" href="weights.html">src.scoring.weights</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="src.scoring.build_default_signals" href="#src.scoring.build_default_signals">build_default_signals</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="src.scoring.CategoryScore" href="#src.scoring.CategoryScore">CategoryScore</a></code></h4>
+<ul class="">
+<li><code><a title="src.scoring.CategoryScore.category" href="#src.scoring.CategoryScore.category">category</a></code></li>
+<li><code><a title="src.scoring.CategoryScore.confidence" href="#src.scoring.CategoryScore.confidence">confidence</a></code></li>
+<li><code><a title="src.scoring.CategoryScore.evidence" href="#src.scoring.CategoryScore.evidence">evidence</a></code></li>
+<li><code><a title="src.scoring.CategoryScore.signal_name" href="#src.scoring.CategoryScore.signal_name">signal_name</a></code></li>
+<li><code><a title="src.scoring.CategoryScore.subcategory" href="#src.scoring.CategoryScore.subcategory">subcategory</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.scoring.ClassificationDecision" href="#src.scoring.ClassificationDecision">ClassificationDecision</a></code></h4>
+<ul class="two-column">
+<li><code><a title="src.scoring.ClassificationDecision.all_scores" href="#src.scoring.ClassificationDecision.all_scores">all_scores</a></code></li>
+<li><code><a title="src.scoring.ClassificationDecision.category" href="#src.scoring.ClassificationDecision.category">category</a></code></li>
+<li><code><a title="src.scoring.ClassificationDecision.company_name" href="#src.scoring.ClassificationDecision.company_name">company_name</a></code></li>
+<li><code><a title="src.scoring.ClassificationDecision.confidence" href="#src.scoring.ClassificationDecision.confidence">confidence</a></code></li>
+<li><code><a title="src.scoring.ClassificationDecision.decision_state" href="#src.scoring.ClassificationDecision.decision_state">decision_state</a></code></li>
+<li><code><a title="src.scoring.ClassificationDecision.margin" href="#src.scoring.ClassificationDecision.margin">margin</a></code></li>
+<li><code><a title="src.scoring.ClassificationDecision.people_names" href="#src.scoring.ClassificationDecision.people_names">people_names</a></code></li>
+<li><code><a title="src.scoring.ClassificationDecision.schema_type" href="#src.scoring.ClassificationDecision.schema_type">schema_type</a></code></li>
+<li><code><a title="src.scoring.ClassificationDecision.subcategory" href="#src.scoring.ClassificationDecision.subcategory">subcategory</a></code></li>
+<li><code><a title="src.scoring.ClassificationDecision.winning_signals" href="#src.scoring.ClassificationDecision.winning_signals">winning_signals</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.scoring.FileContext" href="#src.scoring.FileContext">FileContext</a></code></h4>
+<ul class="">
+<li><code><a title="src.scoring.FileContext.clip_if_loaded" href="#src.scoring.FileContext.clip_if_loaded">clip_if_loaded</a></code></li>
+<li><code><a title="src.scoring.FileContext.ensure_clip" href="#src.scoring.FileContext.ensure_clip">ensure_clip</a></code></li>
+<li><code><a title="src.scoring.FileContext.ensure_image_metadata" href="#src.scoring.FileContext.ensure_image_metadata">ensure_image_metadata</a></code></li>
+<li><code><a title="src.scoring.FileContext.ensure_kie" href="#src.scoring.FileContext.ensure_kie">ensure_kie</a></code></li>
+<li><code><a title="src.scoring.FileContext.ensure_ocr" href="#src.scoring.FileContext.ensure_ocr">ensure_ocr</a></code></li>
+<li><code><a title="src.scoring.FileContext.ensure_text" href="#src.scoring.FileContext.ensure_text">ensure_text</a></code></li>
+<li><code><a title="src.scoring.FileContext.image_metadata_if_loaded" href="#src.scoring.FileContext.image_metadata_if_loaded">image_metadata_if_loaded</a></code></li>
+<li><code><a title="src.scoring.FileContext.is_image" href="#src.scoring.FileContext.is_image">is_image</a></code></li>
+<li><code><a title="src.scoring.FileContext.kie_if_loaded" href="#src.scoring.FileContext.kie_if_loaded">kie_if_loaded</a></code></li>
+<li><code><a title="src.scoring.FileContext.ocr_confidence" href="#src.scoring.FileContext.ocr_confidence">ocr_confidence</a></code></li>
+<li><code><a title="src.scoring.FileContext.ocr_gated" href="#src.scoring.FileContext.ocr_gated">ocr_gated</a></code></li>
+<li><code><a title="src.scoring.FileContext.ocr_if_loaded" href="#src.scoring.FileContext.ocr_if_loaded">ocr_if_loaded</a></code></li>
+<li><code><a title="src.scoring.FileContext.ocr_language" href="#src.scoring.FileContext.ocr_language">ocr_language</a></code></li>
+<li><code><a title="src.scoring.FileContext.ocr_text" href="#src.scoring.FileContext.ocr_text">ocr_text</a></code></li>
+<li><code><a title="src.scoring.FileContext.pattern_path" href="#src.scoring.FileContext.pattern_path">pattern_path</a></code></li>
+<li><code><a title="src.scoring.FileContext.text_if_loaded" href="#src.scoring.FileContext.text_if_loaded">text_if_loaded</a></code></li>
+<li><code><a title="src.scoring.FileContext.text_length" href="#src.scoring.FileContext.text_length">text_length</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.scoring.Scorer" href="#src.scoring.Scorer">Scorer</a></code></h4>
+<ul class="">
+<li><code><a title="src.scoring.Scorer.classify" href="#src.scoring.Scorer.classify">classify</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="src.scoring.Signal" href="#src.scoring.Signal">Signal</a></code></h4>
+<ul class="">
+<li><code><a title="src.scoring.Signal.applies_to" href="#src.scoring.Signal.applies_to">applies_to</a></code></li>
+<li><code><a title="src.scoring.Signal.cost_tier" href="#src.scoring.Signal.cost_tier">cost_tier</a></code></li>
+<li><code><a title="src.scoring.Signal.name" href="#src.scoring.Signal.name">name</a></code></li>
+<li><code><a title="src.scoring.Signal.run" href="#src.scoring.Signal.run">run</a></code></li>
+<li><code><a title="src.scoring.Signal.weight" href="#src.scoring.Signal.weight">weight</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>
